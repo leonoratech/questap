@@ -43,10 +43,6 @@ export class ActivityRepository extends BaseRepository<Activity> {
                 activitiesQuery = activitiesQuery.where('programId', '==', filters.programId);
             }
 
-            if (filters.batchId) {
-                activitiesQuery = activitiesQuery.where('batchId', '==', filters.batchId);
-            }
-
             // Apply date range filters
             if (filters.startDate) {
                 activitiesQuery = activitiesQuery.where('timestamp', '>=', filters.startDate);
@@ -272,7 +268,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
                 return 0;
             }
 
-            // Delete in batches to avoid timeout
+            // Delete in activities to avoid timeout
             const batch = adminDb.batch();
             let deletedCount = 0;
 

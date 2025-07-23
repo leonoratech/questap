@@ -36,25 +36,11 @@ export interface UpdateProgramRequest extends Partial<CreateProgramRequest> {
   isActive?: boolean
 }
 
-// Extended program interface that includes batches
-export interface ProgramWithBatches extends Program {
-  batches?: Array<{
-    id: string
-    name: string
-    startDate: Date
-    endDate: Date
-    status: string
-    currentStudentCount: number
-    maxStudents?: number
-  }>
-}
 
 export interface ProgramStats {
   totalPrograms: number
   activePrograms: number
   inactivePrograms: number
-  totalBatches: number
-  activeBatches: number
   totalStudents: number
   programsByType: Record<string, number>
 }

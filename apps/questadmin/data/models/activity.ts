@@ -16,8 +16,7 @@ export interface Activity {
   userAgent?: string
   timestamp: Date | Timestamp
   collegeId?: string // For college-specific activities
-  programId?: string // For program-specific activities
-  batchId?: string // For batch-specific activities
+  programId?: string // For program-specific activities  
 }
 
 export const ActivityType = {
@@ -42,7 +41,6 @@ export const ResourceType = {
   USER: 'user',
   COURSE: 'course',
   PROGRAM: 'program',
-  BATCH: 'batch',
   COLLEGE: 'college',
   SUBJECT: 'subject',
   NOTIFICATION: 'notification'
@@ -58,8 +56,7 @@ export interface CreateActivityRequest {
   description: string
   metadata?: Record<string, any>
   collegeId?: string
-  programId?: string
-  batchId?: string
+  programId?: string  
 }
 
 export interface ActivitySearchFilters {
@@ -69,7 +66,6 @@ export interface ActivitySearchFilters {
   resourceId?: string
   collegeId?: string
   programId?: string
-  batchId?: string
   startDate?: Date
   endDate?: Date
   limit?: number

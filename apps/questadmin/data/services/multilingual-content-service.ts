@@ -6,122 +6,26 @@
  */
 
 import {
-    DEFAULT_LANGUAGE,
-    RequiredMultilingualArray,
-    RequiredMultilingualText,
-    SupportedLanguage
+  DEFAULT_LANGUAGE,
+  RequiredMultilingualArray,
+  RequiredMultilingualText,
+  SupportedLanguage
 } from '../../lib/multilingual-types';
 import {
-    createMultilingualArray,
-    createMultilingualText,
-    getCompatibleArray,
-    getCompatibleText,
-    getMultilingualContentStatus,
-    isMultilingualContent
+  createMultilingualArray,
+  createMultilingualText,
+  getCompatibleArray,
+  getCompatibleText,
+  getMultilingualContentStatus,
+  isMultilingualContent
 } from '../../lib/multilingual-utils';
 import {
-    COURSE_MULTILINGUAL_ARRAY_FIELDS,
-    COURSE_MULTILINGUAL_TEXT_FIELDS,
-    HybridAdminCourse,
-    HybridAdminCourseTopic,
-    MultilingualAdminCourse,
-    MultilingualAdminCourseTopic,
-    TOPIC_MULTILINGUAL_TEXT_FIELDS
+  COURSE_MULTILINGUAL_ARRAY_FIELDS,
+  COURSE_MULTILINGUAL_TEXT_FIELDS,
+  HybridAdminCourse,
+  HybridAdminCourseTopic,
+  TOPIC_MULTILINGUAL_TEXT_FIELDS
 } from '../models/data-model';
-import {
-    AdminCourse,
-    AdminCourseTopic
-} from './admin-course-service';
-
-// ================================
-// MIGRATION SERVICES
-// ================================
-
-/**
- * Migrate a legacy course to multilingual format
- */
-export function migrateCourseToMultilingual(
-  legacyCourse: AdminCourse,
-  targetLanguage: SupportedLanguage = DEFAULT_LANGUAGE
-): MultilingualAdminCourse {
-  // Convert required text fields
-  const migratedCourse: any = {
-    ...legacyCourse,
-    title: createMultilingualText(legacyCourse.title, targetLanguage),
-    description: createMultilingualText(legacyCourse.description, targetLanguage)
-  };
-
-  // Convert optional array fields
-  if (legacyCourse.whatYouWillLearn) {
-    migratedCourse.whatYouWillLearn = createMultilingualArray(legacyCourse.whatYouWillLearn, targetLanguage);
-  }
-  if (legacyCourse.prerequisites) {
-    migratedCourse.prerequisites = createMultilingualArray(legacyCourse.prerequisites, targetLanguage);
-  }
-  if (legacyCourse.targetAudience) {
-    migratedCourse.targetAudience = createMultilingualArray(legacyCourse.targetAudience, targetLanguage);
-  }
-  if (legacyCourse.tags) {
-    migratedCourse.tags = createMultilingualArray(legacyCourse.tags, targetLanguage);
-  }
-  if (legacyCourse.skills) {
-    migratedCourse.skills = createMultilingualArray(legacyCourse.skills, targetLanguage);
-  }
-
-  return migratedCourse as MultilingualAdminCourse;
-}
-
-/**
- * Migrate a legacy course topic to multilingual format
- */
-export function migrateTopicToMultilingual(
-  legacyTopic: AdminCourseTopic,
-  targetLanguage: SupportedLanguage = DEFAULT_LANGUAGE
-): MultilingualAdminCourseTopic {
-  const migratedTopic: any = {
-    ...legacyTopic,
-    title: createMultilingualText(legacyTopic.title, targetLanguage)
-  };
-
-  // Convert optional fields
-  if (legacyTopic.description) {
-    migratedTopic.description = createMultilingualText(legacyTopic.description, targetLanguage);
-  }
-  if (legacyTopic.learningObjectives) {
-    migratedTopic.learningObjectives = createMultilingualArray(legacyTopic.learningObjectives, targetLanguage);
-  }
-
-  // Convert materials if present
-  if (legacyTopic.materials) {
-    migratedTopic.materials = legacyTopic.materials.map(material => ({
-      ...material,
-      title: createMultilingualText(material.title, targetLanguage),
-      description: material.description ? createMultilingualText(material.description, targetLanguage) : undefined
-    }));
-  }
-
-  return migratedTopic as MultilingualAdminCourseTopic;
-}
-
-/**
- * Batch migrate multiple courses to multilingual format
- */
-export function batchMigrateCourses(
-  legacyCourses: AdminCourse[],
-  targetLanguage: SupportedLanguage = DEFAULT_LANGUAGE
-): MultilingualAdminCourse[] {
-  return legacyCourses.map(course => migrateCourseToMultilingual(course, targetLanguage));
-}
-
-/**
- * Batch migrate multiple topics to multilingual format
- */
-export function batchMigrateTopics(
-  legacyTopics: AdminCourseTopic[],
-  targetLanguage: SupportedLanguage = DEFAULT_LANGUAGE
-): MultilingualAdminCourseTopic[] {
-  return legacyTopics.map(topic => migrateTopicToMultilingual(topic, targetLanguage));
-}
 
 // ================================
 // CONTENT VALIDATION SERVICES

@@ -116,8 +116,6 @@ export class ProgramRepository extends BaseRepository<Program> {
                 totalPrograms: 0,
                 activePrograms: 0,
                 inactivePrograms: 0,
-                totalBatches: 0,
-                activeBatches: 0,
                 totalStudents: 0,
                 programsByType: {}
             };
@@ -136,10 +134,7 @@ export class ProgramRepository extends BaseRepository<Program> {
                 const type = data.semesterType;
                 stats.programsByType[type] = (stats.programsByType[type] || 0) + 1;
             });
-
-            // TODO: Calculate batch and student stats when batch repository is available
-            // This would require querying the batches collection
-
+            
             return stats;
         } catch (error) {
             console.error('Error calculating program stats:', error);
