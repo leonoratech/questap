@@ -1,4 +1,4 @@
-import { BaseEntity } from './data-model';
+import { BaseEntity } from './basemodel';
 // User roles
 export enum UserRole {
   SUPERADMIN = 'superadmin',

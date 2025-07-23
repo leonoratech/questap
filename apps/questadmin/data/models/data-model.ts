@@ -8,27 +8,28 @@
  */
 
 
-import * as admin from 'firebase-admin';
 //import { Timestamp } from 'firebase-admin/firestore';
 
 //import { Timestamp } from 'firebase/firestore';
+import { BaseEntity } from './basemodel';
+
 import {
-    MultilingualArray,
-    MultilingualText,
-    RequiredMultilingualArray,
-    RequiredMultilingualText,
-    SupportedLanguage
+  MultilingualArray,
+  MultilingualText,
+  RequiredMultilingualArray,
+  RequiredMultilingualText,
+  SupportedLanguage
 } from '../../lib/multilingual-types';
 import {
-    isMultilingualContent
+  isMultilingualContent
 } from '../../lib/multilingual-utils';
 
 // Re-export original interfaces for backward compatibility
 export type {
-    AdminCourse as LegacyAdminCourse,
-    AdminCourseTopic as LegacyAdminCourseTopic,
-    CreateCourseData as LegacyCreateCourseData,
-    CreateCourseTopicData as LegacyCreateCourseTopicData
+  AdminCourse as LegacyAdminCourse,
+  AdminCourseTopic as LegacyAdminCourseTopic,
+  CreateCourseData as LegacyCreateCourseData,
+  CreateCourseTopicData as LegacyCreateCourseTopicData
 } from '../services/admin-course-service';
 
 // ================================
@@ -127,21 +128,6 @@ export enum RichTextFormat {
   HTML = 'html',
   MARKDOWN = 'markdown',
   DELTA = 'delta' // Quill.js Delta format
-}
-
-// ================================
-// BASE INTERFACES
-// ================================
-
-export interface BaseTimestamps {
-  createdAt?: admin.firestore.Timestamp | Date
-  updatedAt?: admin.firestore.Timestamp | Date
-  createdBy?: string // User ID of the creator
-  updatedBy?: string // User ID of the last updater
-}
-
-export interface BaseEntity extends BaseTimestamps {
-  id?: string
 }
 
 // ================================

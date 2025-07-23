@@ -1,4 +1,4 @@
-import { BaseEntity } from './data-model';
+import { BaseEntity } from './basemodel';
 
 export interface College extends BaseEntity {
   name: string;

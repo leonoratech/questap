@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { BaseEntity } from './data-model';
+import { BaseEntity } from './basemodel';
 
 export interface CollegeAdministrator extends BaseEntity {
     assignedAt: admin.firestore.Timestamp | Date;
