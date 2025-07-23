@@ -130,61 +130,6 @@ export enum RichTextFormat {
   DELTA = 'delta' // Quill.js Delta format
 }
 
-// ================================
-// USER MODELS
-// ================================
-
-export interface User extends BaseEntity {
-  email: string
-  firstName: string
-  lastName: string
-  displayName?: string
-  role: UserRole
-  profilePicture?: string
-  bio?: string
-  department?: string
-  phoneNumber?: string
-  dateOfBirth?: Date
-  isActive: boolean
-  isEmailVerified: boolean
-  lastLoginAt?: Date
-  preferences: UserPreferences
-  socialLinks?: SocialLinks
-  expertise?: string[]
-  location?: string
-  timezone?: string
-}
-
-export interface UserPreferences {
-  language: string
-  theme: 'light' | 'dark' | 'auto'
-  notifications: NotificationPreferences
-  privacy: PrivacySettings
-}
-
-export interface NotificationPreferences {
-  emailNotifications: boolean
-  pushNotifications: boolean
-  smsNotifications: boolean
-  courseUpdates: boolean
-  assignments: boolean
-  grades: boolean
-  announcements: boolean
-}
-
-export interface PrivacySettings {
-  profileVisibility: 'public' | 'private' | 'instructors_only'
-  showEmail: boolean
-  showPhoneNumber: boolean
-  allowMessaging: boolean
-}
-
-export interface SocialLinks {
-  linkedin?: string
-  twitter?: string
-  github?: string
-  website?: string
-}
 
 // ================================
 // LEGACY COURSE MODELS
@@ -1147,8 +1092,8 @@ export interface AuditLog extends BaseEntity {
 // CREATE/UPDATE DATA TYPES
 // ================================
 
-export type CreateUserData = Omit<User, keyof BaseEntity>
-export type UpdateUserData = Partial<Omit<User, keyof BaseEntity>>
+// export type CreateUserData = Omit<User, keyof BaseEntity>
+// export type UpdateUserData = Partial<Omit<User, keyof BaseEntity>>
 
 export type CreateCourseData = Omit<Course, keyof BaseEntity | 'rating' | 'ratingCount' | 'enrollmentCount' | 'completionCount'>
 export type UpdateCourseData = Partial<Omit<Course, keyof BaseEntity>>
@@ -1252,19 +1197,19 @@ export interface UpdateCourseRequest extends Partial<CreateCourseRequest> {
   id: string
 }
 
-// User Management Request Types
-export interface CreateUserRequest {
-  email: string
-  displayName: string
-  role: UserRole
-  profilePicture?: string
-  bio?: string
-  preferences?: UserPreferences
-}
+// // User Management Request Types
+// export interface CreateUserRequest {
+//   email: string
+//   displayName: string
+//   role: UserRole
+//   profilePicture?: string
+//   bio?: string
+//   preferences?: UserPreferences
+// }
 
-export interface UpdateUserRequest extends Partial<CreateUserRequest> {
-  id: string
-}
+// export interface UpdateUserRequest extends Partial<CreateUserRequest> {
+//   id: string
+// }
 
 // ================================
 // DASHBOARD STATISTICS

@@ -12,9 +12,7 @@ import {
   CourseStatus,
   CourseTopic,
   MaterialType,
-  Quiz,
-  User,
-  UserRole
+  Quiz
 } from '../models/data-model'
 
 /**
@@ -114,51 +112,51 @@ export interface ValidationResult {
 /**
  * User validator
  */
-export class UserValidator extends BaseValidator<User> {
-  validate(user: User): ValidationResult {
-    const errors: ValidationError[] = []
+// export class UserValidator extends BaseValidator<User> {
+//   validate(user: User): ValidationResult {
+//     const errors: ValidationError[] = []
     
-    try {
-      // Required fields
-      this.isRequired(user.email, 'email')
-      this.isRequired(user.firstName, 'firstName')
-      this.isRequired(user.lastName, 'lastName')
-      this.isRequired(user.role, 'role')
+//     try {
+//       // Required fields
+//       this.isRequired(user.email, 'email')
+//       this.isRequired(user.firstName, 'firstName')
+//       this.isRequired(user.lastName, 'lastName')
+//       this.isRequired(user.role, 'role')
       
-      // Format validations
-      this.isEmail(user.email, 'email')
-      this.isInEnum(user.role, UserRole, 'role')
+//       // Format validations
+//       this.isEmail(user.email, 'email')
+//       this.isInEnum(user.role, UserRole, 'role')
       
-      // Length validations
-      this.hasMinLength(user.firstName, 1, 'firstName')
-      this.hasMaxLength(user.firstName, 50, 'firstName')
-      this.hasMinLength(user.lastName, 1, 'lastName')
-      this.hasMaxLength(user.lastName, 50, 'lastName')
+//       // Length validations
+//       this.hasMinLength(user.firstName, 1, 'firstName')
+//       this.hasMaxLength(user.firstName, 50, 'firstName')
+//       this.hasMinLength(user.lastName, 1, 'lastName')
+//       this.hasMaxLength(user.lastName, 50, 'lastName')
       
-      // Optional field validations
-      if (user.bio) {
-        this.hasMaxLength(user.bio, 500, 'bio')
-      }
+//       // Optional field validations
+//       if (user.bio) {
+//         this.hasMaxLength(user.bio, 500, 'bio')
+//       }
       
-      if (user.phoneNumber) {
-        const phoneRegex = /^\+?[\d\s\-\(\)]+$/
-        if (!phoneRegex.test(user.phoneNumber)) {
-          throw new ValidationError('phoneNumber', user.phoneNumber, 'Invalid phone number format')
-        }
-      }
+//       if (user.phoneNumber) {
+//         const phoneRegex = /^\+?[\d\s\-\(\)]+$/
+//         if (!phoneRegex.test(user.phoneNumber)) {
+//           throw new ValidationError('phoneNumber', user.phoneNumber, 'Invalid phone number format')
+//         }
+//       }
       
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        errors.push(error)
-      }
-    }
+//     } catch (error) {
+//       if (error instanceof ValidationError) {
+//         errors.push(error)
+//       }
+//     }
     
-    return {
-      isValid: errors.length === 0,
-      errors
-    }
-  }
-}
+//     return {
+//       isValid: errors.length === 0,
+//       errors
+//     }
+//   }
+// }
 
 /**
  * Course validator
@@ -493,8 +491,8 @@ export class AssignmentValidator extends BaseValidator<Assignment> {
 export class ValidationFactory {
   static getValidator(type: string): BaseValidator<any> {
     switch (type) {
-      case 'user':
-        return new UserValidator()
+      // case 'user':
+      //   return new UserValidator()
       case 'course':
         return new CourseValidator()
       case 'courseTopic':
