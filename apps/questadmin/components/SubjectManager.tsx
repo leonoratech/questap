@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/contexts/AuthContext'
@@ -46,7 +45,6 @@ export function SubjectManager({
     name: '',
     yearOrSemester: 1,
     instructorId: '',
-    isDefaultEnrollment: true,
     description: '',
     credits: 3,
     prerequisites: []
@@ -190,7 +188,6 @@ export function SubjectManager({
       name: subject.name,
       yearOrSemester: subject.yearOrSemester,
       instructorId: subject.instructorId,
-      isDefaultEnrollment: subject.isDefaultEnrollment,
       description: subject.description || '',
       credits: subject.credits || 3,
       prerequisites: subject.prerequisites || []
@@ -203,7 +200,6 @@ export function SubjectManager({
       name: '',
       yearOrSemester: 1,
       instructorId: '',
-      isDefaultEnrollment: true,
       description: '',
       credits: 3,
       prerequisites: []
@@ -325,18 +321,7 @@ export function SubjectManager({
                   rows={3}
                 />
               </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isDefaultEnrollment"
-                  checked={formData.isDefaultEnrollment}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isDefaultEnrollment: checked })}
-                />
-                <Label htmlFor="isDefaultEnrollment">
-                  Default Enrollment (students are automatically enrolled)
-                </Label>
-              </div>
-
+             
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                   Cancel
@@ -389,10 +374,7 @@ export function SubjectManager({
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
-                                  <h4 className="font-semibold">{subject.name}</h4>
-                                  <Badge variant={subject.isDefaultEnrollment ? "default" : "secondary"}>
-                                    {subject.isDefaultEnrollment ? "Default" : "Optional"}
-                                  </Badge>
+                                  <h4 className="font-semibold">{subject.name}</h4>                                
                                   {subject.credits && (
                                     <Badge variant="outline">{subject.credits} credits</Badge>
                                   )}
@@ -526,17 +508,6 @@ export function SubjectManager({
                 placeholder="Brief description of the subject..."
                 rows={3}
               />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="edit-isDefaultEnrollment"
-                checked={formData.isDefaultEnrollment}
-                onCheckedChange={(checked) => setFormData({ ...formData, isDefaultEnrollment: checked })}
-              />
-              <Label htmlFor="edit-isDefaultEnrollment">
-                Default Enrollment (students are automatically enrolled)
-              </Label>
             </div>
 
             <div className="flex justify-end space-x-2">

@@ -25,7 +25,6 @@ interface DashboardStats {
   totalCourses: number
   publishedCourses: number
   draftCourses: number
-  totalEnrollments: number
   averageRating: number
   activeUsers: number
   newUsersThisMonth: number
@@ -78,7 +77,6 @@ export function AdminDashboard() {
     totalCourses: 0,
     publishedCourses: 0,
     draftCourses: 0,
-    totalEnrollments: 0,
     averageRating: 0,
     activeUsers: 0,
     newUsersThisMonth: 0
@@ -118,7 +116,6 @@ export function AdminDashboard() {
           totalCourses: courseStats?.totalCourses || 0,
           publishedCourses: courseStats?.publishedCourses || 0,
           draftCourses: courseStats?.draftCourses || 0,
-          totalEnrollments: courseStats?.totalEnrollments || 0,
           averageRating: courseStats?.averageRating || 0,
           activeUsers: userStats.activeUsers,
           newUsersThisMonth: userStats.newUsersThisMonth
@@ -217,8 +214,8 @@ export function AdminDashboard() {
           icon={BookOpen}
         />
         <StatCard
-          title="Total Enrollments"
-          value={stats.totalEnrollments.toLocaleString()}
+          title="Total Students"
+          value={"TODO"}
           description="Across all courses"
           icon={GraduationCap}
         />
@@ -260,7 +257,7 @@ export function AdminDashboard() {
                       <div className="flex items-center gap-4 mt-2">
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          {course.enrollmentCount}
+                          TODO
                         </span>
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Star className="h-3 w-3" />

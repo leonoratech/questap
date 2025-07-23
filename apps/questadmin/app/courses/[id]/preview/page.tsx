@@ -14,12 +14,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { StarRating } from '@/components/ui/star-rating'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
-import { UserRole } from '@/data/config/firebase-auth'
 import { HybridAdminCourse, HybridAdminCourseTopic } from '@/data/models/data-model'
 import { getCourseById, getCourseTopics } from '@/data/services/admin-course-service'
 import { AdminUser, getUserById } from '@/data/services/admin-user-service'
 import { getCategoryName, getDifficultyName } from '@/data/services/course-master-data-service'
-import { enrollInCourse, isEnrolledInCourse } from '@/data/services/enrollment-service'
 import {
   DEFAULT_LANGUAGE,
   SupportedLanguage
@@ -43,7 +41,6 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
 
 interface CoursePreviewPageProps {
   params: Promise<{
@@ -63,8 +60,7 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(DEFAULT_LANGUAGE)
   const [availableLanguages, setAvailableLanguages] = useState<SupportedLanguage[]>([DEFAULT_LANGUAGE])
   const [isMultilingualCourse, setIsMultilingualCourse] = useState(false)
-  const [isEnrolled, setIsEnrolled] = useState(false)
-  const [isEnrolling, setIsEnrolling] = useState(false)
+  
   const [courseReviews, setCourseReviews] = useState<any[]>([])
   const [ratingStats, setRatingStats] = useState<any>(null)
   const [categoryName, setCategoryName] = useState<string>('Unknown Category')
@@ -147,12 +143,6 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
           setInstructor(instructorData)
         }
         
-        // Check enrollment status for students
-        if (userProfile?.role === UserRole.STUDENT && courseData.id) {
-          const enrolled = await isEnrolledInCourse(courseData.id)
-          setIsEnrolled(enrolled)
-        }
-        
         // Load course reviews and rating stats
         if (courseData.id) {
           try {
@@ -178,30 +168,7 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
     loadCourseData()
   }, [params])
 
-  const handleEnrollCourse = async () => {
-    if (!course?.id || isEnrolling || isEnrolled) return
-
-    try {
-      setIsEnrolling(true)
-      const result = await enrollInCourse(course.id)
-      
-      if (result.success) {
-        toast.success('Successfully enrolled in course!')
-        setIsEnrolled(true)
-        // Optionally redirect to enrolled courses
-        setTimeout(() => {
-          router.push('/my-enrolled-courses')
-        }, 1500)
-      } else {
-        toast.error(result.error || 'Failed to enroll in course')
-      }
-    } catch (error) {
-      console.error('Error enrolling in course:', error)
-      toast.error('An error occurred while enrolling')
-    } finally {
-      setIsEnrolling(false)
-    }
-  }
+  
 
   if (loading) {
     return (
@@ -413,7 +380,7 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="text-center">
                     <Users className="h-5 w-5 mx-auto mb-1 text-blue-600" />
-                    <div className="text-sm font-medium">{course.enrollmentCount || 0}</div>
+                    <div className="text-sm font-medium">TODO</div>
                     <div className="text-xs text-muted-foreground">Students</div>
                   </div>
                   <div className="text-center">
@@ -436,19 +403,6 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
                     <div className="text-xs text-muted-foreground">Lessons</div>
                   </div>
                 </div>
-
-                <Button 
-                  className="w-full" 
-                  size="lg"
-                  onClick={handleEnrollCourse}
-                  disabled={isEnrolling || isEnrolled || userProfile?.role !== UserRole.STUDENT}
-                >
-                  <Play className="h-5 w-5 mr-2" />
-                  {isEnrolled ? 'Already Enrolled' : 
-                   isEnrolling ? 'Enrolling...' : 
-                   userProfile?.role !== UserRole.STUDENT ? 'Preview Only' :
-                   'Enroll Now'}
-                </Button>
               </CardContent>
             </Card>
 
@@ -705,13 +659,7 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
                         <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <span>Downloadable resources</span>
                       </li>
-                    )}
-                    {course.assignmentsCount && course.assignmentsCount > 0 && (
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span>{course.assignmentsCount} assignments</span>
-                      </li>
-                    )}
+                    )}                    
                     {(articlesCount > 0 || course.articlesCount) && (
                       <li className="flex items-start gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />

@@ -65,9 +65,7 @@ export interface Course extends BaseEntity {
   instructorId?: string;
   category: string;
   categoryId?: string; // ID reference to course category
-  level?: CourseLevel;
-  price?: number;
-  currency?: string;
+  level?: CourseLevel;  
   duration?: string; // e.g., "12 hours", "8 weeks"
   status?: CourseStatus;
   isPublished?: boolean;
@@ -101,8 +99,6 @@ export interface CourseSearchCriteria {
   query?: string;
   category?: string;
   level?: CourseLevel;
-  minPrice?: number;
-  maxPrice?: number;
   minProgress?: number;
   maxProgress?: number;
   featured?: boolean;
@@ -128,9 +124,7 @@ export interface CreateCourseData {
   instructor: string;
   instructorId?: string;
   category: string;
-  level?: CourseLevel;
-  price?: number;
-  currency?: string;
+  level?: CourseLevel;  
   duration?: string;
   status?: CourseStatus;
   isPublished?: boolean;
@@ -157,8 +151,6 @@ export interface UpdateCourseData {
   instructorId?: string;
   category?: string;
   level?: CourseLevel;
-  price?: number;
-  currency?: string;
   duration?: string;
   status?: CourseStatus;
   isPublished?: boolean;
@@ -248,13 +240,6 @@ export function getProgressStatus(progress: number): ProgressStatus {
  */
 export function formatProgress(progress: number): string {
   return `${Math.round(progress)}%`;
-}
-
-/**
- * Check if course is free
- */
-export function isFree(course: Course): boolean {
-  return !course.price || course.price === 0;
 }
 
 /**

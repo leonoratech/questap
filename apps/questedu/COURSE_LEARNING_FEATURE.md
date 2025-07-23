@@ -31,7 +31,6 @@ The Course Learning feature provides a slide-based, mobile-first learning experi
 
 4. **Progress Management**
    - Real-time progress tracking
-   - Enrollment progress synchronization
    - Session persistence
    - Resume from last position
    - Completion percentage calculation
@@ -92,7 +91,6 @@ Firestore Collections
 ### Starting a Course
 
 1. Navigate to course details page
-2. Ensure you're enrolled in the course
 3. Click "Continue Learning" or "Start Learning"
 4. The learning interface will load with slides
 

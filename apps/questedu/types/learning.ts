@@ -32,8 +32,6 @@ export interface CourseTopic extends BaseEntity {
   summary?: string;
   transcription?: string;
   notes?: string;
-  quizId?: string;
-  assignmentId?: string;
   completionRate: number;
   averageWatchTime?: number; // in minutes
   viewCount: number;

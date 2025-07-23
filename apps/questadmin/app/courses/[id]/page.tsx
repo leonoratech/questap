@@ -221,7 +221,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                     </TabsTrigger>
                     <TabsTrigger value="questions" className="flex items-center gap-2">
                       <HelpCircle className="h-4 w-4" />
-                      <span className="hidden sm:inline">Questions & Quizzes</span>
+                      <span className="hidden sm:inline">Questions</span>
                       <span className="sm:hidden">Questions</span>
                     </TabsTrigger>
                   </TabsList>
@@ -339,16 +339,16 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
               </Card>
             )}
 
-            {/* Enrollment Insights */}
+            {/* Course Insights */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Enrollment Insights</CardTitle>
+                <CardTitle className="text-lg">Course Insights</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Total Students</span>
-                    <span className="font-medium">{course.enrollmentCount || 0}</span>
+                    <span className="font-medium">TODO</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Average Rating</span>
@@ -359,7 +359,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Revenue</span>
                     <span className="font-medium">
-                      ₹{((course.enrollmentCount || 0) * 0).toFixed(2)}
+                      TODO:
                     </span>
                   </div>
                 </div>

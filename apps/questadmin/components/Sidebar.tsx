@@ -56,13 +56,7 @@ const navigationItems: NavigationItem[] = [
     href: '/my-courses',
     icon: BookOpen,
     roles: ['admin', 'instructor']
-  },
-  {
-    title: 'My Enrolled Courses',
-    href: '/my-enrolled-courses',
-    icon: BookOpen,
-    roles: ['student']
-  },
+  },  
   {
     title: 'College',
     href: '/college',

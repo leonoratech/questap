@@ -20,15 +20,15 @@ import { MultilingualCreateCourseData } from '@/data/models/data-model';
 import { addCourse } from '@/data/services/admin-course-service';
 import { fetchCategoriesAndDifficulties } from '@/data/services/course-master-data-service';
 import {
-    DEFAULT_LANGUAGE,
-    SupportedLanguage
+  DEFAULT_LANGUAGE,
+  SupportedLanguage
 } from '@/lib/multilingual-types';
 import {
-    createMultilingualArray,
-    createMultilingualText,
-    getMultilingualContentStatus,
-    hasLanguageArrayContent,
-    hasLanguageContent
+  createMultilingualArray,
+  createMultilingualText,
+  getMultilingualContentStatus,
+  hasLanguageArrayContent,
+  hasLanguageContent
 } from '@/lib/multilingual-utils';
 import { AlertCircle, ArrowLeft, Eye, Globe, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -38,7 +38,7 @@ import React, { useState } from 'react';
 // TYPES
 // ================================
 
-interface MultilingualCourseFormData extends Omit<MultilingualCreateCourseData, 'instructorId' | 'category' | 'level' | 'price'> {
+interface MultilingualCourseFormData extends Omit<MultilingualCreateCourseData, 'instructorId' | 'category' | 'level' > {
   instructorId: string;
   categoryId: string;
   difficultyId: string;

@@ -5,14 +5,11 @@
  */
 
 import {
-  Assignment,
-  AssignmentType,
   Course,
   CourseLevel,
   CourseStatus,
   CourseTopic,
-  MaterialType,
-  Quiz
+  MaterialType
 } from '../models/data-model'
 
 /**
@@ -110,55 +107,6 @@ export interface ValidationResult {
 }
 
 /**
- * User validator
- */
-// export class UserValidator extends BaseValidator<User> {
-//   validate(user: User): ValidationResult {
-//     const errors: ValidationError[] = []
-    
-//     try {
-//       // Required fields
-//       this.isRequired(user.email, 'email')
-//       this.isRequired(user.firstName, 'firstName')
-//       this.isRequired(user.lastName, 'lastName')
-//       this.isRequired(user.role, 'role')
-      
-//       // Format validations
-//       this.isEmail(user.email, 'email')
-//       this.isInEnum(user.role, UserRole, 'role')
-      
-//       // Length validations
-//       this.hasMinLength(user.firstName, 1, 'firstName')
-//       this.hasMaxLength(user.firstName, 50, 'firstName')
-//       this.hasMinLength(user.lastName, 1, 'lastName')
-//       this.hasMaxLength(user.lastName, 50, 'lastName')
-      
-//       // Optional field validations
-//       if (user.bio) {
-//         this.hasMaxLength(user.bio, 500, 'bio')
-//       }
-      
-//       if (user.phoneNumber) {
-//         const phoneRegex = /^\+?[\d\s\-\(\)]+$/
-//         if (!phoneRegex.test(user.phoneNumber)) {
-//           throw new ValidationError('phoneNumber', user.phoneNumber, 'Invalid phone number format')
-//         }
-//       }
-      
-//     } catch (error) {
-//       if (error instanceof ValidationError) {
-//         errors.push(error)
-//       }
-//     }
-    
-//     return {
-//       isValid: errors.length === 0,
-//       errors
-//     }
-//   }
-// }
-
-/**
  * Course validator
  */
 export class CourseValidator extends BaseValidator<Course> {
@@ -173,15 +121,12 @@ export class CourseValidator extends BaseValidator<Course> {
       this.isRequired(course.instructorId, 'instructorId')
       this.isRequired(course.category, 'category')
       this.isRequired(course.level, 'level')
-      this.isRequired(course.price, 'price')
-      this.isRequired(course.currency, 'currency')
       this.isRequired(course.duration, 'duration')
       this.isRequired(course.status, 'status')
       
       // Format validations
       this.isInEnum(course.level, CourseLevel, 'level')
       this.isInEnum(course.status, CourseStatus, 'status')
-      this.isPositiveNumber(course.price, 'price')
       
       // Length validations
       this.hasMinLength(course.title, 3, 'title')
@@ -258,12 +203,7 @@ export class CourseValidator extends BaseValidator<Course> {
       if (partialCourse.status !== undefined) {
         this.isRequired(partialCourse.status, 'status')
         this.isInEnum(partialCourse.status, CourseStatus, 'status')
-      }
-      
-      if (partialCourse.price !== undefined) {
-        this.isRequired(partialCourse.price, 'price')
-        this.isPositiveNumber(partialCourse.price, 'price')
-      }
+      }      
       
       if (partialCourse.courseImage !== undefined && partialCourse.courseImage) {
         this.isUrl(partialCourse.courseImage, 'courseImage')
@@ -377,113 +317,6 @@ export class CourseTopicValidator extends BaseValidator<CourseTopic> {
   }
 }
 
-/**
- * Quiz validator
- */
-export class QuizValidator extends BaseValidator<Quiz> {
-  validate(quiz: Quiz): ValidationResult {
-    const errors: ValidationError[] = []
-    
-    try {
-      // Required fields
-      this.isRequired(quiz.courseId, 'courseId')
-      this.isRequired(quiz.title, 'title')
-      this.isRequired(quiz.questions, 'questions')
-      this.isRequired(quiz.attemptsAllowed, 'attemptsAllowed')
-      this.isRequired(quiz.passingScore, 'passingScore')
-      
-      // Length validations
-      this.hasMinLength(quiz.title, 3, 'title')
-      this.hasMaxLength(quiz.title, 100, 'title')
-      
-      // Number validations
-      this.isPositiveNumber(quiz.attemptsAllowed, 'attemptsAllowed')
-      this.isPositiveNumber(quiz.passingScore, 'passingScore')
-      
-      if (quiz.passingScore > 100) {
-        throw new ValidationError('passingScore', quiz.passingScore, 'Passing score cannot exceed 100%')
-      }
-      
-      // Questions validation
-      this.isArray(quiz.questions, 'questions')
-      this.hasMinLength(quiz.questions, 1, 'questions')
-      
-      quiz.questions.forEach((question, index) => {
-        if (!question.question) {
-          throw new ValidationError(`questions[${index}].question`, question.question, 'Question text is required')
-        }
-        
-        if (!question.correctAnswer) {
-          throw new ValidationError(`questions[${index}].correctAnswer`, question.correctAnswer, 'Correct answer is required')
-        }
-        
-        if (question.type === 'multiple_choice' && (!question.options || question.options.length < 2)) {
-          throw new ValidationError(`questions[${index}].options`, question.options, 'Multiple choice questions need at least 2 options')
-        }
-      })
-      
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        errors.push(error)
-      }
-    }
-    
-    return {
-      isValid: errors.length === 0,
-      errors
-    }
-  }
-}
-
-/**
- * Assignment validator
- */
-export class AssignmentValidator extends BaseValidator<Assignment> {
-  validate(assignment: Assignment): ValidationResult {
-    const errors: ValidationError[] = []
-    
-    try {
-      // Required fields
-      this.isRequired(assignment.courseId, 'courseId')
-      this.isRequired(assignment.title, 'title')
-      this.isRequired(assignment.description, 'description')
-      this.isRequired(assignment.type, 'type')
-      this.isRequired(assignment.maxPoints, 'maxPoints')
-      
-      // Format validations
-      this.isInEnum(assignment.type, AssignmentType, 'type')
-      
-      // Length validations
-      this.hasMinLength(assignment.title, 3, 'title')
-      this.hasMaxLength(assignment.title, 100, 'title')
-      this.hasMinLength(assignment.description, 10, 'description')
-      
-      // Number validations
-      this.isPositiveNumber(assignment.maxPoints, 'maxPoints')
-      
-      if (assignment.latePenalty !== undefined) {
-        if (assignment.latePenalty < 0 || assignment.latePenalty > 100) {
-          throw new ValidationError('latePenalty', assignment.latePenalty, 'Late penalty must be between 0 and 100%')
-        }
-      }
-      
-      // Date validation
-      if (assignment.dueDate && assignment.dueDate < new Date()) {
-        throw new ValidationError('dueDate', assignment.dueDate, 'Due date cannot be in the past')
-      }
-      
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        errors.push(error)
-      }
-    }
-    
-    return {
-      isValid: errors.length === 0,
-      errors
-    }
-  }
-}
 
 /**
  * Validation factory
@@ -491,16 +324,10 @@ export class AssignmentValidator extends BaseValidator<Assignment> {
 export class ValidationFactory {
   static getValidator(type: string): BaseValidator<any> {
     switch (type) {
-      // case 'user':
-      //   return new UserValidator()
       case 'course':
         return new CourseValidator()
       case 'courseTopic':
-        return new CourseTopicValidator()
-      case 'quiz':
-        return new QuizValidator()
-      case 'assignment':
-        return new AssignmentValidator()
+        return new CourseTopicValidator()      
       default:
         throw new Error(`No validator found for type: ${type}`)
     }

@@ -14,7 +14,6 @@ export interface AdminCourse {
   duration: number // Duration in hours as a number
   status: 'draft' | 'published' | 'archived'
   rating?: number
-  enrollmentCount?: number
   createdAt?: Date
   updatedAt?: Date
   instructorId: string
@@ -50,7 +49,6 @@ export interface AdminCourse {
   ratingCount?: number
   videosCount?: number
   articlesCount?: number
-  assignmentsCount?: number
   
   // Multilingual Content Fields (optional - for future multilingual content)
   multilingualTitle?: Record<string, string> // Language code -> title
@@ -164,7 +162,6 @@ export interface CourseStats {
   publishedCourses: number
   draftCourses: number
   archivedCourses: number
-  totalEnrollments: number
   averageRating: number
   totalRevenue?: number
   categoryCounts?: Record<string, number>
@@ -449,11 +446,9 @@ export const getCourseStats = async (): Promise<CourseStats> => {
       publishedCourses: courses.filter(c => c.status === 'published').length,
       draftCourses: courses.filter(c => c.status === 'draft').length,
       archivedCourses: courses.filter(c => c.status === 'archived').length,
-      totalEnrollments: courses.reduce((total, c) => total + (c.enrollmentCount || 0), 0),
       averageRating: courses.length > 0 
         ? courses.filter(c => c.rating).reduce((total, c) => total + (c.rating || 0), 0) / courses.filter(c => c.rating).length
         : 0,
-      totalRevenue: 0, // Remove price-based revenue calculation as price field is removed
       categoryCounts: courses.reduce((acc, c) => {
         // This would need to be fetched from master data to show category names
         acc[c.categoryId] = (acc[c.categoryId] || 0) + 1
@@ -474,9 +469,7 @@ export const getCourseStats = async (): Promise<CourseStats> => {
       publishedCourses: 0,
       draftCourses: 0,
       archivedCourses: 0,
-      totalEnrollments: 0,
       averageRating: 0,
-      totalRevenue: 0,
       categoryCounts: {},
       difficultyCounts: {}
     }

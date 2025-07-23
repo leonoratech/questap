@@ -19,5 +19,12 @@
     "**/node_modules/**": true,
     "**/.next/**": true,
     "**/dist/**": true
-  }
+  },
+  "python-envs.pythonProjects": [
+    {
+      "path": "apps/questadmin/app/api/course-reviews",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    }
+  ]
 }

@@ -48,7 +48,6 @@ export const CreateCourseSchema = z.object({
   categoryId: z.string().min(1, 'Category ID is required'),
   difficultyId: z.string().min(1, 'Difficulty ID is required'),
   duration: z.number().min(1).max(1000).optional(), // hours
-  maxEnrollments: z.number().min(1).max(10000).optional(),
   prerequisites: z.array(z.string().max(100)).max(10).optional(),
   learningObjectives: z.array(z.string().max(200)).max(20).optional(),
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
@@ -140,7 +139,6 @@ export const CreateActivitySchema = z.object({
     'course_updated',
     'course_deleted',
     'course_rated', 
-    'course_enrolled',
     'topic_created',
     'topic_updated',
     'topic_deleted',

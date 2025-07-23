@@ -667,7 +667,7 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
                                 <SelectItem value="published">
                                   <div className="flex items-center gap-2">
                                     <Badge className="bg-green-100 text-green-800">Published</Badge>
-                                    <span>Available for enrollment</span>
+                                    <span>Available for students</span>
                                   </div>
                                 </SelectItem>
                                 <SelectItem value="archived">
@@ -966,9 +966,9 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{course.enrollmentCount || 0}</span>
+                          <span className="font-medium">TODO</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">Students Enrolled</p>
+                        <p className="text-xs text-muted-foreground">Students</p>
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">

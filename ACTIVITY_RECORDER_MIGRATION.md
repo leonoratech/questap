@@ -21,7 +21,6 @@ export const InstructorActivityType = {
   COURSE_UPDATED: 'course_updated',
   COURSE_DELETED: 'course_deleted',
   COURSE_RATED: 'course_rated',
-  COURSE_ENROLLED: 'course_enrolled',
   TOPIC_CREATED: 'topic_created',
   TOPIC_UPDATED: 'topic_updated',
   TOPIC_DELETED: 'topic_deleted',

@@ -79,13 +79,8 @@ export async function POST(request: NextRequest) {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       status: courseData.status || 'draft',
-      isPublished: courseData.status === 'published' || false,
-      enrollmentCount: 0,
+      isPublished: courseData.status === 'published' || false,      
       
-      // Default values for missing fields
-      rating: 0,
-      ratingCount: 0,
-      completionCount: 0,
       tags: courseData.multilingualTags?.[languageConfig.primaryLanguage] || [],
       skills: courseData.multilingualSkills?.[languageConfig.primaryLanguage] || [],
       prerequisites: courseData.multilingualPrerequisites?.[languageConfig.primaryLanguage] || [],
@@ -96,12 +91,6 @@ export async function POST(request: NextRequest) {
       language: languageConfig.primaryLanguage,
       subtitles: languageConfig.supportedLanguages,
       
-      // Default course features
-      certificates: true,
-      lifetimeAccess: true,
-      mobileAccess: true,
-      downloadableResources: true,
-      assignmentsCount: 0,
       articlesCount: 0,
       videosCount: 0,
       totalVideoLength: 0,

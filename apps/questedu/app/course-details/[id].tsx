@@ -380,59 +380,9 @@ export default function CourseDetailsScreen() {
             </Card>
           )}
 
-          {/* Course Features
-          <Card style={styles.featuresCard}>
-            <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
-                Course Features
-              </Text>
-              <View style={styles.featuresList}>
-                {course.certificates && (
-                  <View style={styles.featureItem}>
-                    <IconButton icon="certificate" size={20} />
-                    <Text>Certificate of completion</Text>
-                  </View>
-                )}
-                {course.mobileAccess && (
-                  <View style={styles.featureItem}>
-                    <IconButton icon="cellphone" size={20} />
-                    <Text>Mobile access</Text>
-                  </View>
-                )}
-                {course.downloadableResources && (
-                  <View style={styles.featureItem}>
-                    <IconButton icon="download" size={20} />
-                    <Text>Downloadable resources</Text>
-                  </View>
-                )}
-                <View style={styles.featureItem}>
-                  <IconButton icon="clock" size={20} />
-                  <Text>Self-paced learning</Text>
-                </View>
-              </View>
-            </Card.Content>
-          </Card> */}
-
-          {/* Price & Enrollment */}
+          {/* Enrollment */}
           <Card style={styles.enrollmentCard}>
             <Card.Content>
-              {course.price && course.price > 0 ? (
-                <View style={styles.priceContainer}>
-                  <Text variant="headlineMedium" style={styles.price}>
-                    ₹{course.price}
-                  </Text>
-                  {course.currency && course.currency !== 'INR' && (
-                    <Text variant="bodyMedium" style={styles.currency}>
-                      {course.currency}
-                    </Text>
-                  )}
-                </View>
-              ) : (
-                <Text variant="headlineMedium" style={[styles.price, { color: theme.colors.primary }]}>
-                  Free Course
-                </Text>
-              )}
-
               <View style={styles.enrollmentButtons}>
                 {course?.id && isEnrolled(course.id) ? (
                   <Button 
@@ -489,8 +439,7 @@ export default function CourseDetailsScreen() {
             <Dialog.Title>Enroll in Course</Dialog.Title>
             <Dialog.Content>
               <Text variant="bodyMedium">
-                Do you want to enroll in "{course?.title}"?
-                {(course?.price && course.price > 0) ? ` Price: ₹${course.price}` : ' This is a free course.'}
+                Do you want to enroll in "{course?.title}"?                
               </Text>
             </Dialog.Content>
             <Dialog.Actions>

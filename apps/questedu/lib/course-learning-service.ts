@@ -4,27 +4,27 @@
  */
 
 import {
-    collection,
-    doc,
-    getDoc,
-    getDocs,
-    orderBy,
-    query,
-    serverTimestamp,
-    setDoc,
-    updateDoc,
-    where
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  where
 } from 'firebase/firestore';
 import {
-    CourseQuestion,
-    CourseTopic,
-    LearningData,
-    LearningSession,
-    LearningSlide,
-    ProgressUpdateData,
-    SlideType,
-    calculateOverallProgress,
-    getNextIncompleteSlide
+  CourseQuestion,
+  CourseTopic,
+  LearningData,
+  LearningSession,
+  LearningSlide,
+  ProgressUpdateData,
+  SlideType,
+  calculateOverallProgress,
+  getNextIncompleteSlide
 } from '../types/learning';
 import { getFirebaseAuth, getFirestoreDb } from './firebase-config';
 
@@ -76,8 +76,6 @@ export const getCourseTopics = async (courseId: string): Promise<CourseTopic[]> 
         summary: data.summary,
         transcription: data.transcription,
         notes: data.notes,
-        quizId: data.quizId,
-        assignmentId: data.assignmentId,
         completionRate: data.completionRate || 0,
         averageWatchTime: data.averageWatchTime,
         viewCount: data.viewCount || 0,
@@ -375,8 +373,7 @@ export const updateLearningProgress = async (
         ),
         totalTopics: totalSlides, // This should be calculated properly
         completionPercentage: session.completionPercentage,
-        timeSpent: session.timeSpent,
-        quizScores: session.userAnswers
+        timeSpent: session.timeSpent        
       };
 
       // This would need the enrollment ID - we might need to fetch it

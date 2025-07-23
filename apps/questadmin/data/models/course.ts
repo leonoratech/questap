@@ -16,7 +16,6 @@ export interface Course {
   featured?: boolean
   rating?: number
   ratingCount?: number
-  enrollmentCount?: number
   tags?: string[]
   skills?: string[]
   prerequisites?: string[]
@@ -89,7 +88,6 @@ export interface CourseStats {
   publishedCourses: number
   draftCourses: number
   archivedCourses: number
-  totalEnrollments: number
   averageRating: number
   coursesByCategory: Record<string, number>
   coursesByDifficulty: Record<string, number>

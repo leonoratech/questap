@@ -9,40 +9,40 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import {
-    AdminCourseTopic,
-    CreateCourseTopicData,
-    addCourseTopic,
-    deleteCourseTopic,
-    getCourseTopics,
-    updateCourseTopic
+  AdminCourseTopic,
+  CreateCourseTopicData,
+  addCourseTopic,
+  deleteCourseTopic,
+  getCourseTopics,
+  updateCourseTopic
 } from '@/data/services/admin-course-service'
 import {
-    DEFAULT_LANGUAGE,
-    MultilingualArray,
-    MultilingualText,
-    RequiredMultilingualArray,
-    RequiredMultilingualText
+  DEFAULT_LANGUAGE,
+  MultilingualArray,
+  MultilingualText,
+  RequiredMultilingualArray,
+  RequiredMultilingualText
 } from '@/lib/multilingual-types'
 import {
-    createMultilingualArray,
-    createMultilingualText,
-    getCompatibleArray,
-    getCompatibleText,
-    isMultilingualContent
+  createMultilingualArray,
+  createMultilingualText,
+  getCompatibleArray,
+  getCompatibleText,
+  isMultilingualContent
 } from '@/lib/multilingual-utils'
 import {
-    BookOpen,
-    ChevronDown,
-    ChevronUp,
-    Edit,
-    ExternalLink,
-    FileText,
-    Globe,
-    Link,
-    Plus,
-    Save,
-    Trash2,
-    Video
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  Edit,
+  ExternalLink,
+  FileText,
+  Globe,
+  Link,
+  Plus,
+  Save,
+  Trash2,
+  Video
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -61,7 +61,7 @@ interface HybridTopic extends Omit<AdminCourseTopic, 'title' | 'description' | '
 }
 
 interface Material {
-  type: 'pdf' | 'video' | 'audio' | 'document' | 'link' | 'assignment'
+  type: 'pdf' | 'video' | 'audio' | 'document' | 'link' 
   title: string
   url: string
   description?: string
@@ -150,9 +150,7 @@ export function CourseTopicsManager({ courseId, isEditable, multilingualMode = f
         materials: formData.materials
           .filter(m => m.title && m.url)
           .map(m => ({
-            ...m,
-            // Map 'assignment' type to 'document' for service compatibility
-            type: m.type === 'assignment' ? 'document' : m.type
+            ...m            
           }) as { type: 'pdf' | 'video' | 'audio' | 'document' | 'link'; title: string; url: string; description?: string })
       }
 
@@ -214,9 +212,7 @@ export function CourseTopicsManager({ courseId, isEditable, multilingualMode = f
         materials: formData.materials
           .filter(m => m.title && m.url)
           .map(m => ({
-            ...m,
-            // Map 'assignment' type to 'document' for service compatibility
-            type: m.type === 'assignment' ? 'document' : m.type
+            ...m
           }) as { type: 'pdf' | 'video' | 'audio' | 'document' | 'link'; title: string; url: string; description?: string })
       }
 
@@ -261,8 +257,7 @@ export function CourseTopicsManager({ courseId, isEditable, multilingualMode = f
       case 'pdf': return <FileText className="h-4 w-4" />
       case 'video': return <Video className="h-4 w-4" />
       case 'link': return <Link className="h-4 w-4" />
-      case 'document': return <FileText className="h-4 w-4" />
-      case 'assignment': return <FileText className="h-4 w-4" />
+      case 'document': return <FileText className="h-4 w-4" />      
       default: return <ExternalLink className="h-4 w-4" />
     }
   }
@@ -476,8 +471,7 @@ export function CourseTopicsManager({ courseId, isEditable, multilingualMode = f
                       <SelectItem value="video">Video</SelectItem>
                       <SelectItem value="audio">Audio</SelectItem>
                       <SelectItem value="document">Document</SelectItem>
-                      <SelectItem value="link">Link</SelectItem>
-                      <SelectItem value="assignment">Assignment</SelectItem>
+                      <SelectItem value="link">Link</SelectItem>                      
                     </SelectContent>
                   </Select>
                   <Input

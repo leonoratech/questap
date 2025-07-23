@@ -4,11 +4,11 @@
  */
 
 import {
-    ActivityListOptions,
-    ActivitySummary,
-    CreateInstructorActivityRequest,
-    InstructorActivity,
-    InstructorActivityType
+  ActivityListOptions,
+  ActivitySummary,
+  CreateInstructorActivityRequest,
+  InstructorActivity,
+  InstructorActivityType
 } from '@/data/models/instructor-activity'
 import { InstructorActivityRepository } from '@/data/repository/instructor-activity-service'
 
@@ -132,17 +132,6 @@ export const ActivityRecorder = {
       courseName,
       description: `Course "${courseName}" received a ${rating}-star rating${studentName ? ` from ${studentName}` : ''}`,
       metadata: { rating, studentName }
-    })
-  },
-
-  courseEnrolled: async (instructorId: string, courseId: string, courseName: string, studentName?: string) => {
-    await recordInstructorActivity({
-      instructorId,
-      type: InstructorActivityType.COURSE_ENROLLED,
-      courseId,
-      courseName,
-      description: `${studentName || 'A student'} enrolled in "${courseName}"`,
-      metadata: { studentName }
     })
   },
 

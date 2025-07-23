@@ -9,14 +9,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/contexts/AuthContext'
 import { AdminCourse, deleteCourse, getCoursesByInstructor } from '@/data/services/admin-course-service'
 import {
-    BookOpen,
-    Clock,
-    Edit,
-    Eye,
-    Plus,
-    Star,
-    Trash2,
-    Users
+  BookOpen,
+  Clock,
+  Edit,
+  Eye,
+  Plus,
+  Star,
+  Trash2,
+  Users
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -109,7 +109,6 @@ export default function MyCoursesPage() {
   }
 
   const publishedCourses = courses.filter(course => course.status === 'published')
-  const totalEnrollments = courses.reduce((acc, course) => acc + (course.enrollmentCount || 0), 0)
   const coursesWithRatings = courses.filter(course => course.rating && course.rating > 0)
   const averageRating = coursesWithRatings.length > 0 
     ? coursesWithRatings.reduce((acc, course) => acc + (course.rating || 0), 0) / coursesWithRatings.length 
@@ -151,7 +150,7 @@ export default function MyCoursesPage() {
                 <CardTitle className="text-sm font-medium">Total Students</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{totalEnrollments}</div>
+                <div className="text-2xl font-bold">TODO</div>
                 <p className="text-xs text-muted-foreground">
                   Across all courses
                 </p>
@@ -253,7 +252,7 @@ function CourseCard({ course, onDelete }: { course: AdminCourse; onDelete: (cour
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
-              <span>{course.enrollmentCount || 0} students</span>
+              <span>TODO students</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Star className="h-4 w-4" />

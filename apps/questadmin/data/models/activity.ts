@@ -27,9 +27,6 @@ export const ActivityType = {
   VIEW: 'view',
   LOGIN: 'login',
   LOGOUT: 'logout',
-  ENROLL: 'enroll',
-  UNENROLL: 'unenroll',
-  COMPLETE: 'complete',
   SUBMIT: 'submit',
   APPROVE: 'approve',
   REJECT: 'reject',
@@ -48,10 +45,6 @@ export const ResourceType = {
   BATCH: 'batch',
   COLLEGE: 'college',
   SUBJECT: 'subject',
-  ASSIGNMENT: 'assignment',
-  QUIZ: 'quiz',
-  SUBMISSION: 'submission',
-  ENROLLMENT: 'enrollment',
   NOTIFICATION: 'notification'
 } as const
 

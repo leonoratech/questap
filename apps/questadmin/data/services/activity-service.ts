@@ -152,15 +152,5 @@ export const ActivityRecorder = {
       courseName,
       description: `Course "${courseName}" received a ${rating}-star rating${studentName ? ` from ${studentName}` : ''}`,
       metadata: { rating, studentName }
-    }),
-
-  courseEnrolled: (instructorId: string, courseId: string, courseName: string, studentName?: string) =>
-    recordActivity({
-      instructorId,
-      type: ActivityType.COURSE_ENROLLED,
-      courseId,
-      courseName,
-      description: `${studentName || 'A student'} enrolled in "${courseName}"`,
-      metadata: { studentName }
     })
 }

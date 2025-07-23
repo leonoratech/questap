@@ -1,12 +1,12 @@
 import { UserRole } from '@/data/models/user-model'
 import {
-    ActivityRepository
+  ActivityRepository
 } from '@/data/repository/server-activity-service'
 import {
-    ActivityListOptionsSchema,
-    CreateActivitySchema,
-    validateQueryParams,
-    validateRequestBody
+  ActivityListOptionsSchema,
+  CreateActivitySchema,
+  validateQueryParams,
+  validateRequestBody
 } from '@/data/validation/validation-schemas'
 import { requireAuth } from '@/lib/server-auth'
 import { withErrorHandler } from '@/middleware/withErrorHandler'
@@ -106,9 +106,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       case 'course_published':
         return 'course_published'
       case 'course_rated':
-        return 'course_rated'
-      case 'course_enrolled':
-        return 'course_enrolled'
+        return 'course_rated'      
       // For new types, we'll use the string value directly
       default:
         return newType

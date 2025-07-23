@@ -9,7 +9,6 @@
  * 2. Mock courses against the instructors created
  * 3. Mock topics against the courses created
  * 4. Mock questions and answers for the courses created
- * 5. Mock student enrollments into the courses created
  * 6. Mock activities against all entities
  * 
  * Usage: node scripts/seed-database.js [--clear-first]
@@ -108,7 +107,6 @@ const createdData = {
   courses: [],
   topics: [],
   questions: [],
-  enrollments: [],
   activities: [],
   collegeAdministrators: []
 };
@@ -537,7 +535,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'mit',
     yearOrSemester: 1,
     instructorId: 'prof.smith@questedu.com', // Will be resolved to UID
-    isDefaultEnrollment: true,
     description: 'Introduction to differential calculus and its applications in computer science.',
     credits: 4,
     prerequisites: []
@@ -549,7 +546,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'mit',
     yearOrSemester: 1,
     instructorId: 'prof.smith@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Fundamental programming concepts using Python and Java.',
     credits: 4,
     prerequisites: []
@@ -561,7 +557,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'mit',
     yearOrSemester: 2,
     instructorId: 'prof.smith@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Advanced algorithms, complexity analysis, and data structure design.',
     credits: 4,
     prerequisites: ['mit-cs-bs-prog1']
@@ -573,7 +568,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'mit',
     yearOrSemester: 3,
     instructorId: 'prof.smith@questedu.com',
-    isDefaultEnrollment: false,
     description: 'Machine learning, neural networks, and AI applications.',
     credits: 3,
     prerequisites: ['mit-cs-bs-algo']
@@ -587,7 +581,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'stanford',
     yearOrSemester: 1,
     instructorId: 'dr.johnson@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Statistical foundations for data analysis and inference.',
     credits: 3,
     prerequisites: []
@@ -599,7 +592,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'stanford',
     yearOrSemester: 1,
     instructorId: 'dr.johnson@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Supervised and unsupervised learning algorithms.',
     credits: 4,
     prerequisites: []
@@ -611,7 +603,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'stanford',
     yearOrSemester: 2,
     instructorId: 'dr.johnson@questedu.com',
-    isDefaultEnrollment: false,
     description: 'Processing and analyzing large-scale datasets.',
     credits: 3,
     prerequisites: ['stanford-ds-ml']
@@ -625,7 +616,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'iit-bombay',
     yearOrSemester: 2,
     instructorId: 'prof.patel@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Classical thermodynamics and heat transfer principles.',
     credits: 4,
     prerequisites: []
@@ -637,7 +627,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'iit-bombay',
     yearOrSemester: 3,
     instructorId: 'prof.patel@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Fluid statics, dynamics, and flow analysis.',
     credits: 4,
     prerequisites: ['iitb-mech-thermo']
@@ -649,7 +638,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'iit-bombay',
     yearOrSemester: 4,
     instructorId: 'prof.patel@questedu.com',
-    isDefaultEnrollment: false,
     description: 'Advanced mechanical design and analysis techniques.',
     credits: 3,
     prerequisites: ['iitb-mech-fluids']
@@ -663,7 +651,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'university-cambridge',
     yearOrSemester: 1,
     instructorId: 'prof.brown@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Rigorous treatment of real numbers and continuous functions.',
     credits: 3,
     prerequisites: []
@@ -675,7 +662,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'university-cambridge',
     yearOrSemester: 2,
     instructorId: 'prof.brown@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Groups, rings, and fields in abstract algebra.',
     credits: 3,
     prerequisites: ['cambridge-math-analysis']
@@ -689,7 +675,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'community-college',
     yearOrSemester: 1,
     instructorId: 'prof.davis@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Overview of IT concepts, hardware, and software systems.',
     credits: 3,
     prerequisites: []
@@ -701,7 +686,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'community-college',
     yearOrSemester: 1,
     instructorId: 'prof.davis@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Network protocols, architecture, and administration.',
     credits: 4,
     prerequisites: []
@@ -713,7 +697,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'community-college',
     yearOrSemester: 2,
     instructorId: 'prof.davis@questedu.com',
-    isDefaultEnrollment: false,
     description: 'Database design, SQL, and database administration.',
     credits: 3,
     prerequisites: ['mcc-it-intro']
@@ -727,7 +710,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'community-college',
     yearOrSemester: 1,
     instructorId: 'prof.davis@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Building responsive websites with HTML5 and CSS3.',
     credits: 2,
     prerequisites: []
@@ -739,7 +721,6 @@ const MOCK_SUBJECTS = [
     collegeId: 'community-college',
     yearOrSemester: 2,
     instructorId: 'prof.davis@questedu.com',
-    isDefaultEnrollment: true,
     description: 'Interactive web development with JavaScript.',
     credits: 3,
     prerequisites: ['mcc-web-html']
@@ -1549,7 +1530,6 @@ async function seedCourses() {
       featured: Math.random() > 0.5,
       rating: 4.0 + Math.random() * 1.0, // 4.0-5.0
       ratingCount: Math.floor(Math.random() * 100) + 20,
-      enrollmentCount: Math.floor(Math.random() * 200) + 50,
       tags: courseTemplate.tags,
       skills: courseTemplate.skills,
       prerequisites: courseTemplate.prerequisites,
@@ -1581,7 +1561,6 @@ async function seedCourses() {
       lifetimeAccess: true,
       mobileAccess: true,
       downloadableResources: true,
-      assignmentsCount: 5,
       articlesCount: 10,
       videosCount: 25,
       totalVideoLength: 600 + Math.floor(Math.random() * 400), // 600-1000 minutes
@@ -1660,43 +1639,6 @@ async function seedQuestions() {
   console.log(`✅ Created ${totalQuestions} course questions`);
 }
 
-async function seedEnrollments() {
-  console.log('🎓 Seeding student enrollments...');
-
-  const students = createdData.users.students;
-  const courses = createdData.courses;
-  let totalEnrollments = 0;
-
-  for (const student of students) {
-    // Each student enrolls in 2-4 random courses
-    const enrollmentCount = 2 + Math.floor(Math.random() * 3);
-    const enrolledCourses = getRandomElements(courses, enrollmentCount);
-
-    for (const course of enrolledCourses) {
-      const enrollmentData = {
-        studentId: student.uid,
-        courseId: course.id,
-        instructorId: course.instructorId,
-        enrolledAt: serverTimestamp(),
-        status: 'enrolled',
-        progress: Math.floor(Math.random() * 80) + 10, // 10-90% progress
-        completedTopics: [],
-        lastAccessedAt: new Date(),
-        totalTimeSpent: Math.floor(Math.random() * 1000) + 100, // minutes
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      };
-
-      const enrollmentRef = await db.collection('enrollments').add(enrollmentData);
-      const enrollmentWithId = { id: enrollmentRef.id, ...enrollmentData };
-      createdData.enrollments.push(enrollmentWithId);
-      totalEnrollments++;
-    }
-  }
-
-  console.log(`✅ Created ${totalEnrollments} student enrollments`);
-}
-
 async function seedActivities() {
   console.log('📊 Seeding instructor activities...');
 
@@ -1704,7 +1646,6 @@ async function seedActivities() {
     'course_created',
     'course_updated',
     'topic_added',
-    'student_enrolled',
     'question_added',
     'course_published'
   ];
@@ -1763,35 +1704,6 @@ async function seedActivities() {
     }
   }
   
-  // Create enrollment activities
-  for (const enrollment of createdData.enrollments.slice(0, 10)) { // Limit activities
-    const course = createdData.courses.find(c => c.id === enrollment.courseId);
-    const student = createdData.users.students.find(s => s.uid === enrollment.studentId);
-    
-    if (course && student) {
-      const enrollmentActivity = {
-        userId: enrollment.instructorId || '',
-        userRole: 'instructor',
-        action: 'student_enrolled',
-        entityType: 'enrollment',
-        entityId: enrollment.id || '',
-        entityTitle: `${student.displayName || 'Unknown Student'} enrolled in ${course.title || 'Untitled Course'}`,
-        description: `Student ${student.displayName || 'Unknown Student'} enrolled in course "${course.title || 'Untitled Course'}"`,
-        metadata: {
-          studentId: student.uid || '',
-          studentName: student.displayName || '',
-          courseId: course.id || '',
-          courseTitle: course.title || ''
-        },
-        timestamp: serverTimestamp(),
-        createdAt: serverTimestamp()
-      };
-      
-      await db.collection('activities').add(enrollmentActivity);
-      totalActivities++;
-    }
-  }
-
   console.log(`✅ Created ${totalActivities} activities`);
 }
 
@@ -1880,9 +1792,6 @@ async function seedDatabase() {
     // Step 9: Seed questions and answers for courses
     await seedQuestions();
     
-    // Step 10: Seed student enrollments
-    await seedEnrollments();
-    
     // Step 11: Seed instructor activities
     await seedActivities();
     
@@ -1904,7 +1813,6 @@ async function seedDatabase() {
     console.log(`   • Courses: ${createdData.courses.length}`);
     console.log(`   • Topics: ${createdData.topics.length}`);
     console.log(`   • Questions: ${createdData.questions.length}`);
-    console.log(`   • Enrollments: ${createdData.enrollments.length}`);
     console.log(`   • Activities: ${createdData.activities.length}`);
     console.log(`   • Time taken: ${duration} seconds`);
     
@@ -1921,7 +1829,7 @@ async function seedDatabase() {
     
     console.log('\n🚀 Next steps:');
     console.log('   1. Login with any of the test accounts');
-    console.log('   2. Explore the seeded courses and enrollments');
+    console.log('   2. Explore the seeded courses');
     console.log('   3. Test college management as superadmin');
     console.log('   4. Verify all functionality works correctly');
     

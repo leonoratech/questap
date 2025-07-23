@@ -27,8 +27,6 @@ const users = [
     role: 'student',
     joinDate: '2024-01-15',
     lastActive: '2024-04-10',
-    coursesEnrolled: 5,
-    coursesCompleted: 2,
     status: 'active'
   },
   {
@@ -38,8 +36,6 @@ const users = [
     role: 'instructor',
     joinDate: '2023-11-20',
     lastActive: '2024-04-12',
-    coursesEnrolled: 0,
-    coursesCompleted: 0,
     coursesTeaching: 3,
     status: 'active'
   },
@@ -50,8 +46,6 @@ const users = [
     role: 'student',
     joinDate: '2024-02-28',
     lastActive: '2024-04-08',
-    coursesEnrolled: 3,
-    coursesCompleted: 1,
     status: 'active'
   },
   {
@@ -61,8 +55,6 @@ const users = [
     role: 'instructor',
     joinDate: '2023-08-10',
     lastActive: '2024-04-12',
-    coursesEnrolled: 0,
-    coursesCompleted: 0,
     coursesTeaching: 2,
     status: 'active'
   }
@@ -99,14 +91,6 @@ function UserCard({ user }: { user: typeof users[0] }) {
         <div className="space-y-4">
           {/* User Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{user.coursesEnrolled || 0}</div>
-              <div className="text-xs text-muted-foreground">Enrolled</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{user.coursesCompleted || 0}</div>
-              <div className="text-xs text-muted-foreground">Completed</div>
-            </div>
             {user.role === 'instructor' && (
               <div className="text-center">
                 <div className="text-2xl font-bold">{user.coursesTeaching || 0}</div>

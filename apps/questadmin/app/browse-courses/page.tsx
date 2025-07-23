@@ -11,14 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/contexts/AuthContext'
 import { getAuthHeaders, UserRole } from '@/data/config/firebase-auth'
 import { AdminCourse } from '@/data/services/admin-course-service'
-import { enrollInCourse, getUserEnrollments } from '@/data/services/enrollment-service'
+
 import {
-    BookOpen,
-    Clock,
-    Eye,
-    Search,
-    Star,
-    Users
+  BookOpen,
+  Clock,
+  Search,
+  Star,
+  Users
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -36,9 +35,7 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [levelFilter, setLevelFilter] = useState('all')
-  const [enrolledCourses, setEnrolledCourses] = useState<Set<string>>(new Set())
-  const [enrollingCourses, setEnrollingCourses] = useState<Set<string>>(new Set())
-
+  
   // Check if current user is a student
   const isStudent = user?.role === UserRole.STUDENT
 
@@ -77,22 +74,7 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
       userRole: user?.role
     })
   }, [courses, filteredCourses, searchTerm, debouncedSearchTerm, categoryFilter, levelFilter, isStudent, user?.role])
-
-  // Fetch all enrolled course IDs for the current student using the service abstraction
-  const fetchEnrolledCourseIds = async (): Promise<Set<string>> => {
-    try {
-      const enrollments = await getUserEnrollments()
-      // Only consider active/enrolled/completed enrollments
-      const validStatuses = new Set(['enrolled', 'active', 'completed'])
-      const courseIds = enrollments
-        .filter(e => validStatuses.has(e.status))
-        .map(e => e.courseId)
-      return new Set(courseIds)
-    } catch (error) {
-      console.error('Error fetching enrolled courses:', error)
-      return new Set()
-    }
-  }
+  
 
   const loadCourses = async (searchQuery?: string) => {
     try {
@@ -152,17 +134,7 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
       console.log('Published courses:', publishedCourses.length)
       
       setCourses(publishedCourses)
-      
-      // Fetch all enrolled course IDs for the student in one call
-      if (isStudent) {
-        try {
-          const enrolled = await fetchEnrolledCourseIds()
-          setEnrolledCourses(enrolled)
-          console.log('Fetched enrolled course IDs:', Array.from(enrolled))
-        } catch (error) {
-          console.warn('Failed to fetch enrolled course IDs:', error)
-        }
-      }
+            
     } catch (error) {
       console.error('Error loading courses:', error)
       toast.error('Failed to load courses. Please try refreshing the page.')
@@ -211,52 +183,6 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
     router.push(`/courses/${courseId}/preview`)
   }
 
-  const handleEnrollCourse = async (courseId: string) => {
-    if (!courseId) {
-      toast.error('Invalid course ID')
-      return
-    }
-    
-    if (enrollingCourses.has(courseId)) {
-      console.log('Already enrolling in course:', courseId)
-      return
-    }
-    
-    // Check if user is a student
-    if (!isStudent) {
-      toast.error('Only students can enroll in courses')
-      return
-    }
-    
-    try {
-      setEnrollingCourses(prev => new Set(prev).add(courseId))
-      console.log('Starting enrollment for course:', courseId)
-      
-      const result = await enrollInCourse(courseId)
-      
-      if (result.success) {
-        toast.success('Successfully enrolled in course!')
-        setEnrolledCourses(prev => new Set(prev).add(courseId))
-        console.log('Successfully enrolled in course:', courseId)
-        // Optionally redirect to enrolled courses
-        // router.push('/my-enrolled-courses')
-      } else {
-        const errorMessage = result.error || 'Failed to enroll in course'
-        console.error('Enrollment failed:', errorMessage)
-        toast.error(errorMessage)
-      }
-    } catch (error) {
-      console.error('Error enrolling in course:', error)
-      toast.error('An error occurred while enrolling. Please try again.')
-    } finally {
-      setEnrollingCourses(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(courseId)
-        return newSet
-      })
-    }
-  }
-
   const getUniqueCategories = () => {
     try {
       const categories = courses
@@ -285,10 +211,7 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
       console.warn('CourseCard received null/undefined course')
       return null
     }
-
-    const isEnrolled = course.id ? enrolledCourses.has(course.id) : false
-    const isEnrolling = course.id ? enrollingCourses.has(course.id) : false
-    
+  
     // Safe property access with fallbacks
     const title = course.title || 'Untitled Course'
     const instructor = course.instructor || 'Unknown Instructor'
@@ -296,7 +219,6 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
     const difficultyId = course.difficultyId || 'beginner'
     const categoryId = course.categoryId || 'general'
     const duration = course.duration || 0
-    const enrollmentCount = course.enrollmentCount || 0
     const rating = course.rating || 0
     
     return (
@@ -331,7 +253,7 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
           <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-blue-600" />
-              <span>{enrollmentCount} students</span>
+              <span>TODO:Counts students</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-green-600" />
@@ -351,53 +273,8 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
           <div className="flex items-center justify-between mb-4">
             <span className="text-lg font-semibold text-blue-600">
               {course.status === 'published' ? 'Available' : 'Coming Soon'}
-            </span>
-            {isEnrolled && (
-              <Badge className="bg-green-100 text-green-800">Enrolled</Badge>
-            )}
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => course.id && handlePreviewCourse(course.id)}
-              className="flex-1"
-              disabled={!course.id}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Preview
-            </Button>
-            {isStudent ? (
-              isEnrolled ? (
-                <Button 
-                  onClick={() => router.push('/my-enrolled-courses')}
-                  className="flex-1"
-                >
-                  Go to Course
-                </Button>
-              ) : (
-                <Button 
-                  onClick={() => course.id && handleEnrollCourse(course.id)}
-                  disabled={isEnrolling || !course.id}
-                  className="flex-1"
-                >
-                  {isEnrolling ? 'Enrolling...' : 'Enroll Now'}
-                </Button>
-              )
-            ) : (
-              <Button 
-                variant="secondary"
-                size="sm"
-                disabled
-                className="flex-1"
-                title={user?.role === UserRole.INSTRUCTOR ? "Instructors can preview courses but cannot enroll" : "Only students can enroll in courses"}
-              >
-                {user?.role === UserRole.INSTRUCTOR ? 'Preview Only' : 'Student Enrollment Only'}
-              </Button>
-            )}
-          </div>
+            </span>            
+          </div>          
         </CardContent>
       </Card>
     )

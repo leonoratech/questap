@@ -56,7 +56,7 @@ export interface Lesson {
   videoUrl?: string
   duration?: string
   order: number
-  type: 'video' | 'text' | 'quiz' | 'assignment'
+  type: 'video' | 'text' 
 }
 
 /**

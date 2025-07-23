@@ -18,16 +18,14 @@ export async function deleteCourseWithCascade(courseId: string): Promise<{
   deletedItems?: {
     course: boolean
     topics: number
-    questions: number
-    enrollments: number
+    questions: number    
   }
 }> {
   try {
     const deletedItems = {
       course: false,
       topics: 0,
-      questions: 0,
-      enrollments: 0
+      questions: 0
     }
 
     // Use batched writes for consistency
@@ -87,37 +85,7 @@ export async function deleteCourseWithCascade(courseId: string): Promise<{
       console.error('Error deleting course questions:', error)
     }
 
-    // 4. Delete any course enrollments/registrations
-    try {
-      const enrollmentsQuery = query(
-        collection(serverDb, 'enrollments'),
-        where('courseId', '==', courseId)
-      )
-      const enrollmentsSnapshot = await getDocs(enrollmentsQuery)
-      
-      enrollmentsSnapshot.docs.forEach(doc => {
-        batch.delete(doc.ref)
-        deletedItems.enrollments++
-      })
-    } catch (error) {
-      console.error('Error deleting course enrollments:', error)
-    }
-
-    // 5. Delete any course assignments
-    try {
-      const assignmentsQuery = query(
-        collection(serverDb, 'assignments'),
-        where('courseId', '==', courseId)
-      )
-      const assignmentsSnapshot = await getDocs(assignmentsQuery)
-      
-      assignmentsSnapshot.docs.forEach(doc => {
-        batch.delete(doc.ref)
-      })
-    } catch (error) {
-      console.error('Error deleting course assignments:', error)
-    }
-
+    
     // 6. Delete any course materials
     try {
       const materialsQuery = query(
@@ -175,16 +143,12 @@ export async function deleteCourseWithCascade(courseId: string): Promise<{
 export async function getCourseRelatedItemsCounts(courseId: string): Promise<{
   topics: number
   questions: number
-  enrollments: number
-  assignments: number
   materials: number
   progressRecords: number
 }> {
   const counts = {
     topics: 0,
     questions: 0,
-    enrollments: 0,
-    assignments: 0,
     materials: 0,
     progressRecords: 0
   }
@@ -206,22 +170,6 @@ export async function getCourseRelatedItemsCounts(courseId: string): Promise<{
     const questionsSnapshot = await getDocs(questionsQuery)
     counts.questions = questionsSnapshot.size
 
-    // Count enrollments
-    const enrollmentsQuery = query(
-      collection(serverDb, 'enrollments'),
-      where('courseId', '==', courseId)
-    )
-    const enrollmentsSnapshot = await getDocs(enrollmentsQuery)
-    counts.enrollments = enrollmentsSnapshot.size
-
-    // Count assignments
-    const assignmentsQuery = query(
-      collection(serverDb, 'assignments'),
-      where('courseId', '==', courseId)
-    )
-    const assignmentsSnapshot = await getDocs(assignmentsQuery)
-    counts.assignments = assignmentsSnapshot.size
-
     // Count materials
     const materialsQuery = query(
       collection(serverDb, 'course_materials'),
@@ -230,13 +178,6 @@ export async function getCourseRelatedItemsCounts(courseId: string): Promise<{
     const materialsSnapshot = await getDocs(materialsQuery)
     counts.materials = materialsSnapshot.size
 
-    // Count progress records
-    const progressQuery = query(
-      collection(serverDb, 'student_progress'),
-      where('courseId', '==', courseId)
-    )
-    const progressSnapshot = await getDocs(progressQuery)
-    counts.progressRecords = progressSnapshot.size
 
   } catch (error) {
     console.error('Error counting related items:', error)

@@ -7,7 +7,6 @@ export interface Subject {
   yearOrSemester: number // Which year/semester this subject belongs to
   instructorId: string // UID of the instructor who owns this subject
   instructorName?: string // Cached instructor name for display
-  isDefaultEnrollment: boolean // true = default enrollment, false = optional enrollment
   description?: string
   credits?: number // Optional: credit hours for the subject
   prerequisites?: string[] // Optional: prerequisite subject IDs
@@ -21,7 +20,6 @@ export interface CreateSubjectRequest {
   name: string
   yearOrSemester: number
   instructorId: string
-  isDefaultEnrollment: boolean
   description?: string
   credits?: number
   prerequisites?: string[]

@@ -13,23 +13,23 @@ import { CourseCategory } from '@/data/models/course-category'
 import { CourseDifficulty } from '@/data/models/course-difficulty'
 import { HybridAdminCourse } from '@/data/models/data-model'
 import {
-    addCourse,
-    CreateCourseData,
-    deleteCourse,
-    getAllCourses,
-    updateCourse
+  addCourse,
+  CreateCourseData,
+  deleteCourse,
+  getAllCourses,
+  updateCourse
 } from '@/data/services/admin-course-service'
 import { formatDate as safeFormatDate } from '@/lib/date-utils'
 import {
-    DEFAULT_LANGUAGE,
-    RequiredMultilingualArray,
-    RequiredMultilingualText
+  DEFAULT_LANGUAGE,
+  RequiredMultilingualArray,
+  RequiredMultilingualText
 } from '@/lib/multilingual-types'
 import {
-    createMultilingualArray,
-    createMultilingualText,
-    getCompatibleArray,
-    getCompatibleText
+  createMultilingualArray,
+  createMultilingualText,
+  getCompatibleArray,
+  getCompatibleText
 } from '@/lib/multilingual-utils'
 import { Edit, Eye, Globe, Plus, Search, Trash2 } from 'lucide-react'
 import Link from 'next/link'
@@ -116,7 +116,6 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
         // Map old structure to new for backward compatibility
         category: (course as any).category || 'Unknown',
         level: (course as any).level || 'beginner',
-        price: (course as any).price || 0,
         // Add new fields with defaults if missing
         categoryId: (course as any).categoryId || '',
         difficultyId: (course as any).difficultyId || ''

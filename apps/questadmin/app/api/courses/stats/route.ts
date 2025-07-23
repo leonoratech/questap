@@ -8,9 +8,7 @@ import { serverDb } from '../../firebase-server'
 interface CourseData {
   id: string
   status?: string
-  enrollmentCount?: number
   rating?: number
-  price?: number
   category?: string
   level?: string
   [key: string]: any
@@ -36,20 +34,12 @@ export async function GET(request: NextRequest) {
     const publishedCourses = courses.filter(course => course.status === 'published').length
     const draftCourses = courses.filter(course => course.status === 'draft').length
     const archivedCourses = courses.filter(course => course.status === 'archived').length
-
-    // Calculate total enrollments (sum of enrollmentCount for all courses)
-    const totalEnrollments = courses.reduce((sum, course) => sum + (course.enrollmentCount || 0), 0)
-
+    
     // Calculate average rating (average of all course ratings)
     const coursesWithRating = courses.filter(course => course.rating && course.rating > 0)
     const averageRating = coursesWithRating.length > 0 
       ? coursesWithRating.reduce((sum, course) => sum + (course.rating || 0), 0) / coursesWithRating.length 
       : 0
-
-    // Calculate total revenue (sum of price * enrollmentCount for all courses)
-    const totalRevenue = courses.reduce((sum, course) => {
-      return sum + (course.price || 0) * (course.enrollmentCount || 0)
-    }, 0)
 
     // Calculate category counts
     const categoryCounts: Record<string, number> = {}
@@ -72,9 +62,7 @@ export async function GET(request: NextRequest) {
       publishedCourses,
       draftCourses,
       archivedCourses,
-      totalEnrollments,
       averageRating: Math.round(averageRating * 100) / 100, // Round to 2 decimal places
-      totalRevenue,
       categoryCounts,
       levelCounts
     }

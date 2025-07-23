@@ -3,14 +3,14 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog'
-import { AlertTriangle, Archive, BookOpen, ClipboardList, FileText, TrendingUp, Users } from 'lucide-react'
+import { AlertTriangle, Archive, BookOpen, FileText, TrendingUp } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 interface CourseDeleteConfirmationProps {
@@ -25,8 +25,6 @@ interface CourseDeleteConfirmationProps {
 interface RelatedItemsCounts {
   topics: number
   questions: number
-  enrollments: number
-  assignments: number
   materials: number
   progressRecords: number
 }
@@ -67,8 +65,8 @@ export function CourseDeleteConfirmation({
   }
 
   const totalRelatedItems = relatedCounts 
-    ? relatedCounts.topics + relatedCounts.questions + relatedCounts.enrollments + 
-      relatedCounts.assignments + relatedCounts.materials + relatedCounts.progressRecords
+    ? relatedCounts.topics + relatedCounts.questions + 
+      relatedCounts.materials
     : 0
 
   return (
@@ -115,19 +113,7 @@ export function CourseDeleteConfirmation({
                     <FileText className="h-3 w-3" />
                     <span>{relatedCounts.questions} questions</span>
                   </div>
-                )}
-                {relatedCounts.enrollments > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Users className="h-3 w-3" />
-                    <span>{relatedCounts.enrollments} enrollments</span>
-                  </div>
-                )}
-                {relatedCounts.assignments > 0 && (
-                  <div className="flex items-center gap-2">
-                    <ClipboardList className="h-3 w-3" />
-                    <span>{relatedCounts.assignments} assignments</span>
-                  </div>
-                )}
+                )}                            
                 {relatedCounts.materials > 0 && (
                   <div className="flex items-center gap-2">
                     <Archive className="h-3 w-3" />

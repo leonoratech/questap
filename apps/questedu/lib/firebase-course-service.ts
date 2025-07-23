@@ -64,8 +64,6 @@ export class FirebaseCourseService {
       category: data.category || data.categoryId || '', // Use category name if available, fallback to categoryId
       categoryId: data.categoryId, // Include the category ID reference
       level: data.level,
-      price: data.price,
-      currency: data.currency,
       duration: data.duration,
       status: data.status,
       isPublished: data.isPublished !== false, // Default to true if not specified
@@ -213,14 +211,6 @@ export class FirebaseCourseService {
       }
       if (criteria.maxProgress !== undefined) {
         courses = courses.filter(course => course.progress <= criteria.maxProgress!);
-      }
-
-      // Apply price filters
-      if (criteria.minPrice !== undefined) {
-        courses = courses.filter(course => (course.price || 0) >= criteria.minPrice!);
-      }
-      if (criteria.maxPrice !== undefined) {
-        courses = courses.filter(course => (course.price || 0) <= criteria.maxPrice!);
       }
 
       // Apply tag filters

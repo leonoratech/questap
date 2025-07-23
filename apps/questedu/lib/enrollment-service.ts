@@ -4,16 +4,16 @@
  */
 
 import {
-    addDoc,
-    collection,
-    doc,
-    getDoc,
-    getDocs,
-    orderBy,
-    query,
-    serverTimestamp,
-    updateDoc,
-    where
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where
 } from 'firebase/firestore';
 import { getFirebaseAuth, getFirestoreDb } from './firebase-config';
 
@@ -33,8 +33,6 @@ export interface CourseProgress {
   completionPercentage: number;
   timeSpent: number; // in minutes
   lastTopicId?: string;
-  quizScores: { [topicId: string]: any };
-  assignmentSubmissions: { [assignmentId: string]: any };
   bookmarks: string[]; // topic IDs
   notes: { [topicId: string]: string };
 }
@@ -48,11 +46,6 @@ export interface CourseEnrollment {
   completedAt?: Date;
   lastAccessedAt?: Date;
   progress: CourseProgress;
-  paymentId?: string;
-  discountApplied?: number;
-  finalPrice: number;
-  refundRequested?: boolean;
-  refundedAt?: Date;
   course?: any; // Course details when populated
 }
 
@@ -125,14 +118,10 @@ export const enrollInCourse = async (courseId: string): Promise<{ success: boole
         completedTopics: [],
         totalTopics: 0,
         completionPercentage: 0,
-        timeSpent: 0,
-        quizScores: {},
-        assignmentSubmissions: {},
+        timeSpent: 0,        
         bookmarks: [],
         notes: {}
-      },
-      finalPrice: courseData.price || 0,
-      discountApplied: 0
+      }
     };
 
     const enrollmentRef = await addDoc(enrollmentsRef, enrollmentData);
@@ -197,16 +186,9 @@ export const getUserEnrollments = async (): Promise<CourseEnrollment[]> => {
           totalTopics: 0,
           completionPercentage: 0,
           timeSpent: 0,
-          quizScores: {},
-          assignmentSubmissions: {},
           bookmarks: [],
           notes: {}
-        },
-        paymentId: enrollmentData.paymentId,
-        discountApplied: enrollmentData.discountApplied || 0,
-        finalPrice: enrollmentData.finalPrice || 0,
-        refundRequested: enrollmentData.refundRequested || false,
-        refundedAt: enrollmentData.refundedAt ? convertTimestamp(enrollmentData.refundedAt) : undefined,
+        },        
         course: courseSnap.exists() ? { id: courseSnap.id, ...courseSnap.data() } : null
       };
       
