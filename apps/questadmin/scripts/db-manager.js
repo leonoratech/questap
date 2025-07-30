@@ -34,10 +34,6 @@ const path = require('path');
 
 // Available commands
 const COMMANDS = {
-  status: {
-    description: 'Check database status and document counts',
-    script: 'test-connection.js'
-  },
   clear: {
     description: 'Clear database without confirmation',
     script: 'clear-database-auto.js'
@@ -63,10 +59,6 @@ const COMMANDS = {
   migrate: {
     description: 'Migrate college text references to IDs',
     script: 'migrate-college-references.js'
-  },
-  test: {
-    description: 'Run comprehensive database tests',
-    script: 'test-database-scripts.js'
   },
   'indexes-status': {
     description: 'Show current Firestore index status',

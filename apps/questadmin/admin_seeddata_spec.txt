@@ -14,3 +14,31 @@
 -- note: There will be only one college for this application
  
 
+- Seeddata changes
+- Create a app level collection called as "appMaster"
+    - which should have following entities:
+        - College (as object) structure same as existing : 
+        {
+        id: 'stanford',
+        name: 'Stanford University',
+        accreditation: 'WASC',
+        affiliation: 'Private Research University',
+        address: {
+        street: '450 Serra Mall',
+        city: 'Stanford',
+        state: 'California',
+        country: 'United States',
+        postalCode: '94305'
+        },
+        contact: {
+        phone: '+1-650-723-2300',
+        email: 'admission@stanford.edu',
+        website: 'https://www.stanford.edu'
+        },
+        website: 'https://www.stanford.edu',
+        principalName: 'Marc Tessier-Lavigne',
+        description: 'A leading private research university known for its academic excellence and innovation.',
+        isActive: true
+        }
+- remove collections for Colleges
+- remove collections for collegeAdministrators
