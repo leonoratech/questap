@@ -294,7 +294,7 @@ export function ProgramManager({ }: ProgramManagerProps) {
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search programs..."
+                  placeholder="Search groups..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-8"
@@ -345,12 +345,12 @@ export function ProgramManager({ }: ProgramManagerProps) {
               </Button>
               <Button onClick={handleAddNew}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Program
+                Add Group
               </Button>
             </div>
 
             <div className="text-sm text-muted-foreground">
-              Showing {filteredPrograms.length} of {programs.length} programs
+              Showing {filteredPrograms.length} of {programs.length} groups
               {searchTerm && ` for "${searchTerm}"`}
               {departmentFilter !== 'all' && ` in ${getDepartmentName(departmentFilter)}`}
             </div>

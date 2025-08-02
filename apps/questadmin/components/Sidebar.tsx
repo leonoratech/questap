@@ -77,7 +77,7 @@ const navigationItems: NavigationItem[] = [
         roles: ['superadmin']
       },
       {
-        title: 'Programs',
+        title: 'Groups',
         href: '/programs',
         icon: GraduationCap,
         roles: ['superadmin']

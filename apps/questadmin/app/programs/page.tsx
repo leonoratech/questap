@@ -26,10 +26,10 @@ export default function GlobalProgramsPage() {
               </div>
               <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
                 <GraduationCap className="h-6 w-6" />
-                Programs Management
+                Groups Management
               </h1>
               <p className="text-muted-foreground">
-                Manage all academic programs across the platform. Create, edit, and organize programs with their associated departments and subjects.
+                Manage all academic groups across the platform. Create, edit, and organize groups with their associated departments and subjects.
               </p>
             </div>
           </div>
