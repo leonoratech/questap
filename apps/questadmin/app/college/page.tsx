@@ -2,86 +2,120 @@
 
 import { AdminLayout } from '@/components/AdminLayout'
 import { AuthGuard } from '@/components/AuthGuard'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/contexts/AuthContext'
 import { UserRole } from '@/data/config/firebase-auth'
-import { College, getCollegeById } from '@/data/services/college-service'
-import { CollegeStats, getCollegeStats } from '@/data/services/college-stats-service'
+import { AppMaster } from '@/data/models/app-master'
+import { AppMasterService } from '@/data/services/app-master-service'
 import {
-  BookOpen,
-  Building2,
+  Building,
+  Edit,
   Globe,
-  GraduationCap,
   Mail,
   MapPin,
   Phone,
-  School,
-  Users
+  Save,
+  User,
+  X
 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 export default function CollegePage() {
-  const router = useRouter()
   const { userProfile } = useAuth()
-  const [college, setCollege] = useState<College | null>(null)
-  const [stats, setStats] = useState<CollegeStats | null>(null)
+  const [college, setCollege] = useState<AppMaster['college'] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedCollege, setEditedCollege] = useState<AppMaster['college'] | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  const isSuperAdmin = userProfile?.role === UserRole.SUPERADMIN
 
   useEffect(() => {
-    loadCollegeData()
-  }, [userProfile])
-
-  const loadCollegeData = async () => {
-    if (!userProfile) {
-      setLoading(false)
-      return
+    const loadCollege = async () => {
+      try {
+        setError(null)
+        const collegeData = await AppMasterService.getCollege()
+        setCollege(collegeData)
+        setEditedCollege(collegeData)
+      } catch (error) {
+        console.error('Error loading college:', error)
+        setError('Failed to load college information')
+      } finally {
+        setLoading(false)
+      }
     }
 
-    // Check if user has college association
-    if (!userProfile.collegeId) {
-      setError('No college association found. Please update your profile to associate with a college.')
-      setLoading(false)
-      return
-    }
+    loadCollege()
+  }, [])
+
+  const handleEdit = () => {
+    setIsEditing(true)
+    setEditedCollege(college)
+  }
+
+  const handleCancel = () => {
+    setIsEditing(false)
+    setEditedCollege(college)
+  }
+
+  const handleSave = async () => {
+    if (!editedCollege) return
 
     try {
-      setLoading(true)
-      setError(null)
-
-      // Load college information and statistics
-      const [collegeData, collegeStats] = await Promise.all([
-        getCollegeById(userProfile.collegeId),
-        getCollegeStats(userProfile.collegeId)
-      ])
-      
-      if (!collegeData) {
-        setError('College information not found. Please contact support.')
-        return
-      }
-
-      setCollege(collegeData)
-      setStats(collegeStats)
+      setSaving(true)
+      await AppMasterService.updateCollege(editedCollege)
+      setCollege(editedCollege)
+      setIsEditing(false)
+      toast.success('College information updated successfully')
     } catch (error) {
-      console.error('Error loading college data:', error)
-      setError('Failed to load college information. Please try again.')
-      toast.error('Failed to load college information')
+      console.error('Error saving college:', error)
+      toast.error('Failed to update college information')
     } finally {
-      setLoading(false)
+      setSaving(false)
     }
+  }
+
+  const updateEditedCollege = (field: string, value: string, nested?: string) => {
+    if (!editedCollege) return
+
+    setEditedCollege(prev => {
+      if (!prev) return null
+      
+      if (nested) {
+        const nestedField = prev[field as keyof AppMaster['college']]
+        if (typeof nestedField === 'object' && nestedField !== null) {
+          return {
+            ...prev,
+            [field]: {
+              ...nestedField,
+              [nested]: value
+            }
+          }
+        }
+      } else {
+        return {
+          ...prev,
+          [field]: value
+        }
+      }
+      return prev
+    })
   }
 
   if (loading) {
     return (
-      <AuthGuard requiredRoles={[UserRole.INSTRUCTOR, UserRole.STUDENT]}>
-        <AdminLayout>
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <span className="ml-2">Loading college information...</span>
+      <AuthGuard>
+        <AdminLayout title="College Information">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading college information...</p>
             </div>
           </div>
         </AdminLayout>
@@ -91,273 +125,327 @@ export default function CollegePage() {
 
   if (error) {
     return (
-      <AuthGuard requiredRoles={[UserRole.INSTRUCTOR, UserRole.STUDENT]}>
-        <AdminLayout>
-          <div className="container mx-auto px-4 py-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <School className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">College Information Unavailable</h3>
-                  <p className="text-muted-foreground mb-4">{error}</p>
-                  <div className="flex gap-2 justify-center">
-                    <button
-                      onClick={() => router.push('/profile')}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-                    >
-                      Update Profile
-                    </button>
-                    <button
-                      onClick={loadCollegeData}
-                      className="px-4 py-2 border border-border rounded-md hover:bg-accent"
-                    >
-                      Try Again
-                    </button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+      <AuthGuard>
+        <AdminLayout title="College Information">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center text-destructive">
+                <p>{error}</p>
+                <Button 
+                  onClick={() => window.location.reload()} 
+                  className="mt-4"
+                >
+                  Retry
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </AdminLayout>
       </AuthGuard>
     )
   }
 
   if (!college) {
-    return null
+    return (
+      <AuthGuard>
+        <AdminLayout title="College Information">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <Building className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold mb-2">No College Information Found</h3>
+                <p className="text-muted-foreground">
+                  College information has not been configured yet.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </AdminLayout>
+      </AuthGuard>
+    )
   }
 
   return (
-    <AuthGuard requiredRoles={[UserRole.INSTRUCTOR, UserRole.STUDENT]}>
-      <AdminLayout>
-        <div className="container mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                <School className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">{college.name}</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  {college.principalName && (
-                    <span className="text-muted-foreground">Principal: {college.principalName}</span>
-                  )}
-                  <Badge variant={college.isActive ? 'default' : 'secondary'}>
-                    {college.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
-              </div>
+    <AuthGuard>
+      <AdminLayout title="College Information">
+        <div className="space-y-6">
+          {/* Page Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">College Information</h1>
+              <p className="text-muted-foreground">View and manage college details</p>
             </div>
+            {isSuperAdmin && !isEditing && (
+              <Button onClick={handleEdit}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+            )}
+            {isEditing && (
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleCancel}>
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button onClick={handleSave} disabled={saving}>
+                  <Save className="h-4 w-4 mr-2" />
+                  {saving ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* College Statistics */}
-            <div className="lg:col-span-1">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    College Statistics
-                  </CardTitle>
-                  <CardDescription>Student and staff information</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {stats ? (
-                      <>
-                        <div className="flex items-center justify-between p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <GraduationCap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Students</span>
-                          </div>
-                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{stats.studentCount}</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <BookOpen className="h-4 w-4 text-green-600 dark:text-green-400" />
-                            <span className="text-sm font-medium text-green-700 dark:text-green-300">Instructors</span>
-                          </div>
-                          <span className="text-lg font-bold text-green-600 dark:text-green-400">{stats.instructorCount}</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                            <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Total Staff</span>
-                          </div>
-                          <span className="text-lg font-bold text-purple-600 dark:text-purple-400">{stats.staffCount}</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800/50 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <Building2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Users</span>
-                          </div>
-                          <span className="text-lg font-bold text-gray-600 dark:text-gray-400">{stats.totalUsers}</span>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-center py-4">
-                        <p className="text-sm text-muted-foreground">Statistics not available</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* College Information */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Basic Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <School className="h-5 w-5" />
-                    College Information
-                  </CardTitle>
-                  <CardDescription>Basic details about the institution</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Basic Details */}
-                    <div className="space-y-4">
-                      <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
-                        Basic Details
-                      </h3>
-                      {college.accreditation && (
-                        <div>
-                          <div className="text-xs text-muted-foreground">Accreditation</div>
-                          <div className="text-sm font-medium">{college.accreditation}</div>
-                        </div>
-                      )}
-                      {college.affiliation && (
-                        <div>
-                          <div className="text-xs text-muted-foreground">Affiliation</div>
-                          <div className="text-sm font-medium">{college.affiliation}</div>
-                        </div>
-                      )}
-                      {college.description && (
-                        <div>
-                          <div className="text-xs text-muted-foreground">Description</div>
-                          <div className="text-sm">{college.description}</div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Contact Information */}
-                    <div className="space-y-4">
-                      <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
-                        Contact Information
-                      </h3>
-                      {college.contact?.phone && (
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{college.contact.phone}</span>
-                        </div>
-                      )}
-                      {college.contact?.email && (
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4 text-muted-foreground" />
-                          <a 
-                            href={`mailto:${college.contact.email}`}
-                            className="text-sm text-blue-600 hover:underline"
-                          >
-                            {college.contact.email}
-                          </a>
-                        </div>
-                      )}
-                      {college.contact?.website && (
-                        <div className="flex items-center gap-2">
-                          <Globe className="h-4 w-4 text-muted-foreground" />
-                          <a 
-                            href={college.contact.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:underline"
-                          >
-                            Visit Website
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Address Information */}
-              {college.address && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MapPin className="h-5 w-5" />
-                      Address
-                    </CardTitle>
-                    <CardDescription>Physical location of the institution</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm space-y-1">
-                      {college.address.street && <div>{college.address.street}</div>}
-                      <div>
-                        {[
-                          college.address.city,
-                          college.address.state,
-                          college.address.postalCode
-                        ].filter(Boolean).join(', ')}
-                      </div>
-                      {college.address.country && <div>{college.address.country}</div>}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
-
-          {/* College Services Navigation */}
-          <div className="mt-8">
+          {/* College Information */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Basic Information */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5" />
-                  College Services
+                  <Building className="h-5 w-5" />
+                  Basic Information
                 </CardTitle>
-                <CardDescription>Access college information and services</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">College Name</Label>
+                  {isEditing ? (
+                    <Input
+                      id="name"
+                      value={editedCollege?.name || ''}
+                      onChange={(e) => updateEditedCollege('name', e.target.value)}
+                      placeholder="Enter college name"
+                    />
+                  ) : (
+                    <p className="text-sm font-medium">{college.name}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="affiliation">Affiliation</Label>
+                  {isEditing ? (
+                    <Input
+                      id="affiliation"
+                      value={editedCollege?.affiliation || ''}
+                      onChange={(e) => updateEditedCollege('affiliation', e.target.value)}
+                      placeholder="Enter affiliation"
+                    />
+                  ) : (
+                    <p className="text-sm">{college.affiliation}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="accreditation">Accreditation</Label>
+                  {isEditing ? (
+                    <Input
+                      id="accreditation"
+                      value={editedCollege?.accreditation || ''}
+                      onChange={(e) => updateEditedCollege('accreditation', e.target.value)}
+                      placeholder="Enter accreditation"
+                    />
+                  ) : (
+                    <p className="text-sm">{college.accreditation}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="principal">Principal Name</Label>
+                  {isEditing ? (
+                    <Input
+                      id="principal"
+                      value={editedCollege?.principalName || ''}
+                      onChange={(e) => updateEditedCollege('principalName', e.target.value)}
+                      placeholder="Enter principal name"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{college.principalName}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  {isEditing ? (
+                    <Textarea
+                      id="description"
+                      value={editedCollege?.description || ''}
+                      onChange={(e) => updateEditedCollege('description', e.target.value)}
+                      placeholder="Enter college description"
+                      rows={3}
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{college.description}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Contact Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Phone className="h-5 w-5" />
+                  Contact Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  {isEditing ? (
+                    <Input
+                      id="phone"
+                      value={editedCollege?.contact.phone || ''}
+                      onChange={(e) => updateEditedCollege('contact', e.target.value, 'phone')}
+                      placeholder="Enter phone number"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{college.contact.phone}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  {isEditing ? (
+                    <Input
+                      id="email"
+                      type="email"
+                      value={editedCollege?.contact.email || ''}
+                      onChange={(e) => updateEditedCollege('contact', e.target.value, 'email')}
+                      placeholder="Enter email address"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{college.contact.email}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website</Label>
+                  {isEditing ? (
+                    <Input
+                      id="website"
+                      type="url"
+                      value={editedCollege?.website || ''}
+                      onChange={(e) => updateEditedCollege('website', e.target.value)}
+                      placeholder="Enter website URL"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-muted-foreground" />
+                      <a 
+                        href={college.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        {college.website}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Address Information */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Address
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Programs Link */}
-                  <button 
-                    onClick={() => router.push('/college/programs')}
-                    className="p-4 text-left rounded-lg border hover:bg-accent transition-colors"
-                  >
-                    <BookOpen className="h-8 w-8 text-primary mb-2" />
-                    <h3 className="font-medium">Academic Programs</h3>
-                    <p className="text-sm text-muted-foreground">Browse available academic programs</p>
-                  </button>
-                  
-                  {/* Students Directory - For instructors */}
-                  {userProfile?.role === UserRole.INSTRUCTOR && (
-                    <button 
-                      onClick={() => router.push('/users?role=student')}
-                      className="p-4 text-left rounded-lg border hover:bg-accent transition-colors"
-                    >
-                      <Users className="h-8 w-8 text-primary mb-2" />
-                      <h3 className="font-medium">Students</h3>
-                      <p className="text-sm text-muted-foreground">View student directory</p>
-                    </button>
-                  )}
-                  
-                  {/* College Information */}
-                  <button 
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="p-4 text-left rounded-lg border hover:bg-accent transition-colors"
-                  >
-                    <Building2 className="h-8 w-8 text-primary mb-2" />
-                    <h3 className="font-medium">College Info</h3>
-                    <p className="text-sm text-muted-foreground">View college details and contact</p>
-                  </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="street">Street Address</Label>
+                    {isEditing ? (
+                      <Input
+                        id="street"
+                        value={editedCollege?.address.street || ''}
+                        onChange={(e) => updateEditedCollege('address', e.target.value, 'street')}
+                        placeholder="Enter street address"
+                      />
+                    ) : (
+                      <p className="text-sm">{college.address.street}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City</Label>
+                    {isEditing ? (
+                      <Input
+                        id="city"
+                        value={editedCollege?.address.city || ''}
+                        onChange={(e) => updateEditedCollege('address', e.target.value, 'city')}
+                        placeholder="Enter city"
+                      />
+                    ) : (
+                      <p className="text-sm">{college.address.city}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="state">State</Label>
+                    {isEditing ? (
+                      <Input
+                        id="state"
+                        value={editedCollege?.address.state || ''}
+                        onChange={(e) => updateEditedCollege('address', e.target.value, 'state')}
+                        placeholder="Enter state"
+                      />
+                    ) : (
+                      <p className="text-sm">{college.address.state}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country</Label>
+                    {isEditing ? (
+                      <Input
+                        id="country"
+                        value={editedCollege?.address.country || ''}
+                        onChange={(e) => updateEditedCollege('address', e.target.value, 'country')}
+                        placeholder="Enter country"
+                      />
+                    ) : (
+                      <p className="text-sm">{college.address.country}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="postalCode">Postal Code</Label>
+                    {isEditing ? (
+                      <Input
+                        id="postalCode"
+                        value={editedCollege?.address.postalCode || ''}
+                        onChange={(e) => updateEditedCollege('address', e.target.value, 'postalCode')}
+                        placeholder="Enter postal code"
+                      />
+                    ) : (
+                      <p className="text-sm">{college.address.postalCode}</p>
+                    )}
+                  </div>
                 </div>
+
+                {!isEditing && (
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div className="text-sm text-muted-foreground">
+                        <p>{college.address.street}</p>
+                        <p>{college.address.city}, {college.address.state} {college.address.postalCode}</p>
+                        <p>{college.address.country}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

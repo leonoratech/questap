@@ -973,7 +973,6 @@ async function seedCourseDifficulties() {
 
 const APP_MASTER_DOC_ID = 'college';
 const AP_COLLEGE = {
-    id: 'govtjuniorcollege',
     name: 'Government Junior College',
     accreditation: 'BIE',
     affiliation: 'Board of Intermediate Education',
@@ -991,8 +990,7 @@ const AP_COLLEGE = {
     },
     website: 'https://web.auc.edu',
     principalName: 'Vice Chancellor',
-    description: '',
-    isActive: true
+    description: ''
 };
 
 async function seedAppMaster() {

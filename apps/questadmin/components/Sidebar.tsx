@@ -61,7 +61,7 @@ const navigationItems: NavigationItem[] = [
     title: 'College',
     href: '/college',
     icon: GraduationCap,
-    roles: ['instructor', 'student'],
+    roles: ['superadmin', 'instructor', 'student'],
     subItems: [
       {
         title: 'Programs',
@@ -70,13 +70,7 @@ const navigationItems: NavigationItem[] = [
         roles: ['instructor', 'student']
       }
     ]
-  },
-  {
-    title: 'Colleges',
-    href: '/colleges',
-    icon: GraduationCap,
-    roles: ['superadmin']
-  },
+  }, 
   {
     title: 'Users',
     href: '/users',

@@ -88,3 +88,46 @@ export function refreshJWTToken(currentPayload: JWTPayload): string {
   const { iat, exp, ...userPayload } = currentPayload
   return generateJWTToken(userPayload)
 }
+
+/**
+ * Authenticate request by verifying JWT token from Authorization header
+ */
+export async function authenticateRequest(request: Request): Promise<{
+  success: boolean;
+  user?: JWTPayload;
+  error?: string;
+}> {
+  try {
+    // Extract JWT token from Authorization header
+    const authHeader = request.headers.get('Authorization')
+    const token = extractTokenFromHeader(authHeader)
+    
+    if (!token) {
+      return {
+        success: false,
+        error: 'No authentication token provided'
+      }
+    }
+
+    // Verify and decode JWT token
+    const payload = verifyJWTToken(token)
+    
+    if (!payload) {
+      return {
+        success: false,
+        error: 'Invalid or expired authentication token'
+      }
+    }
+
+    return {
+      success: true,
+      user: payload
+    }
+  } catch (error) {
+    console.error('Authentication error:', error)
+    return {
+      success: false,
+      error: 'Authentication failed'
+    }
+  }
+}
