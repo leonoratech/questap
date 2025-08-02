@@ -48,6 +48,14 @@ export function AssociationSelector({
           subjectId: '',
           subjectName: ''
         })
+      }else{
+        // If program is valid, set subjects
+        const selectedProgram = fetchedPrograms.find(p => p.id === association.programId)
+        if (selectedProgram) {
+          setSubjects(selectedProgram.subjects || [])
+        } else {
+          setSubjects([])
+        }
       }
     } catch (error) {
       console.error('Error loading programs:', error)
@@ -65,6 +73,8 @@ export function AssociationSelector({
       ...association,
       programId,
       programName: program?.name || '',
+      departmentId: program?.department?.id || '',
+      departmentName: program?.department?.name || '',
       subjectId: '',
       subjectName: ''
     })

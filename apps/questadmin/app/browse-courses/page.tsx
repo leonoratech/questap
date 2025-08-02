@@ -2,12 +2,10 @@
 
 import { AdminLayout } from '@/components/AdminLayout'
 import { AuthGuard } from '@/components/AuthGuard'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAuth } from '@/contexts/AuthContext'
 import { getAuthHeaders, UserRole } from '@/data/config/firebase-auth'
 import { AdminCourse } from '@/data/services/admin-course-service'
@@ -23,9 +21,9 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-interface BrowseCoursesPageProps {}
+interface BrowseCoursesPageProps { }
 
-export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
+export default function BrowseCoursesPage({ }: BrowseCoursesPageProps) {
   const router = useRouter()
   const { user } = useAuth()
   const [courses, setCourses] = useState<AdminCourse[]>([])
@@ -33,9 +31,7 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('all')
-  const [levelFilter, setLevelFilter] = useState('all')
-  
+
   // Check if current user is a student
   const isStudent = user?.role === UserRole.STUDENT
 
@@ -59,7 +55,7 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
     }, 100)
 
     return () => clearTimeout(timeoutId)
-  }, [courses, categoryFilter, levelFilter])
+  }, [courses])
 
   // Debug logging for search functionality
   useEffect(() => {
@@ -68,29 +64,27 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
       filteredCourses: filteredCourses.length,
       searchTerm,
       debouncedSearchTerm,
-      categoryFilter,
-      levelFilter,
       isStudent,
       userRole: user?.role
     })
-  }, [courses, filteredCourses, searchTerm, debouncedSearchTerm, categoryFilter, levelFilter, isStudent, user?.role])
-  
+  }, [courses, filteredCourses, searchTerm, debouncedSearchTerm, isStudent, user?.role])
+
 
   const loadCourses = async (searchQuery?: string) => {
     try {
       setLoading(true)
       console.log('Loading courses for browsing...', { searchQuery })
-      
+
       // Build API URL with search parameter if provided
       let apiUrl = '/api/courses?browsing=true'
       if (searchQuery && searchQuery.trim()) {
         apiUrl += `&search=${encodeURIComponent(searchQuery.trim())}`
       }
-      
+
       const response = await fetch(apiUrl, {
         headers: getAuthHeaders(),
       })
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         console.error('API Error Response:', {
@@ -100,7 +94,7 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
           details: errorData.details,
           url: apiUrl
         })
-        
+
         if (response.status === 500) {
           toast.error('Server error while loading courses. Please try again.')
         } else if (response.status === 403) {
@@ -110,18 +104,18 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
         }
         return
       }
-      
+
       const data = await response.json()
-      
+
       if (!data.success) {
         console.error('API returned unsuccessful response:', data)
         toast.error('Failed to load courses')
         return
       }
-      
+
       const allCourses = data.courses || []
       console.log('Loaded courses:', allCourses.length)
-      
+
       // Only show published courses
       const publishedCourses = allCourses.filter((course: any) => {
         try {
@@ -132,9 +126,9 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
         }
       })
       console.log('Published courses:', publishedCourses.length)
-      
+
       setCourses(publishedCourses)
-            
+
     } catch (error) {
       console.error('Error loading courses:', error)
       toast.error('Failed to load courses. Please try refreshing the page.')
@@ -146,30 +140,6 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
   const filterCourses = () => {
     try {
       let filtered = courses
-
-      // Filter by category
-      if (categoryFilter && categoryFilter !== 'all') {
-        filtered = filtered.filter(course => {
-          try {
-            return course.categoryId === categoryFilter
-          } catch (error) {
-            console.warn('Error filtering by category:', course.id, error)
-            return false
-          }
-        })
-      }
-
-      // Filter by level
-      if (levelFilter && levelFilter !== 'all') {
-        filtered = filtered.filter(course => {
-          try {
-            return course.difficultyId && course.difficultyId.toLowerCase() === levelFilter
-          } catch (error) {
-            console.warn('Error filtering by level:', course.id, error)
-            return false
-          }
-        })
-      }
 
       setFilteredCourses(filtered)
     } catch (error) {
@@ -183,44 +153,20 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
     router.push(`/courses/${courseId}/preview`)
   }
 
-  const getUniqueCategories = () => {
-    try {
-      const categories = courses
-        .filter(course => course && course.categoryId) // Filter out invalid courses
-        .map(course => course.categoryId)
-        .filter(Boolean) // Remove any null/undefined categories
-      return Array.from(new Set(categories))
-    } catch (error) {
-      console.error('Error getting unique categories:', error)
-      return []
-    }
-  }
-
-  const getDifficultyBadgeColor = (difficultyId: string) => {
-    switch (difficultyId.toLowerCase()) {
-      case 'beginner': return 'bg-green-100 text-green-800'
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800'
-      case 'advanced': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
-
   const CourseCard = ({ course }: { course: AdminCourse }) => {
     // Safety checks for course data
     if (!course) {
       console.warn('CourseCard received null/undefined course')
       return null
     }
-  
+
     // Safe property access with fallbacks
     const title = course.title || 'Untitled Course'
     const instructor = course.instructor || 'Unknown Instructor'
     const description = course.description || 'No description available'
-    const difficultyId = course.difficultyId || 'beginner'
-    const categoryId = course.categoryId || 'general'
     const duration = course.duration || 0
     const rating = course.rating || 0
-    
+
     return (
       <Card className="hover:shadow-md transition-shadow">
         {/* Course Image */}
@@ -239,16 +185,13 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
               <CardTitle className="text-lg line-clamp-2">{title}</CardTitle>
               <CardDescription className="text-sm">by {instructor}</CardDescription>
             </div>
-            <Badge className={getDifficultyBadgeColor(difficultyId)}>
-              {difficultyId}
-            </Badge>
           </div>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
             {description}
           </p>
-          
+
           {/* Course Stats */}
           <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
             <div className="flex items-center gap-2">
@@ -263,18 +206,14 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
               <Star className="h-4 w-4 text-yellow-500" />
               <span>{rating > 0 ? rating.toFixed(1) : 'No rating'}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-purple-600" />
-              <span>{categoryId}</span>
-            </div>
           </div>
 
           {/* Course Status */}
           <div className="flex items-center justify-between mb-4">
             <span className="text-lg font-semibold text-blue-600">
               {course.status === 'published' ? 'Available' : 'Coming Soon'}
-            </span>            
-          </div>          
+            </span>
+          </div>
         </CardContent>
       </Card>
     )
@@ -307,7 +246,7 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">Browse Courses</h1>
             <p className="text-muted-foreground">
-              {isStudent 
+              {isStudent
                 ? "Discover and enroll in courses that match your interests"
                 : "Explore available courses and preview content from other instructors"
               }
@@ -332,42 +271,8 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
                 </div>
               </div>
 
-              {/* Category Filter */}
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {getUniqueCategories().map(category => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Level Filter */}
-              <div className="space-y-2">
-                <Label>Level</Label>
-                <Select value={levelFilter} onValueChange={setLevelFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Levels" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Levels</SelectItem>
-                    <SelectItem value="beginner">Beginner</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </div>
-
           {/* Results Summary */}
           <div className="mb-6">
             <p className="text-sm text-muted-foreground">
@@ -381,20 +286,18 @@ export default function BrowseCoursesPage({}: BrowseCoursesPageProps) {
               <BookOpen className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-xl font-semibold mb-2">No courses found</h3>
               <p className="text-muted-foreground">
-                {searchTerm || categoryFilter !== 'all' || levelFilter !== 'all' 
+                {searchTerm
                   ? 'Try adjusting your search criteria or browse all available courses.'
                   : 'No courses are currently available. Check back later for new courses.'
                 }
               </p>
-              {(searchTerm || categoryFilter !== 'all' || levelFilter !== 'all') && (
-                <Button 
-                  className="mt-4" 
+              {(searchTerm) && (
+                <Button
+                  className="mt-4"
                   variant="outline"
                   onClick={() => {
                     setSearchTerm('')
                     setDebouncedSearchTerm('')
-                    setCategoryFilter('all')
-                    setLevelFilter('all')
                   }}
                 >
                   Clear Filters

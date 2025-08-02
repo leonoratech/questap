@@ -43,6 +43,8 @@ export interface CourseResource {
 export interface CourseAssociation {
   programId: string
   programName?: string // Cached for display
+  departmentId?: string // Optional, if associated with a specific department
+  departmentName?: string // Cached for display
   yearOrSemester: number
   language: string
   subjectId: string

@@ -239,7 +239,7 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
       ...prev,
       associations: [
         ...prev.associations,
-        { programId: '', yearOrSemester: 1, subjectId: '', subjectName: '', departmentId: '', departmentName: '' } 
+        { programId: '', programName: '', yearOrSemester: 1, subjectId: '', subjectName: '', departmentId: '', departmentName: '', language: '' } 
       ]
     }))
   }

@@ -168,8 +168,6 @@ export async function POST(request: NextRequest) {
       title: courseData.title,
       description: courseData.description || '',
       instructorId: courseData.instructorId,
-      categoryId: courseData.categoryId || '',
-      difficultyId: courseData.difficultyId || '',
       status: (courseData.status === 'published' || courseData.status === 'draft') ? courseData.status : 'draft',
       // Include image fields if provided
       ...(courseData.image && { image: courseData.image }),

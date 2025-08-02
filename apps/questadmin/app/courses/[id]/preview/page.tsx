@@ -659,13 +659,7 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
                   </div>
                 </div>
                 <p className="text-sm text-foreground">
-                  {instructor?.bio || 
-                    `Experienced instructor with expertise in ${categoryName.toLowerCase()}. ${
-                      getCompatibleArray(course.targetAudience, selectedLanguage).length > 0 
-                        ? `This course is designed for ${getCompatibleArray(course.targetAudience, selectedLanguage)[0].toLowerCase()}.`
-                        : 'Passionate about teaching and helping students achieve their learning goals.'
-                    }`
-                  }
+                  {instructor?.bio}
                 </p>
                 
                 {/* Debug information (remove in production) */}
