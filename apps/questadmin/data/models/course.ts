@@ -41,11 +41,10 @@ export interface CourseResource {
 }
 
 export interface CourseAssociation {
-  collegeId: string
-  collegeName?: string // Cached for display
   programId: string
   programName?: string // Cached for display
   yearOrSemester: number
+  language: string
   subjectId: string
   subjectName?: string // Cached for display
 }

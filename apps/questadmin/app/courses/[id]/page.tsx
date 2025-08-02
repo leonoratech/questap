@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuth } from '@/contexts/AuthContext'
 import { AdminCourse, deleteCourse, duplicateCourse, getCourseById } from '@/data/services/admin-course-service'
 import { isMultilingualContent } from '@/lib/multilingual-utils'
-import { ArrowLeft, BookOpen, Edit, Eye, FileText, HelpCircle, Trash2, Users } from 'lucide-react'
+import { ArrowLeft, BookOpen, Edit, Eye, FileText, HelpCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -256,16 +256,6 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-2">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Category</label>
-                    <p className="text-sm font-medium">{course.categoryId}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Level</label>
-                    <Badge variant="outline" className="text-xs">
-                      {course.difficultyId}
-                    </Badge>
-                  </div>
-                  <div>
                     <label className="text-sm font-medium text-muted-foreground">Instructor</label>
                     <p className="text-sm font-medium">{course.instructor}</p>
                   </div>
@@ -295,7 +285,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
             </Card>
 
             {/* Quick Actions */}
-            {canEdit && (
+            {/* {canEdit && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Quick Actions</CardTitle>
@@ -337,7 +327,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                   </Button>
                 </CardContent>
               </Card>
-            )}
+            )} */}
 
             {/* Course Insights */}
             <Card>
@@ -356,17 +346,17 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                       {course.rating ? `${course.rating.toFixed(1)} ⭐` : 'No ratings'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  {/* <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Revenue</span>
                     <span className="font-medium">
                       TODO:
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Course Progress */}
+            {/* Course Progress
             <Card className="lg:block hidden">
               <CardHeader>
                 <CardTitle className="text-lg">Course Progress</CardTitle>
@@ -377,7 +367,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                   <p className="text-sm">Detailed analytics coming soon</p>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
         </div>
       </div>

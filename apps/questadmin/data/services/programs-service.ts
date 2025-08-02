@@ -3,48 +3,8 @@
  * Client-side service for superadmin programs management
  */
 
-import { Department } from '@/data/models/department'
-import { Subject } from '@/data/models/subject'
 import { getAuthHeaders } from '../config/firebase-auth'
-
-export interface Program {
-  id?: string
-  name: string
-  description?: string
-  department: Department
-  subjects?: Subject[]
-  yearsOrSemesters?: number
-  semesterType?: 'years' | 'semesters'
-  language?: string
-  programCode?: string
-  isActive: boolean
-  createdAt?: Date
-  updatedAt?: Date
-  createdBy?: string
-}
-
-export interface CreateProgramRequest {
-  name: string
-  description?: string
-  departmentId: string
-  subjectIds?: string[]
-  yearsOrSemesters?: number
-  semesterType?: 'years' | 'semesters'
-  language?: string
-  programCode?: string
-}
-
-export interface UpdateProgramRequest {
-  name?: string
-  description?: string
-  departmentId?: string
-  subjectIds?: string[]
-  yearsOrSemesters?: number
-  semesterType?: 'years' | 'semesters'
-  language?: string
-  programCode?: string
-  isActive?: boolean
-}
+import { CreateProgramRequest, Program, UpdateProgramRequest } from '../models/program'
 
 interface ApiResponse<T = any> {
   success: boolean

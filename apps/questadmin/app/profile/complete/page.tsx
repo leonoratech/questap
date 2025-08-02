@@ -178,22 +178,6 @@ export default function ProfileCompletePage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Common Fields */}
-                <CollegeSelector
-                  value={formData.collegeId || formData.college}
-                  onChange={(value, collegeId) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      collegeId: collegeId || '',
-                      college: collegeId ? '' : value  // Only store college name if no ID
-                    }))
-                  }}
-                  required
-                  placeholder="Select your college or institution"
-                  label="College/Institution"
-                  useCollegeId={true}
-                />
-
                 {/* Role-specific Fields */}
                 {userProfile.role === UserRole.INSTRUCTOR && (
                   <>

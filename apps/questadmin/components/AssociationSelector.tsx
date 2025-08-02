@@ -5,11 +5,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CourseAssociation } from '@/data/models/course'
 import { Program } from '@/data/models/program'
-import { Subject } from '@/data/models/subject'
-import { College, getColleges } from '@/data/services/college-service'
-import { getCollegePrograms } from '@/data/services/program-service'
-import { getAllSubjects } from '@/data/services/subjects-service'
-import { BookOpen, Building2, Calendar, GraduationCap, X } from 'lucide-react'
+import { getAllPrograms } from '@/data/services/programs-service'
+import { BookOpen, Calendar, GraduationCap, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -26,52 +23,18 @@ export function AssociationSelector({
   onRemove,
   disabled = false
 }: AssociationSelectorProps) {
-  const [colleges, setColleges] = useState<College[]>([])
   const [programs, setPrograms] = useState<Program[]>([])
-  const [subjects, setSubjects] = useState<Subject[]>([])
   const [loading, setLoading] = useState(false)
   
   // Load colleges on mount
   useEffect(() => {
-    loadColleges()
+    loadPrograms()
   }, [])
-
-  // Load programs when college changes
-  useEffect(() => {
-    if (association.collegeId) {
-      loadPrograms(association.collegeId)
-    } else {
-      setPrograms([])
-      setSubjects([])
-    }
-  }, [association.collegeId])
-
-  // Load subjects when program changes
-  useEffect(() => {
-    if (association.programId) {
-      loadSubjects(association.programId)
-    } else {
-      setSubjects([])
-    }
-  }, [association.programId])
-
-  const loadColleges = async () => {
+  
+  const loadPrograms = async () => {
     try {
       setLoading(true)
-      const fetchedColleges = await getColleges()
-      setColleges(fetchedColleges)
-    } catch (error) {
-      console.error('Error loading colleges:', error)
-      toast.error('Failed to load colleges')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const loadPrograms = async (collegeId: string) => {
-    try {
-      setLoading(true)
-      const fetchedPrograms = await getCollegePrograms(collegeId)
+      const fetchedPrograms = await getAllPrograms()
       setPrograms(fetchedPrograms)
       
       // Clear program and subject if the current selection is not in the new list
@@ -92,41 +55,6 @@ export function AssociationSelector({
     }
   }
 
-  const loadSubjects = async (programId: string) => {
-    try {
-      setLoading(true)
-      const fetchedSubjects = await getAllSubjects()
-      setSubjects(fetchedSubjects)
-      
-      // Clear subject if the current selection is not in the new list
-      if (association.subjectId && !fetchedSubjects.find(s => s.id === association.subjectId)) {
-        onUpdate({
-          ...association,
-          subjectId: '',
-          subjectName: ''
-        })
-      }
-    } catch (error) {
-      console.error('Error loading subjects:', error)
-      toast.error('Failed to load subjects')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleCollegeChange = (collegeId: string) => {
-    const college = colleges.find(c => c.id === collegeId)
-    onUpdate({
-      ...association,
-      collegeId,
-      collegeName: college?.name || '',
-      programId: '',
-      programName: '',
-      subjectId: '',
-      subjectName: ''
-    })
-  }
-
   const handleProgramChange = (programId: string) => {
     const program = programs.find(p => p.id === programId)
     onUpdate({
@@ -135,15 +63,6 @@ export function AssociationSelector({
       programName: program?.name || '',
       subjectId: '',
       subjectName: ''
-    })
-  }
-
-  const handleSubjectChange = (subjectId: string) => {
-    const subject = subjects.find(s => s.id === subjectId)
-    onUpdate({
-      ...association,
-      subjectId,
-      subjectName: subject?.name || ''
     })
   }
 
@@ -187,29 +106,6 @@ export function AssociationSelector({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* College Selection */}
-        <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Building2 className="h-4 w-4" />
-            College *
-          </Label>
-          <Select
-            value={association.collegeId}
-            onValueChange={handleCollegeChange}
-            disabled={disabled || loading}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select college" />
-            </SelectTrigger>
-            <SelectContent>
-              {colleges.map((college) => (
-                <SelectItem key={college.id} value={college.id || ''}>
-                  {college.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
 
         {/* Program Selection */}
         <div className="space-y-2">
@@ -220,7 +116,7 @@ export function AssociationSelector({
           <Select
             value={association.programId}
             onValueChange={handleProgramChange}
-            disabled={disabled || loading || !association.collegeId}
+            disabled={disabled || loading}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select program" />
@@ -282,10 +178,7 @@ export function AssociationSelector({
               {subjects.map((subject) => (
                 <SelectItem key={subject.id} value={subject.id!}>
                   <div className="flex flex-col">
-                    <span>{subject.name}</span>
-                    {/* {subject.description && (
-                      <span className="text-xs text-muted-foreground">{subject.description}</span>
-                    )} */}
+                    <span>{subject.name}</span>        
                   </div>
                 </SelectItem>
               ))}
@@ -295,7 +188,7 @@ export function AssociationSelector({
       </div>
 
       {/* Validation Message */}
-      {(!association.collegeId || !association.programId || !association.subjectId) && (
+      {(!association.programId || !association.subjectId) && (
         <div className="text-xs text-muted-foreground">
           Please select all required fields to complete this association.
         </div>
