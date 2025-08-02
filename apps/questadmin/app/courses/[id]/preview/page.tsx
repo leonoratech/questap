@@ -17,7 +17,6 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { HybridAdminCourse, HybridAdminCourseTopic } from '@/data/models/data-model'
 import { getCourseById, getCourseTopics } from '@/data/services/admin-course-service'
 import { AdminUser, getUserById } from '@/data/services/admin-user-service'
-import { getCategoryName, getDifficultyName } from '@/data/services/course-master-data-service'
 import {
   DEFAULT_LANGUAGE,
   SupportedLanguage
@@ -63,8 +62,6 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
   
   const [courseReviews, setCourseReviews] = useState<any[]>([])
   const [ratingStats, setRatingStats] = useState<any>(null)
-  const [categoryName, setCategoryName] = useState<string>('Unknown Category')
-  const [difficultyName, setDifficultyName] = useState<string>('Unknown Difficulty')
 
   useEffect(() => {
     const loadCourseData = async () => {
@@ -81,21 +78,9 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
         
         // Convert to HybridAdminCourse format with fallbacks
         const hybridCourse: HybridAdminCourse = {
-          ...courseData,
-          categoryId: (courseData as any).categoryId || '',
-          difficultyId: (courseData as any).difficultyId || ''
+          ...courseData
         }
         setCourse(hybridCourse)
-        
-        // Load master data names
-        if (hybridCourse.categoryId) {
-          const catName = await getCategoryName(hybridCourse.categoryId)
-          setCategoryName(catName)
-        }
-        if (hybridCourse.difficultyId) {
-          const diffName = await getDifficultyName(hybridCourse.difficultyId)
-          setDifficultyName(diffName)
-        }
         
         // Determine available languages from course content
         const courseLanguages = new Set<SupportedLanguage>([DEFAULT_LANGUAGE])
@@ -344,21 +329,7 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
                   <div>
                     <h1 className="text-2xl font-bold text-foreground mb-2">{courseTitle}</h1>
                     <p className="text-muted-foreground">by {instructorName}</p>
-                  </div>
-                  <div className="text-right">
-                    <Badge 
-                      variant={
-                        difficultyName === 'Beginner' 
-                          ? 'secondary' 
-                          : difficultyName === 'Intermediate' 
-                            ? 'default' 
-                            : 'destructive'
-                      }
-                      className="mt-1"
-                    >
-                      {difficultyName}
-                    </Badge>
-                  </div>
+                  </div>                  
                 </div>
                 
                 <p className="text-foreground leading-relaxed mb-4">
@@ -549,16 +520,6 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Category</label>
-                  <p className="text-sm font-medium text-foreground">{categoryName}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Level</label>
-                  <Badge variant="outline" className="text-xs">
-                    {difficultyName}
-                  </Badge>
-                </div>
-                <div>
                   <label className="text-sm font-medium text-muted-foreground">Language</label>
                   <p className="text-sm font-medium text-foreground">{course.language || 'English'}</p>
                 </div>
@@ -588,10 +549,6 @@ export default function UnifiedCoursePreviewPage({ params }: CoursePreviewPagePr
                   </ul>
                 ) : (
                   <ul className="space-y-2 text-sm">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>Master the fundamentals of {categoryName.toLowerCase()}</span>
-                    </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                       <span>Build practical projects and real-world applications</span>

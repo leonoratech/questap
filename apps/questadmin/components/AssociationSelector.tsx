@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CourseAssociation } from '@/data/models/course'
 import { Program } from '@/data/models/program'
+import { Subject } from '@/data/models/subject'
 import { getAllPrograms } from '@/data/services/programs-service'
 import { BookOpen, Calendar, GraduationCap, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -24,6 +25,7 @@ export function AssociationSelector({
   disabled = false
 }: AssociationSelectorProps) {
   const [programs, setPrograms] = useState<Program[]>([])
+  const [subjects, setSubjects] = useState<Subject[]>([])
   const [loading, setLoading] = useState(false)
   
   // Load colleges on mount
@@ -57,6 +59,8 @@ export function AssociationSelector({
 
   const handleProgramChange = (programId: string) => {
     const program = programs.find(p => p.id === programId)
+    setSubjects(program?.subjects || [])
+
     onUpdate({
       ...association,
       programId,
@@ -70,6 +74,18 @@ export function AssociationSelector({
     onUpdate({
       ...association,
       yearOrSemester: parseInt(yearOrSemester)
+    })
+  }
+
+  const handleSubjectChange = (subjectId: string) => {
+    const subject = programs
+      .flatMap(p => p.subjects || [])
+      .find(s => s.id === subjectId)
+    
+    onUpdate({
+      ...association,
+      subjectId,
+      subjectName: subject?.name || ''
     })
   }
 

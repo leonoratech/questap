@@ -347,9 +347,6 @@ export interface HybridAdminCourse {
   
   // Non-multilingual fields (remain as-is)
   instructor: string
-  categoryId: string
-  subcategory?: string
-  difficultyId: string
   duration: number
   status: 'draft' | 'published' | 'archived'
   rating?: number

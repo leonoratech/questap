@@ -18,10 +18,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/contexts/AuthContext'
 import { UserRole } from '@/data/config/firebase-auth'
 import { CourseAssociation } from '@/data/models/course'
-import { CourseCategory } from '@/data/models/course-category'
-import { CourseDifficulty } from '@/data/models/course-difficulty'
 import { AdminCourse, getCourseById, updateCourse } from '@/data/services/admin-course-service'
-import { getMasterData } from '@/data/services/course-master-data-service'
 import { ImageUploadResult } from '@/data/services/image-upload-service'
 import { DEFAULT_LANGUAGE, MultilingualArray, MultilingualText, SupportedLanguage } from '@/lib/multilingual-types'
 import { createMultilingualArray, createMultilingualText, getAvailableLanguages, getCompatibleArray, getCompatibleText, isMultilingualContent } from '@/lib/multilingual-utils'
@@ -33,8 +30,6 @@ import toast from 'react-hot-toast'
 interface UnifiedCourseFormData {
   title: string | MultilingualText
   description: string | MultilingualText
-  categoryId: string
-  difficultyId: string
   duration: string // Keep as string for form input
   status: 'draft' | 'published' | 'archived'
   // Image fields
@@ -56,21 +51,6 @@ interface UnifiedCourseFormData {
   multilingualMode: boolean
 }
 
-const categories = [
-  'Technology',
-  'Business',
-  'Design',
-  'Marketing',
-  'Personal Development',
-  'Languages',
-  'Science',
-  'Arts & Crafts',
-  'Health & Fitness',
-  'Music',
-  'Photography',
-  'Other'
-]
-
 interface EditCoursePageProps {
   params: Promise<{ id: string }>
 }
@@ -83,13 +63,9 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
   const [loading, setLoading] = useState(false)
   const [fetchLoading, setFetchLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [categories, setCategories] = useState<CourseCategory[]>([])
-  const [difficulties, setDifficulties] = useState<CourseDifficulty[]>([])
   const [formData, setFormData] = useState<UnifiedCourseFormData>({
     title: '',
     description: '',
-    categoryId: '',
-    difficultyId: '',
     duration: '',
     status: 'draft',
     // Language configuration defaults
@@ -105,22 +81,6 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
     // UI state
     multilingualMode: false
   })
-
-  // Load master data on mount
-  useEffect(() => {
-    const loadMasterData = async () => {
-      try {
-        const { categories: categoriesData, difficulties: difficultiesData } = await getMasterData()
-        setCategories(categoriesData)
-        setDifficulties(difficultiesData)
-      } catch (error) {
-        console.error('Failed to load master data:', error)
-        toast.error('Failed to load categories and difficulties')
-      }
-    }
-
-    loadMasterData()
-  }, [])
 
   // Get course ID from params
   useEffect(() => {
@@ -164,8 +124,6 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
           setFormData({
             title: courseData.title,
             description: courseData.description,
-            categoryId: courseData.categoryId || '',
-            difficultyId: courseData.difficultyId || '',
             duration: courseData.duration !== undefined && courseData.duration !== null ? courseData.duration.toString() : '', // Convert number to string for form, handle undefined/null
             status: courseData.status,
             // Image fields
@@ -281,7 +239,7 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
       ...prev,
       associations: [
         ...prev.associations,
-        { collegeId: '', programId: '', yearOrSemester: 1, subjectId: '' }
+        { programId: '', yearOrSemester: 1, subjectId: '', subjectName: '', departmentId: '', departmentName: '' } 
       ]
     }))
   }
@@ -302,8 +260,6 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
       const updates = {
         title: typeof formData.title === 'object' ? getCompatibleText(formData.title, formData.primaryLanguage) : formData.title,
         description: typeof formData.description === 'object' ? getCompatibleText(formData.description, formData.primaryLanguage) : formData.description,
-        categoryId: formData.categoryId,
-        difficultyId: formData.difficultyId,
         duration: parseFloat(formData.duration.trim()) || 0, // Convert string to number for API
         status: formData.status,
         instructor: userProfile.firstName + ' ' + userProfile.lastName,
@@ -534,51 +490,6 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
                                 required
                               />
                             )}
-                          </div>
-
-                          {/* Category */}
-                          <div className="space-y-2">
-                            <Label htmlFor="category">Category *</Label>
-                            <Select 
-                              value={formData.categoryId} 
-                              onValueChange={(value) => handleInputChange('categoryId', value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories.map((category) => (
-                                  <SelectItem key={category.id} value={category.id}>
-                                    {category.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Level */}
-                          <div className="space-y-2">
-                            <Label htmlFor="difficultyId">Difficulty Level *</Label>
-                            <Select 
-                              value={formData.difficultyId} 
-                              onValueChange={(value) => handleInputChange('difficultyId', value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select difficulty level" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {difficulties.map((difficulty) => (
-                                  <SelectItem key={difficulty.id} value={difficulty.id}>
-                                    <div className="flex items-center gap-2">
-                                      <Badge className={getDifficultyBadgeColor(difficulty.name)}>
-                                        {difficulty.name}
-                                      </Badge>
-                                      <span>{difficulty.description}</span>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
                           </div>
 
                           {/* Duration */}
@@ -942,16 +853,6 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Badge className={getDifficultyBadgeColor(
-                            difficulties.find(d => d.id === course.difficultyId)?.name
-                          )}>
-                            {difficulties.find(d => d.id === course.difficultyId)?.name || 'Unknown'}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Difficulty Level</p>
-                      </div>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <Badge className={getStatusBadgeColor(course.status)}>

@@ -26,13 +26,13 @@ export async function GET(request: NextRequest) {
 
   const { user } = authResult
 
-  // Only superadmin can access programs management
-  if (user.role !== UserRole.SUPERADMIN) {
-    return NextResponse.json(
-      { error: 'Unauthorized. Only superadmins can access programs management.' },
-      { status: 403 }
-    )
-  }
+  // // Only superadmin can access programs management
+  // if (user.role !== UserRole.SUPERADMIN) {
+  //   return NextResponse.json(
+  //     { error: 'Unauthorized. Only superadmins can access programs management.' },
+  //     { status: 403 }
+  //   )
+  // }
 
   try {
     // Get all programs with their department and subjects information
