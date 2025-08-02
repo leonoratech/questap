@@ -13,6 +13,15 @@ export abstract class BaseRepository<T extends DocumentData & BaseEntity> {
     this.firestore = adminDb;
   }
 
+  async getAll(): Promise<T[]> {
+    const snapshot = await this.firestore.collection(this.collectionName).get();
+    if (snapshot.empty) {
+      throw new NoRecordFoundError(`No documents found in collection ${this.collectionName}`);
+    }
+    const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as T[];
+    return data;
+  }
+
   async getById(id: string): Promise<T> {
     const doc = await this.firestore.collection(this.collectionName).doc(id).get();
     if (!doc.exists) {

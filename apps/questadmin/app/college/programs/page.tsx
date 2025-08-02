@@ -11,21 +11,20 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuth } from '@/contexts/AuthContext'
-import { getAuthHeaders, UserRole } from '@/data/config/firebase-auth'
+import { UserRole } from '@/data/config/firebase-auth'
 import { Program } from '@/data/models/program'
-import { getCollegeById } from '@/data/services/college-service'
 import { getCollegePrograms } from '@/data/services/program-service'
 import {
-    ArrowLeft,
-    BookOpen,
-    Building2,
-    Clock,
-    Filter,
-    Globe,
-    GraduationCap,
-    Search,
-    Settings,
-    Users
+  ArrowLeft,
+  BookOpen,
+  Building2,
+  Clock,
+  Filter,
+  Globe,
+  GraduationCap,
+  Search,
+  Settings,
+  Users
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -49,55 +48,21 @@ export default function CollegeProgramsPage() {
 
   useEffect(() => {
     loadPrograms()
-    checkAdministratorStatus()
   }, [userProfile])
 
   useEffect(() => {
     filterPrograms()
   }, [programs, searchTerm, departmentFilter, languageFilter, categoryFilter])
 
-  const checkAdministratorStatus = async () => {
-    if (!userProfile?.collegeId || userProfile.role !== UserRole.INSTRUCTOR) {
-      setIsAdministrator(false)
-      return
-    }
-    
-    try {
-      const response = await fetch(`/api/colleges/${userProfile.collegeId}/check-admin`, {
-        headers: getAuthHeaders()
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        setIsAdministrator(data.isAdministrator || false)
-      }
-    } catch (error) {
-      console.error('Error checking administrator status:', error)
-      setIsAdministrator(false)
-    }
-  }
-
   const loadPrograms = async () => {
-    if (!userProfile?.collegeId) {
-      setError('No college association found. Please update your profile.')
-      setLoading(false)
-      return
-    }
-
     try {
       setLoading(true)
       setError(null)
       
       // Load college name and programs
-      const [collegeData, programsData] = await Promise.all([
-        getCollegeById(userProfile.collegeId),
-        getCollegePrograms(userProfile.collegeId)
-      ])
-      
-      if (collegeData) {
-        setCollegeName(collegeData.name)
-      }
-      
+      const [programsData] = await Promise.all([
+        getCollegePrograms()
+      ])      
       setPrograms(programsData)
     } catch (error) {
       console.error('Error loading programs:', error)

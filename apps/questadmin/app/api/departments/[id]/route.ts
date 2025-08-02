@@ -4,10 +4,9 @@
  */
 
 import { UserRole } from '@/data/models/user-model'
-import { adminDb } from '@/data/repository/firebase-admin'
+import { DepartmentRepository } from '@/data/repository/department-service'
 import { requireAuth } from '@/lib/server-auth'
 import { NextRequest, NextResponse } from 'next/server'
-
 /**
  * GET /api/departments/[id]
  * Get a specific department by ID (superadmin only)
@@ -37,25 +36,12 @@ export async function GET(
   }
 
   try {
-    const departmentDoc = await adminDb.collection('departments').doc(departmentId).get()
+    const departmentRepository = new DepartmentRepository();
+    const departmentDoc = await departmentRepository.getById(departmentId);
 
-    if (!departmentDoc.exists) {
-      return NextResponse.json(
-        { error: 'Department not found' },
-        { status: 404 }
-      )
-    }
-
-    const departmentData = departmentDoc.data()
-    
     return NextResponse.json({
       success: true,
-      department: {
-        id: departmentDoc.id,
-        ...departmentData,
-        createdAt: departmentData?.createdAt?.toDate?.() || departmentData?.createdAt,
-        updatedAt: departmentData?.updatedAt?.toDate?.() || departmentData?.updatedAt,
-      }
+      department: departmentDoc
     })
 
   } catch (error: any) {
@@ -96,15 +82,9 @@ export async function PUT(
   }
 
   try {
-    const departmentDoc = await adminDb.collection('departments').doc(departmentId).get()
-
-    if (!departmentDoc.exists) {
-      return NextResponse.json(
-        { error: 'Department not found' },
-        { status: 404 }
-      )
-    }
-
+    const departmentRepository = new DepartmentRepository();
+    const departmentDoc = await departmentRepository.getById(departmentId);
+    
     const body = await request.json()
     const { name, description, isActive } = body
 
@@ -126,7 +106,7 @@ export async function PUT(
     if (description !== undefined) updateData.description = description
     if (isActive !== undefined) updateData.isActive = isActive
 
-    await adminDb.collection('departments').doc(departmentId).update(updateData)
+    await departmentRepository.update(departmentId, updateData)
 
     return NextResponse.json({
       success: true,
@@ -172,22 +152,14 @@ export async function DELETE(
   }
 
   try {
-    const departmentDoc = await adminDb.collection('departments').doc(departmentId).get()
-
-    if (!departmentDoc.exists) {
-      return NextResponse.json(
-        { error: 'Department not found' },
-        { status: 404 }
-      )
-    }
+    const departmentRepository = new DepartmentRepository();
+    const departmentDoc = await departmentRepository.getById(departmentId);
 
     // Perform soft delete
-    await adminDb.collection('departments').doc(departmentId).update({
+    await departmentRepository.update(departmentId, {
       isActive: false,
       updatedAt: new Date(),
-      updatedBy: user.uid,
-      deletedAt: new Date(),
-      deletedBy: user.uid
+      updatedBy: user.uid
     })
 
     return NextResponse.json({

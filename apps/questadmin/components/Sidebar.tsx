@@ -80,7 +80,7 @@ const navigationItems: NavigationItem[] = [
         title: 'Programs',
         href: '/college/programs',
         icon: GraduationCap,
-        roles: ['instructor', 'student']
+        roles: ['superadmin']
       }
     ]
   },
@@ -90,13 +90,6 @@ const navigationItems: NavigationItem[] = [
     icon: Users,
     roles: ['superadmin', 'admin']
   },
-
-  // {
-  //   title: 'Analytics',
-  //   href: '/analytics',
-  //   icon: BarChart3,
-  //   roles: ['superadmin', 'admin', 'instructor']
-  // },
   {
     title: 'Settings',
     href: '/settings',

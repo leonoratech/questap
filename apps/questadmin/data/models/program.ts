@@ -1,34 +1,29 @@
-import { Timestamp } from 'firebase-admin/firestore'
+import { BaseEntity } from './basemodel'
+import { Department } from './department'
+import { Subject } from './subject'
 
 // Program data model interface
-export interface Program {
+export interface Program extends BaseEntity {
   id?: string
   name: string
   yearsOrSemesters: number
   semesterType: 'years' | 'semesters'
   description: string
-  collegeId: string
-  isActive: boolean
-  createdAt: Date | Timestamp
-  updatedAt: Date | Timestamp
-  createdBy: string // UID of the user who created the program
-  // Extended fields for filtering
-  department?: string // Department offering the program
+  department: Department
+  subjects?: Subject[] // List of subject IDs associated with the program
   language?: string // Primary language of instruction
   programCode?: string // Program code/identifier
-  category?: string // Program category (e.g., 'Engineering', 'Arts', 'Science')
 }
 
 export interface CreateProgramRequest {
   name: string
   yearsOrSemesters: number
   semesterType: 'years' | 'semesters'
-  description: string
-  collegeId: string
-  department?: string
+  description: string  
+  department?: Department
+  subjects?: Subject[] // List of subject IDs to associate with the program
   language?: string
-  programCode?: string
-  category?: string
+  programCode?: string  
 }
 
 export interface UpdateProgramRequest extends Partial<CreateProgramRequest> {
@@ -36,11 +31,8 @@ export interface UpdateProgramRequest extends Partial<CreateProgramRequest> {
   isActive?: boolean
 }
 
-
 export interface ProgramStats {
   totalPrograms: number
   activePrograms: number
-  inactivePrograms: number
-  totalStudents: number
-  programsByType: Record<string, number>
+  inactivePrograms: number  
 }
