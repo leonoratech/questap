@@ -43,52 +43,52 @@ export async function GET(request: NextRequest) {
     const programs = await programRepository.getAll()
 
     // Enrich programs with department and subjects data
-    const enrichedPrograms = await Promise.all(
-      programs.map(async (program: any) => {
-        let department = null
-        let subjects: any[] = []
+    // const enrichedPrograms = await Promise.all(
+    //   programs.map(async (program: any) => {
+    //     let department = null
+    //     let subjects: any[] = []
 
-        // Get department data if departmentId exists
-        if (program.departmentId) {
-          try {
-            department = await departmentRepository.getById(program.departmentId)
-          } catch (error) {
-            console.error(`Error fetching department ${program.departmentId}:`, error)
-          }
-        }
+    //     // Get department data if departmentId exists
+    //     if (program.departmentId) {
+    //       try {
+    //         department = await departmentRepository.getById(program.departmentId)
+    //       } catch (error) {
+    //         console.error(`Error fetching department ${program.departmentId}:`, error)
+    //       }
+    //     }
 
-        // Get subjects data if subjectIds exist
-        if (program.subjectIds && Array.isArray(program.subjectIds)) {
-          subjects = await Promise.all(
-            program.subjectIds.map(async (subjectId: string) => {
-              try {
-                return await subjectRepository.getById(subjectId)
-              } catch (error) {
-                console.error(`Error fetching subject ${subjectId}:`, error)
-                return null
-              }
-            })
-          )
-          // Filter out null subjects
-          subjects = subjects.filter(subject => subject !== null)
-        }
+    //     // Get subjects data if subjectIds exist
+    //     if (program.subjectIds && Array.isArray(program.subjectIds)) {
+    //       subjects = await Promise.all(
+    //         program.subjectIds.map(async (subjectId: string) => {
+    //           try {
+    //             return await subjectRepository.getById(subjectId)
+    //           } catch (error) {
+    //             console.error(`Error fetching subject ${subjectId}:`, error)
+    //             return null
+    //           }
+    //         })
+    //       )
+    //       // Filter out null subjects
+    //       subjects = subjects.filter(subject => subject !== null)
+    //     }
 
-        return {
-          ...program,
-          department,
-          subjects
-        }
-      })
-    )
+    //     return {
+    //       ...program,
+    //       department,
+    //       subjects
+    //     }
+    //   })
+    // )
 
     // Sort by name
-    enrichedPrograms.sort((a, b) => {
+    programs.sort((a, b) => {
       return (a as any).name.localeCompare((b as any).name)
     })
 
     return NextResponse.json({
       success: true,
-      programs: enrichedPrograms
+      programs: programs
     })
 
   } catch (error: any) {
