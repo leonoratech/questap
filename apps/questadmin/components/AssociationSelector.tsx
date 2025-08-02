@@ -8,7 +8,7 @@ import { Program } from '@/data/models/program'
 import { Subject } from '@/data/models/subject'
 import { College, getColleges } from '@/data/services/college-service'
 import { getCollegePrograms } from '@/data/services/program-service'
-import { getSubjectsByProgram } from '@/data/services/subject-service'
+import { getAllSubjects } from '@/data/services/subjects-service'
 import { BookOpen, Building2, Calendar, GraduationCap, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -95,7 +95,7 @@ export function AssociationSelector({
   const loadSubjects = async (programId: string) => {
     try {
       setLoading(true)
-      const fetchedSubjects = await getSubjectsByProgram(programId, association.collegeId)
+      const fetchedSubjects = await getAllSubjects()
       setSubjects(fetchedSubjects)
       
       // Clear subject if the current selection is not in the new list

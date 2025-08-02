@@ -1,6 +1,5 @@
 import { CourseAssociation } from '@/data/models/course'
 import { UserRole } from '@/data/models/user-model'
-import { CollegeRepository } from '@/data/repository/college-service'
 import { CourseRepository } from '@/data/repository/course-service'
 import { ProgramRepository } from '@/data/repository/program-service'
 import { SubjectRepository } from '@/data/repository/subject-service'
@@ -35,7 +34,6 @@ export async function POST(
     const associationsData = validation.data
     // Initialize repositories
     const courseRepo = new CourseRepository()
-    const collegeRepo = new CollegeRepository()
     const programRepo = new ProgramRepository()
     const subjectRepo = new SubjectRepository()
     // Check if course exists and user has permission

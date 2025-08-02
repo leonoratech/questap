@@ -2,7 +2,6 @@
 
 import { AdminLayout } from '@/components/AdminLayout'
 import { AuthGuard } from '@/components/AuthGuard'
-import { CollegeSelector } from '@/components/CollegeSelector'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'

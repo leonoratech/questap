@@ -5,6 +5,8 @@
 
 import { UserRole } from '@/data/models/user-model'
 import { ProgramRepository } from '@/data/repository/program-service'
+import { DepartmentRepository } from '@/data/repository/department-service'
+import { SubjectRepository } from '@/data/repository/subject-service'
 import { requireAuth } from '@/lib/server-auth'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -33,18 +35,60 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Get all subjects with their college and program information
+    // Get all programs with their department and subjects information
     const programRepository = new ProgramRepository()
+    const departmentRepository = new DepartmentRepository()
+    const subjectRepository = new SubjectRepository()
+    
     const programs = await programRepository.getAll()
 
-    // Sort by college, then program, then subject name
-    programs.sort((a, b) => {
+    // Enrich programs with department and subjects data
+    const enrichedPrograms = await Promise.all(
+      programs.map(async (program: any) => {
+        let department = null
+        let subjects: any[] = []
+
+        // Get department data if departmentId exists
+        if (program.departmentId) {
+          try {
+            department = await departmentRepository.getById(program.departmentId)
+          } catch (error) {
+            console.error(`Error fetching department ${program.departmentId}:`, error)
+          }
+        }
+
+        // Get subjects data if subjectIds exist
+        if (program.subjectIds && Array.isArray(program.subjectIds)) {
+          subjects = await Promise.all(
+            program.subjectIds.map(async (subjectId: string) => {
+              try {
+                return await subjectRepository.getById(subjectId)
+              } catch (error) {
+                console.error(`Error fetching subject ${subjectId}:`, error)
+                return null
+              }
+            })
+          )
+          // Filter out null subjects
+          subjects = subjects.filter(subject => subject !== null)
+        }
+
+        return {
+          ...program,
+          department,
+          subjects
+        }
+      })
+    )
+
+    // Sort by name
+    enrichedPrograms.sort((a, b) => {
       return (a as any).name.localeCompare((b as any).name)
     })
 
     return NextResponse.json({
       success: true,
-      programs
+      programs: enrichedPrograms
     })
 
   } catch (error: any) {
@@ -73,17 +117,27 @@ export async function POST(request: NextRequest) {
 
   const { user } = authResult
 
-  // Only superadmin can create global subjects
+  // Only superadmin can create global programs
   if (user.role !== UserRole.SUPERADMIN) {
     return NextResponse.json(
-      { error: 'Unauthorized. Only superadmins can create subjects.' },
+      { error: 'Unauthorized. Only superadmins can create programs.' },
       { status: 403 }
     )
   }
 
   try {
     const body = await request.json()
-    const { name, description, isActive = true  } = body
+    const { 
+      name, 
+      description, 
+      departmentId, 
+      subjectIds = [], 
+      yearsOrSemesters = 4, 
+      semesterType = 'semesters',
+      language,
+      programCode,
+      isActive = true 
+    } = body
 
     // Validate required fields
     if (!name) {
@@ -93,9 +147,53 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (!departmentId) {
+      return NextResponse.json(
+        { error: 'Department is required' },
+        { status: 400 }
+      )
+    }
+
+    // Get department and subjects data
+    const departmentRepository = new DepartmentRepository()
+    const subjectRepository = new SubjectRepository()
+
+    let department = null
+    let subjects: any[] = []
+
+    try {
+      department = await departmentRepository.getById(departmentId)
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid department ID' },
+        { status: 400 }
+      )
+    }
+
+    // Get subjects if provided
+    if (subjectIds.length > 0) {
+      subjects = await Promise.all(
+        subjectIds.map(async (subjectId: string) => {
+          try {
+            return await subjectRepository.getById(subjectId)
+          } catch (error) {
+            console.error(`Error fetching subject ${subjectId}:`, error)
+            return null
+          }
+        })
+      )
+      subjects = subjects.filter(subject => subject !== null)
+    }
+
     const programData = {
       name,
       description: description || '',
+      department,
+      subjects,
+      yearsOrSemesters,
+      semesterType,
+      language,
+      programCode,
       isActive,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -112,9 +210,9 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Error creating subject:', error)
+    console.error('Error creating program:', error)
     return NextResponse.json(
-      { error: 'Failed to create subject' },
+      { error: 'Failed to create program' },
       { status: 500 }
     )
   }

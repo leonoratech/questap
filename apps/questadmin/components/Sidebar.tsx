@@ -78,7 +78,7 @@ const navigationItems: NavigationItem[] = [
       },
       {
         title: 'Programs',
-        href: '/college/programs',
+        href: '/programs',
         icon: GraduationCap,
         roles: ['superadmin']
       }

@@ -2,7 +2,6 @@
 
 import { AdminLayout } from '@/components/AdminLayout'
 import { AuthGuard } from '@/components/AuthGuard'
-import { CollegeSelector } from '@/components/CollegeSelector'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
