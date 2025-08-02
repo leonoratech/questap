@@ -9,13 +9,13 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Department } from '@/data/models/department'
+import { Program } from '@/data/models/program'
 import { Subject } from '@/data/models/subject'
 import { getAllDepartments } from '@/data/services/departments-service'
 import {
   createProgram,
   deleteProgram,
   getAllPrograms,
-  Program,
   reactivateProgram,
   updateProgram
 } from '@/data/services/programs-service'
@@ -168,7 +168,7 @@ export function ProgramManager({ }: ProgramManagerProps) {
       description: program.description || '',
       departmentId: program.department?.id || '',
       subjectIds: program.subjects?.map(s => s.id!).filter(Boolean) || [],
-      yearsOrSemesters: program.yearsOrSemesters || 4,
+      yearsOrSemesters: program.yearsOrSemesters || 2,
       semesterType: program.semesterType || 'years',
       language: program.language || 'English',
       programCode: program.programCode || ''
@@ -189,14 +189,13 @@ export function ProgramManager({ }: ProgramManagerProps) {
         // Update existing program
         await updateProgram(editingProgram.id!, {
           ...formData,
-          subjectIds: formData.subjectIds.length > 0 ? formData.subjectIds : undefined
+          id: String(editingProgram.id)
         })
         toast.success('Program updated successfully')
       } else {
         // Create new program
         await createProgram({
-          ...formData,
-          subjectIds: formData.subjectIds.length > 0 ? formData.subjectIds : undefined
+          ...formData
         })
         toast.success('Program created successfully')
       }
@@ -272,7 +271,7 @@ export function ProgramManager({ }: ProgramManagerProps) {
     <>
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          {/* <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <GraduationCap className="h-5 w-5" />
@@ -286,7 +285,7 @@ export function ProgramManager({ }: ProgramManagerProps) {
               <Plus className="h-4 w-4 mr-2" />
               Add Program
             </Button>
-          </div>
+          </div> */}
         </CardHeader>
         <CardContent>
           {/* Filters */}
@@ -343,6 +342,10 @@ export function ProgramManager({ }: ProgramManagerProps) {
               >
                 <RefreshCw className="h-4 w-4" />
                 Refresh
+              </Button>
+              <Button onClick={handleAddNew}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Program
               </Button>
             </div>
 
