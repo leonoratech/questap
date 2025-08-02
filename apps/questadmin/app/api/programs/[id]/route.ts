@@ -4,8 +4,8 @@
  */
 
 import { UserRole } from '@/data/models/user-model'
-import { ProgramRepository } from '@/data/repository/program-service'
 import { DepartmentRepository } from '@/data/repository/department-service'
+import { ProgramRepository } from '@/data/repository/program-service'
 import { SubjectRepository } from '@/data/repository/subject-service'
 import { requireAuth } from '@/lib/server-auth'
 import { NextRequest, NextResponse } from 'next/server'
