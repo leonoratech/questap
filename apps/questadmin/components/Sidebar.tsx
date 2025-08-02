@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronRight,
   GraduationCap,
+  LampDesk,
   LayoutDashboard,
   Search,
   Settings,
@@ -56,7 +57,7 @@ const navigationItems: NavigationItem[] = [
     href: '/my-courses',
     icon: BookOpen,
     roles: ['admin', 'instructor']
-  },  
+  },
   {
     title: 'College',
     href: '/college',
@@ -64,19 +65,32 @@ const navigationItems: NavigationItem[] = [
     roles: ['superadmin', 'instructor', 'student'],
     subItems: [
       {
+        title: 'Departments',
+        href: '/departments',
+        icon: BookOpen,
+        roles: ['superadmin']
+      },
+      {
+        title: 'Subjects',
+        href: '/subjects',
+        icon: LampDesk,
+        roles: ['superadmin']
+      },
+      {
         title: 'Programs',
         href: '/college/programs',
         icon: GraduationCap,
         roles: ['instructor', 'student']
       }
     ]
-  }, 
+  },
   {
     title: 'Users',
     href: '/users',
     icon: Users,
     roles: ['superadmin', 'admin']
   },
+
   // {
   //   title: 'Analytics',
   //   href: '/analytics',
@@ -100,7 +114,7 @@ export function Sidebar({ userRole = 'admin' }: SidebarProps) {
   // Use the actual user role from userProfile if available, otherwise fallback to prop
   const actualUserRole = userProfile?.role || userRole
 
-  const filteredItems = navigationItems.filter(item => 
+  const filteredItems = navigationItems.filter(item =>
     item.roles.includes(actualUserRole)
   )
 
@@ -152,12 +166,12 @@ export function Sidebar({ userRole = 'admin' }: SidebarProps) {
     <>
       {/* Backdrop */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={closeSidebar}
         />
       )}
-      
+
       {/* Sidebar */}
       <div className={cn(
         "fixed top-0 left-0 z-50 h-full w-64 bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:z-auto lg:transform-none",
@@ -205,10 +219,10 @@ export function Sidebar({ userRole = 'admin' }: SidebarProps) {
                 const isActive = isParentActive(item)
                 const hasSubItems = item.subItems && item.subItems.length > 0
                 const isExpanded = expandedItems.has(item.title)
-                const filteredSubItems = item.subItems?.filter(subItem => 
+                const filteredSubItems = item.subItems?.filter(subItem =>
                   subItem.roles.includes(actualUserRole)
                 ) || []
-                
+
                 return (
                   <li key={item.title}>
                     {/* Main navigation item */}
@@ -269,14 +283,14 @@ export function Sidebar({ userRole = 'admin' }: SidebarProps) {
                         )}
                       </button>
                     )}
-                    
+
                     {/* Sub-navigation items */}
                     {hasSubItems && isExpanded && filteredSubItems.length > 0 && (
                       <ul className="ml-4 mt-2 space-y-1">
                         {filteredSubItems.map((subItem) => {
                           const SubIcon = subItem.icon
                           const isSubActive = pathname === subItem.href
-                          
+
                           return (
                             <li key={subItem.href}>
                               <Link

@@ -94,8 +94,7 @@ const COLLECTIONS_TO_CLEAR = [
   'subjects',  
   'activities',
   'instructorActivities',  
-  'courseCategories',
-  'courseDifficulties',
+  'departments',
   'appMaster'  // Added appMaster collection
 ];
 

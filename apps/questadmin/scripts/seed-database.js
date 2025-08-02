@@ -87,10 +87,6 @@ const doc = (dbOrCollection, ...pathSegments) => {
   }
 };
 const setDoc = (ref, data) => ref.set(data);
-const addDoc = (coll, data) => coll.add(data);
-const getDocs = async (coll) => (await coll.get()).docs;
-const query = (...args) => { throw new Error('Use Firestore admin query chaining directly'); };
-const where = (...args) => { throw new Error('Use Firestore admin query chaining directly'); };
 
 // Track created data for relationships
 const createdData = {
@@ -112,12 +108,12 @@ const createdData = {
 // ==================== MASTER DATA DEFINITIONS ====================
 // Course-> Groups -> Subjects (year, medium)
 
-const COURSE_CATEGORIES = [
+// const COURSE_CATEGORIES = [
+const DEPARTMENTS = [
   {
     id: 'arts',
     name: 'Arts',
     description: 'Civics, History, Economics and humanities',
-    subcategories: ['Civics', 'History', 'Economics'],
     isActive: true,
     order: 1
   },
@@ -125,7 +121,6 @@ const COURSE_CATEGORIES = [
     id: 'science',
     name: 'Science',
     description: 'Maths, Physics, Chemistry and Biology',
-    subcategories: ['Maths', 'Physics', 'Chemistry', 'Biology'],
     isActive: true,
     order: 2
   },
@@ -133,7 +128,6 @@ const COURSE_CATEGORIES = [
     id: 'vocational',
     name: 'Vocational',
     description: 'Vocational courses like MPT, Phisiotherapy',
-    subcategories: ['MLT', 'Phisiotherapy', 'Nursing'],
     isActive: true,
     order: 3
   }
@@ -173,19 +167,13 @@ const MOCK_PROGRAMS = [
 const MOCK_SUBJECTS = [
   {
     id: 'math1',
-    name: 'Maths 1',
-    medium: 'English',
-    yearOrSemester: 1,
-    instructorId: 'prof.smith@questedu.com', // Will be resolved to UID
+    name: 'Maths 1',    
     description: 'Introduction to differential calculus and its applications in computer science.',
     prerequisites: []
   },
   {
     id: 'civics1',
     name: 'Civics 1',
-    medium: 'Telugu',
-    yearOrSemester: 1,
-    instructorId: 'prof.smith@questedu.com',
     description: 'Fundamental programming concepts using Python and Java.',
     prerequisites: []
   }
@@ -921,52 +909,28 @@ async function seedActivities() {
   console.log(`✅ Created ${totalActivities} activities`);
 }
 
-async function seedCourseCategories() {
-  console.log('📚 Seeding course categories...');
-  
-  for (const categoryData of COURSE_CATEGORIES) {
-    try {
-      const categoryDoc = {
-        ...categoryData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      };
-      
-      await setDoc(doc(db, 'courseCategories', categoryData.id), categoryDoc);
-      createdData.categories = createdData.categories || [];
-      createdData.categories.push(categoryDoc);
-      
-      console.log(`   ✅ Created category: ${categoryData.name}`);
-    } catch (error) {
-      console.log(`   ⚠️  Failed to create category ${categoryData.name}: ${error.message}`);
-    }
-  }
-  
-  console.log(`✅ Created ${COURSE_CATEGORIES.length} course categories`);
-}
+async function seedDepartments() {
+  console.log('📚 Seeding departments...');
 
-async function seedCourseDifficulties() {
-  console.log('🎯 Seeding course difficulties...');
-  
-  for (const difficultyData of COURSE_DIFFICULTIES) {
+  for (const departmentData of DEPARTMENTS) {
     try {
-      const difficultyDoc = {
-        ...difficultyData,
+      const departmentDoc = {
+        ...departmentData,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
-      
-      await setDoc(doc(db, 'courseDifficulties', difficultyData.id), difficultyDoc);
-      createdData.difficulties = createdData.difficulties || [];
-      createdData.difficulties.push(difficultyDoc);
-      
-      console.log(`   ✅ Created difficulty: ${difficultyData.name}`);
+
+      await setDoc(doc(db, 'departments', departmentData.id), departmentDoc);
+      createdData.departments = createdData.departments || [];
+      createdData.departments.push(departmentDoc);
+
+      console.log(`   ✅ Created department: ${departmentData.name}`);
     } catch (error) {
-      console.log(`   ⚠️  Failed to create difficulty ${difficultyData.name}: ${error.message}`);
+      console.log(`   ⚠️  Failed to create department ${departmentData.name}: ${error.message}`);
     }
   }
-  
-  console.log(`✅ Created ${COURSE_DIFFICULTIES.length} course difficulties`);
+
+  console.log(`✅ Created ${DEPARTMENTS.length} departments`);
 }
 
 // ==================== APP MASTER DATA ====================
@@ -1016,7 +980,7 @@ async function seedDatabase() {
     await seedPrograms();
     
     // Step 3: Seed course master data
-    await seedCourseCategories();    
+    await seedDepartments();    
     
     // Step 4: Seed users (superadmin, instructors, students)
     await seedUsers();
@@ -1044,7 +1008,7 @@ async function seedDatabase() {
     console.log(`   • App Master: ${createdData.appMaster.length || 0}`);
     console.log(`   • Programs: ${createdData.programs.length}`);
     console.log(`   • Subjects: ${createdData.subjects.length}`);
-    console.log(`   • Course Categories: ${createdData.categories?.length || 0}`);
+    console.log(`   • Departments: ${createdData.departments?.length || 0}`);
     console.log(`   • Users: ${Object.values(createdData.users).flat().length}`);
     console.log(`     - Superadmins: ${createdData.users.superadmins.length}`);
     console.log(`     - Instructors: ${createdData.users.instructors.length}`);
@@ -1087,7 +1051,7 @@ async function main() {
   const clearFirst = process.argv.includes('--clear-first');
   if (clearFirst) {
     console.log('Clearing old Colleges and collegeAdministrators collections...');
-    await clearOldCollections();
+    // await clearOldCollections();
     console.log('✅ Cleared old collections');
   }
   await seedDatabase();
@@ -1111,5 +1075,5 @@ module.exports = {
   seedQuestions,  
   seedActivities,
   seedSuperAdminUsers,
-  seedCourseCategories 
+  seedDepartments 
 };
