@@ -61,8 +61,9 @@ export class QuestionRepository extends BaseRepository<Question> {
   }
 
   async updateQuestion(id: string, data: UpdateQuestionRequest): Promise<void> {
+    const sanitizedData = removeUndefinedFields(data)
     await adminDb.collection(QUESTIONS_COLLECTION).doc(id).update({
-      ...data,
+      ...sanitizedData,
       updatedAt: new Date(),
     })
   }

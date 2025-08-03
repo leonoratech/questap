@@ -166,15 +166,63 @@ const MOCK_PROGRAMS = [
 
 const MOCK_SUBJECTS = [
   {
-    id: 'math1',
-    name: 'Maths 1',    
-    description: 'Introduction to differential calculus and its applications in computer science.',
+    id: 'English',
+    name: 'English',    
+    description: 'English langugae and literature',
     prerequisites: []
   },
   {
-    id: 'civics1',
-    name: 'Civics 1',
-    description: 'Fundamental programming concepts using Python and Java.',
+    id: 'Telugu',
+    name: 'Teulugu',
+    description: 'Telugu langugae and literature',
+    prerequisites: []
+  },
+  {
+    id: 'Math',
+    name: 'Math',
+    description: 'Mathematics and its applications',
+    prerequisites: []
+  },
+  {
+    id: 'Physics',
+    name: 'Physics',
+    description: 'Physics and its applications',
+    prerequisites: []
+  },
+  {
+    id: 'Chemistry',
+    name: 'Chemistry',
+    description: 'Chemistry and its applications',
+    prerequisites: []
+  },
+  {
+    id: 'Economics',
+    name: 'Economics',
+    description: 'Economics and its applications',
+    prerequisites: []
+  },
+  {
+    id: 'Civics',
+    name: 'Civics',
+    description: 'Civics and its applications',
+    prerequisites: []
+  },
+  {
+    id: 'History',
+    name: 'History',
+    description: 'History and its applications',
+    prerequisites: []
+  },
+  {
+    id: 'Commerce',
+    name: 'Commerce',
+    description: 'Commerce and its applications',
+    prerequisites: []
+  },
+  {
+    id: 'MLT',
+    name: 'MLT',
+    description: 'MLT and its applications',
     prerequisites: []
   }
 ];
@@ -527,30 +575,30 @@ async function seedSubjects() {
 
   const batch = writeBatch(db);
 
-  // We need to resolve instructor emails to UIDs first
-  const instructorEmailToUid = {};
+  // // We need to resolve instructor emails to UIDs first
+  // const instructorEmailToUid = {};
 
-  // Get all users to map emails to UIDs
-  const usersSnapshot = await db.collection('users').get();
-  usersSnapshot.forEach((userDoc) => {
-    const userData = userDoc.data();
-    if (userData.email) {
-      instructorEmailToUid[userData.email] = userDoc.id;
-    }
-  });
+  // // Get all users to map emails to UIDs
+  // const usersSnapshot = await db.collection('users').get();
+  // usersSnapshot.forEach((userDoc) => {
+  //   const userData = userDoc.data();
+  //   if (userData.email) {
+  //     instructorEmailToUid[userData.email] = userDoc.id;
+  //   }
+  // });
 
   for (const subject of MOCK_SUBJECTS) {
     // Resolve instructor email to UID
-    const instructorUid = instructorEmailToUid[subject.instructorId] || 'unknown-instructor';
+    // const instructorUid = instructorEmailToUid[subject.instructorId] || 'unknown-instructor';
 
     const subjectData = {
       ...subject,
-      instructorId: instructorUid,
-      instructorName: subject.instructorId.includes('prof.')
-        ? subject.instructorId.split('@')[0].replace('prof.', 'Prof. ').replace('.', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-        : subject.instructorId.includes('dr.')
-        ? subject.instructorId.split('@')[0].replace('dr.', 'Dr. ').replace('.', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-        : 'Unknown Instructor',
+      // instructorId: instructorUid,
+      // instructorName: subject.instructorId.includes('prof.')
+      //   ? subject.instructorId.split('@')[0].replace('prof.', 'Prof. ').replace('.', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      //   : subject.instructorId.includes('dr.')
+      //   ? subject.instructorId.split('@')[0].replace('dr.', 'Dr. ').replace('.', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      //   : 'Unknown Instructor',
       isActive: true,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -563,8 +611,8 @@ async function seedSubjects() {
     createdData.subjects.push({
       id: subject.id,
       name: subject.name,
-      programId: subject.programId,
-      collegeId: subject.collegeId,
+      // programId: subject.programId,
+      // collegeId: subject.collegeId,
       ...subjectData
     });
   }
@@ -989,16 +1037,16 @@ async function seedDatabase() {
     await seedSubjects();
     
     // Step 7: Seed courses linked to instructors
-    await seedCourses();
+    // await seedCourses();
     
     // Step 8: Seed topics for courses
-    await seedTopics();
+    // await seedTopics();
     
     // Step 9: Seed questions and answers for courses
-    await seedQuestions();
+    // await seedQuestions();
     
     // Step 11: Seed instructor activities
-    await seedActivities();
+    // await seedActivities();
     
     const endTime = Date.now();
     const duration = ((endTime - startTime) / 1000).toFixed(2);
