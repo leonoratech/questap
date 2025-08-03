@@ -52,6 +52,7 @@ export class FirebaseCourseService {
 
   /**
    * Convert Firestore document to Course model
+   * Updated to handle new fields from questadmin data model
    */
   private documentToCourse(docSnapshot: any): Course {
     const data = docSnapshot.data();
@@ -60,9 +61,10 @@ export class FirebaseCourseService {
       title: data.title || '',
       description: data.description || '',
       instructor: data.instructor || '',
-      instructorId: data.instructorId,
+      instructorId: data.instructorId || data.instructor_id, // Support both field names
       category: data.category || data.categoryId || '', // Use category name if available, fallback to categoryId
       categoryId: data.categoryId, // Include the category ID reference
+      subcategory: data.subcategory,
       level: data.level,
       duration: data.duration,
       status: data.status,
@@ -74,16 +76,53 @@ export class FirebaseCourseService {
       tags: data.tags || [],
       skills: data.skills || [],
       prerequisites: data.prerequisites || [],
+      whatYouWillLearn: data.whatYouWillLearn || [],
+      targetAudience: data.targetAudience || [],
       courseImage: data.courseImage,
       image: data.image, // Legacy support
+      promoVideo: data.promoVideo,
       progress: data.progress || 0,
       language: data.language || 'English',
+      subtitles: data.subtitles || [],
       certificates: data.certificates || false,
+      lifetimeAccess: data.lifetimeAccess || false,
       downloadableResources: data.downloadableResources || false,
       mobileAccess: data.mobileAccess !== false, // Default to true
       lastAccessed: data.lastAccessed?.toDate?.() || data.lastAccessed,
       bookmarked: data.bookmarked || false,
-      association: data.association, // Include association data
+      
+      // Enhanced course features
+      articlesCount: data.articlesCount || 0,
+      videosCount: data.videosCount || 0,
+      totalVideoLength: data.totalVideoLength || 0,
+      lastContentUpdate: data.lastContentUpdate?.toDate?.() || data.lastContentUpdate,
+      publishedAt: data.publishedAt?.toDate?.() || data.publishedAt,
+      archivedAt: data.archivedAt?.toDate?.() || data.archivedAt,
+      lastModifiedBy: data.lastModifiedBy,
+      seoTitle: data.seoTitle,
+      seoDescription: data.seoDescription,
+      seoKeywords: data.seoKeywords || [],
+      
+      // Multilingual Support & Language Configuration
+      primaryLanguage: data.primaryLanguage,
+      supportedLanguages: data.supportedLanguages || [],
+      enableTranslation: data.enableTranslation || false,
+      
+      // Multilingual Content Fields
+      multilingualTitle: data.multilingualTitle,
+      multilingualDescription: data.multilingualDescription,
+      multilingualTags: data.multilingualTags,
+      multilingualSkills: data.multilingualSkills,
+      multilingualPrerequisites: data.multilingualPrerequisites,
+      multilingualWhatYouWillLearn: data.multilingualWhatYouWillLearn,
+      multilingualTargetAudience: data.multilingualTargetAudience,
+      
+      // Course associations (supports multiple)
+      associations: data.associations || [],
+      
+      // Legacy support for single association
+      association: data.association,
+      
       createdAt: data.createdAt?.toDate?.() || data.createdAt,
       updatedAt: data.updatedAt?.toDate?.() || data.updatedAt
     };
@@ -512,29 +551,30 @@ export class FirebaseCourseService {
 
   /**
    * Get courses by college ID
+   * Updated to work with new association model without collegeId
    */
   async getCoursesByCollege(collegeId: string): Promise<QueryResult<Course>> {
     try {
       this.log('Fetching courses by college:', collegeId);
       
+      // Get all courses since we can't filter by collegeId directly anymore
       const coursesRef = collection(this.db, COLLECTION_NAME);
-      const q = query(
-        coursesRef,
-        where('association.collegeId', '==', collegeId),
-        orderBy('createdAt', 'desc')
-      );
+      const q = query(coursesRef, orderBy('createdAt', 'desc'));
 
       const querySnapshot = await getDocs(q);
-      let courses = querySnapshot.docs.map(doc => this.documentToCourse(doc));
+      let allCourses = querySnapshot.docs.map(doc => this.documentToCourse(doc));
+
+      // Filter courses that belong to the college through program associations
+      const filteredCourses = await this.filterCoursesByCollege(allCourses, collegeId);
 
       // Enrich with category names
-      courses = await this.enrichWithCategoryNames(courses);
+      const enrichedCourses = await this.enrichWithCategoryNames(filteredCourses);
 
-      this.log(`Successfully fetched ${courses.length} courses for college ${collegeId}`);
+      this.log(`Successfully fetched ${enrichedCourses.length} courses for college ${collegeId}`);
 
       return {
-        data: courses,
-        total: courses.length,
+        data: enrichedCourses,
+        total: enrichedCourses.length,
         hasMore: false
       };
     } catch (error) {
@@ -545,6 +585,7 @@ export class FirebaseCourseService {
 
   /**
    * Get courses with association filters - Enhanced with flexible querying
+   * Updated to handle new association model without collegeId
    */
   async getCoursesWithFilters(filters: {
     collegeId?: string;
@@ -556,20 +597,41 @@ export class FirebaseCourseService {
       this.log('🎯 [Firebase] Fetching courses with filters:', filters);
       
       const coursesRef = collection(this.db, COLLECTION_NAME);
+      let courses: Course[] = [];
       
-      // Strategy 1: Try association-based query first
-      let courses = await this.tryAssociationQuery(coursesRef, filters);
-      
-      if (courses.length === 0 && filters.collegeId) {
-        this.log('🔄 [Firebase] No courses found with association query, trying alternative approaches...');
+      // If we have a collegeId filter, we need to handle it specially since it's no longer in association
+      if (filters.collegeId && !filters.programId && !filters.yearOrSemester && !filters.subjectId) {
+        // College-only filter: get all courses and filter by college programs
+        this.log('🏫 [Firebase] College-only filter detected, using program-based filtering');
+        const q = query(coursesRef, orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const allCourses = querySnapshot.docs.map(doc => this.documentToCourse(doc));
+        courses = await this.filterCoursesByCollege(allCourses, filters.collegeId);
+      } else {
+        // Other filters: try the existing strategies
+        const filtersWithoutCollege = { ...filters };
+        delete filtersWithoutCollege.collegeId; // Remove collegeId since it's not in association anymore
         
-        // Strategy 2: Try direct collegeId field query
-        courses = await this.tryDirectCollegeQuery(coursesRef, filters);
+        // Strategy 1: Try association-based query first
+        courses = await this.tryAssociationQuery(coursesRef, filtersWithoutCollege);
         
-        if (courses.length === 0) {
-          // Strategy 3: Get all courses and filter in memory
-          this.log('🔄 [Firebase] Trying in-memory filtering approach...');
-          courses = await this.tryInMemoryFiltering(coursesRef, filters);
+        if (courses.length === 0 && filtersWithoutCollege.programId) {
+          this.log('🔄 [Firebase] No courses found with association query, trying alternative approaches...');
+          
+          // Strategy 2: Try direct programId field query
+          courses = await this.tryDirectCollegeQuery(coursesRef, filtersWithoutCollege);
+          
+          if (courses.length === 0) {
+            // Strategy 3: Get all courses and filter in memory
+            this.log('🔄 [Firebase] Trying in-memory filtering approach...');
+            courses = await this.tryInMemoryFiltering(coursesRef, filtersWithoutCollege);
+          }
+        }
+        
+        // Apply college filter in memory if specified
+        if (filters.collegeId && courses.length > 0) {
+          this.log('🏫 [Firebase] Applying college filter in memory');
+          courses = await this.filterCoursesByCollege(courses, filters.collegeId);
         }
       }
 
@@ -601,6 +663,7 @@ export class FirebaseCourseService {
 
   /**
    * Try querying using association nested structure
+   * Updated to remove collegeId since it no longer exists in CourseAssociation
    */
   private async tryAssociationQuery(coursesRef: any, filters: any): Promise<Course[]> {
     try {
@@ -608,11 +671,8 @@ export class FirebaseCourseService {
       
       let q = query(coursesRef);
 
-      // Apply association filters
-      if (filters.collegeId) {
-        this.log('🏫 [Firebase] Adding college filter:', filters.collegeId);
-        q = query(q, where('association.collegeId', '==', filters.collegeId));
-      }
+      // Note: collegeId is no longer part of association, so we skip that filter
+      // College filtering will be handled via program relationships
       
       if (filters.programId) {
         this.log('📚 [Firebase] Adding program filter:', filters.programId);
@@ -646,7 +706,6 @@ export class FirebaseCourseService {
           id: course.id,
           title: course.title,
           association: rawData.association,
-          collegeId: rawData.collegeId,
           programId: rawData.programId
         });
         return course;
@@ -757,25 +816,20 @@ export class FirebaseCourseService {
         this.log('🔍 [Firebase] Examining course for in-memory filter:', {
           id: course.id,
           title: course.title,
-          collegeId: rawData.collegeId,
           programId: rawData.programId,
-          association: rawData.association
+          association: rawData.association,
+          associations: rawData.associations
         });
 
-        // College filter
-        if (filters.collegeId) {
-          const hasDirectCollegeId = rawData.collegeId === filters.collegeId;
-          const hasAssociationCollegeId = rawData.association?.collegeId === filters.collegeId;
-          if (!hasDirectCollegeId && !hasAssociationCollegeId) {
-            return false;
-          }
-        }
+        // Note: College filter is no longer handled here since collegeId is not in association
+        // College filtering is handled at a higher level via program relationships
 
         // Program filter
         if (filters.programId) {
           const hasDirectProgramId = rawData.programId === filters.programId;
           const hasAssociationProgramId = rawData.association?.programId === filters.programId;
-          if (!hasDirectProgramId && !hasAssociationProgramId) {
+          const hasAssociationsProgramId = rawData.associations?.some((assoc: any) => assoc.programId === filters.programId);
+          if (!hasDirectProgramId && !hasAssociationProgramId && !hasAssociationsProgramId) {
             return false;
           }
         }
@@ -784,7 +838,8 @@ export class FirebaseCourseService {
         if (filters.yearOrSemester) {
           const hasDirectYear = rawData.yearOrSemester === filters.yearOrSemester;
           const hasAssociationYear = rawData.association?.yearOrSemester === filters.yearOrSemester;
-          if (!hasDirectYear && !hasAssociationYear) {
+          const hasAssociationsYear = rawData.associations?.some((assoc: any) => assoc.yearOrSemester === filters.yearOrSemester);
+          if (!hasDirectYear && !hasAssociationYear && !hasAssociationsYear) {
             return false;
           }
         }
@@ -793,7 +848,8 @@ export class FirebaseCourseService {
         if (filters.subjectId) {
           const hasDirectSubject = rawData.subjectId === filters.subjectId;
           const hasAssociationSubject = rawData.association?.subjectId === filters.subjectId;
-          if (!hasDirectSubject && !hasAssociationSubject) {
+          const hasAssociationsSubject = rawData.associations?.some((assoc: any) => assoc.subjectId === filters.subjectId);
+          if (!hasDirectSubject && !hasAssociationSubject && !hasAssociationsSubject) {
             return false;
           }
         }
@@ -812,32 +868,37 @@ export class FirebaseCourseService {
 
   /**
    * Subscribe to courses changes for a specific college
+   * Updated to work with new association model without collegeId
    */
   subscribeToCollegeCourses(collegeId: string, callback: (courses: Course[]) => void): () => void {
     try {
       this.log('Setting up college courses subscription for:', collegeId);
       
       const coursesRef = collection(this.db, COLLECTION_NAME);
-      const q = query(
-        coursesRef,
-        where('association.collegeId', '==', collegeId),
-        orderBy('createdAt', 'desc')
-      );
+      
+      // Since collegeId is no longer in CourseAssociation, we need to get all courses
+      // and filter them by checking if their associations match programs from the college
+      const q = query(coursesRef, orderBy('createdAt', 'desc'));
 
       const unsubscribe = onSnapshot(q, async (snapshot) => {
         try {
-          let courses = snapshot.docs.map(doc => this.documentToCourse(doc));
+          let allCourses = snapshot.docs.map(doc => this.documentToCourse(doc));
+          
+          // Filter courses that belong to the college through program associations
+          const filteredCourses = await this.filterCoursesByCollege(allCourses, collegeId);
           
           // Enrich with category names
-          courses = await this.enrichWithCategoryNames(courses);
+          const enrichedCourses = await this.enrichWithCategoryNames(filteredCourses);
           
-          callback(courses);
-          this.log(`College courses subscription updated: ${courses.length} courses`);
+          callback(enrichedCourses);
+          this.log(`College courses subscription updated: ${enrichedCourses.length} courses for college ${collegeId}`);
         } catch (error) {
           this.error('Error in college courses subscription callback:', error);
+          callback([]); // Return empty array on error
         }
       }, (error) => {
         this.error('Error in college courses subscription:', error);
+        callback([]); // Return empty array on error
       });
 
       return unsubscribe;
@@ -886,6 +947,59 @@ export class FirebaseCourseService {
     } catch (error) {
       this.error('Error enriching courses with category names:', error);
       return courses; // Return original courses if enrichment fails
+    }
+  }
+
+  /**
+   * Filter courses by college using the new association model
+   * Since collegeId is no longer in CourseAssociation, we filter by programId
+   */
+  private async filterCoursesByCollege(courses: Course[], collegeId: string): Promise<Course[]> {
+    try {
+      // Import college data service to get college programs
+      const { getCollegePrograms } = await import('./college-data-service');
+      
+      // Get all programs for the college
+      const collegePrograms = await getCollegePrograms(collegeId);
+      const collegeProgramIds = new Set(collegePrograms.map(p => p.id));
+      
+      if (collegeProgramIds.size === 0) {
+        this.log(`No programs found for college ${collegeId}`);
+        return [];
+      }
+      
+      this.log(`Filtering courses for college ${collegeId} with ${collegeProgramIds.size} programs:`, Array.from(collegeProgramIds));
+      
+      // Filter courses that have associations with any of the college's programs
+      const filteredCourses = courses.filter(course => {
+        // Check new associations array
+        const hasMatchingAssociation = course.associations?.some(assoc => 
+          collegeProgramIds.has(assoc.programId)
+        );
+        
+        // Check legacy association object
+        const hasLegacyAssociation = course.association && 
+          collegeProgramIds.has(course.association.programId);
+        
+        // Check direct programId field (legacy support)
+        const hasDirectProgram = (course as any).programId && 
+          collegeProgramIds.has((course as any).programId);
+        
+        const matches = hasMatchingAssociation || hasLegacyAssociation || hasDirectProgram;
+        
+        if (matches) {
+          this.log(`Course "${course.title}" matches college ${collegeId}`);
+        }
+        
+        return matches;
+      });
+      
+      this.log(`Found ${filteredCourses.length} courses for college ${collegeId}`);
+      return filteredCourses;
+      
+    } catch (error) {
+      this.error('Error filtering courses by college:', error);
+      return []; // Return empty array on error
     }
   }
 }

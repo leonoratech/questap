@@ -26,10 +26,10 @@ export const analyzeCourseDataStructure = async () => {
         hasDirectCollegeId: 0,
         hasDirectProgramId: 0,
         hasAssociationObject: 0,
-        hasAssociationCollegeId: 0,
         hasAssociationProgramId: 0,
         hasAssociationYearOrSemester: 0,
-        hasAssociationSubjectId: 0
+        hasAssociationSubjectId: 0,
+        hasAssociationsArray: 0
       }
     };
     
@@ -44,12 +44,14 @@ export const analyzeCourseDataStructure = async () => {
         hasDirectProgramId: !!data.programId,
         hasAssociation: !!data.association,
         associationStructure: data.association ? {
-          collegeId: data.association.collegeId || null,
           programId: data.association.programId || null,
           yearOrSemester: data.association.yearOrSemester || null,
           subjectId: data.association.subjectId || null,
+          language: data.association.language || null,
           fullObject: data.association
         } : null,
+        associationsArray: data.associations || [],
+        hasAssociationsArray: !!data.associations && Array.isArray(data.associations),
         directFields: {
           collegeId: data.collegeId || null,
           programId: data.programId || null,
@@ -66,10 +68,12 @@ export const analyzeCourseDataStructure = async () => {
       if (data.programId) analysis.fieldSummary.hasDirectProgramId++;
       if (data.association) {
         analysis.fieldSummary.hasAssociationObject++;
-        if (data.association.collegeId) analysis.fieldSummary.hasAssociationCollegeId++;
         if (data.association.programId) analysis.fieldSummary.hasAssociationProgramId++;
         if (data.association.yearOrSemester) analysis.fieldSummary.hasAssociationYearOrSemester++;
         if (data.association.subjectId) analysis.fieldSummary.hasAssociationSubjectId++;
+      }
+      if (data.associations && Array.isArray(data.associations)) {
+        analysis.fieldSummary.hasAssociationsArray++;
       }
     });
     
@@ -81,8 +85,8 @@ export const analyzeCourseDataStructure = async () => {
     console.log(`- Courses with direct collegeId: ${analysis.fieldSummary.hasDirectCollegeId}`);
     console.log(`- Courses with direct programId: ${analysis.fieldSummary.hasDirectProgramId}`);
     console.log(`- Courses with association object: ${analysis.fieldSummary.hasAssociationObject}`);
-    console.log(`- Courses with association.collegeId: ${analysis.fieldSummary.hasAssociationCollegeId}`);
     console.log(`- Courses with association.programId: ${analysis.fieldSummary.hasAssociationProgramId}`);
+    console.log(`- Courses with associations array: ${analysis.fieldSummary.hasAssociationsArray}`);
     
     return analysis;
   } catch (error) {

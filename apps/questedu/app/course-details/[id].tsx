@@ -255,7 +255,7 @@ export default function CourseDetailsScreen() {
                     {course.rating ? course.rating.toFixed(1) : 'N/A'}
                   </Text>
                   <Text variant="bodySmall" style={styles.statLabel}>
-                    Rating
+                    Rating ({course.ratingCount || 0})
                   </Text>
                 </View>
                 <View style={styles.statItem}>
@@ -268,13 +268,59 @@ export default function CourseDetailsScreen() {
                 </View>
                 <View style={styles.statItem}>
                   <Text variant="bodyLarge" style={styles.statValue}>
-                    {course.language || 'English'}
+                    {course.language || course.primaryLanguage || 'English'}
                   </Text>
                   <Text variant="bodySmall" style={styles.statLabel}>
                     Language
                   </Text>
                 </View>
               </View>
+              
+              {/* Additional course stats */}
+              {(course.videosCount || course.articlesCount) && (
+                <View style={[styles.statsGrid, { marginTop: 12 }]}>
+                  {course.videosCount && (
+                    <View style={styles.statItem}>
+                      <Text variant="bodyLarge" style={styles.statValue}>
+                        {course.videosCount}
+                      </Text>
+                      <Text variant="bodySmall" style={styles.statLabel}>
+                        Videos
+                      </Text>
+                    </View>
+                  )}
+                  {course.articlesCount && (
+                    <View style={styles.statItem}>
+                      <Text variant="bodyLarge" style={styles.statValue}>
+                        {course.articlesCount}
+                      </Text>
+                      <Text variant="bodySmall" style={styles.statLabel}>
+                        Articles
+                      </Text>
+                    </View>
+                  )}
+                  {course.totalVideoLength && (
+                    <View style={styles.statItem}>
+                      <Text variant="bodyLarge" style={styles.statValue}>
+                        {Math.round(course.totalVideoLength / 60)}h
+                      </Text>
+                      <Text variant="bodySmall" style={styles.statLabel}>
+                        Video Length
+                      </Text>
+                    </View>
+                  )}
+                  {course.subcategory && (
+                    <View style={styles.statItem}>
+                      <Text variant="bodyLarge" style={styles.statValue}>
+                        {course.subcategory}
+                      </Text>
+                      <Text variant="bodySmall" style={styles.statLabel}>
+                        Subcategory
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
             </Card.Content>
           </Card>
 
@@ -298,6 +344,48 @@ export default function CourseDetailsScreen() {
                       }
                     ]} 
                   />
+                </View>
+              </Card.Content>
+            </Card>
+          )}
+
+          {/* What You'll Learn Section */}
+          {course.whatYouWillLearn?.length && (
+            <Card style={styles.learningCard}>
+              <Card.Content>
+                <Text variant="titleMedium" style={styles.sectionTitle}>
+                  What You'll Learn
+                </Text>
+                <View style={styles.learningList}>
+                  {course.whatYouWillLearn.map((item, index) => (
+                    <View key={index} style={styles.learningItem}>
+                      <Text style={[styles.bulletPoint, { color: theme.colors.primary }]}>✓</Text>
+                      <Text variant="bodyMedium" style={styles.learningText}>
+                        {item}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </Card.Content>
+            </Card>
+          )}
+
+          {/* Target Audience Section */}
+          {course.targetAudience?.length && (
+            <Card style={styles.audienceCard}>
+              <Card.Content>
+                <Text variant="titleMedium" style={styles.sectionTitle}>
+                  Who This Course Is For
+                </Text>
+                <View style={styles.audienceList}>
+                  {course.targetAudience.map((audience, index) => (
+                    <View key={index} style={styles.audienceItem}>
+                      <Text style={[styles.bulletPoint, { color: theme.colors.primary }]}>•</Text>
+                      <Text variant="bodyMedium" style={styles.audienceText}>
+                        {audience}
+                      </Text>
+                    </View>
+                  ))}
                 </View>
               </Card.Content>
             </Card>
@@ -624,5 +712,43 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 20,
+  },
+  learningCard: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  learningList: {
+    flexDirection: 'column',
+    gap: 8,
+  },
+  learningItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  learningText: {
+    flex: 1,
+    lineHeight: 20,
+  },
+  bulletPoint: {
+    marginRight: 8,
+    fontWeight: 'bold',
+  },
+  audienceCard: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  audienceList: {
+    flexDirection: 'column',
+    gap: 8,
+  },
+  audienceItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  audienceText: {
+    flex: 1,
+    lineHeight: 20,
   },
 });

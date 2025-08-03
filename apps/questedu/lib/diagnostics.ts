@@ -47,6 +47,7 @@ export const initializeDatabase = async () => {
     {
       title: 'Introduction to React Native',
       instructor: 'Jane Smith',
+      instructorId: 'instructor-jane-smith',
       progress: 75,
       image: 'https://picsum.photos/700?random=1',
       category: 'Development',
@@ -55,6 +56,7 @@ export const initializeDatabase = async () => {
     {
       title: 'Advanced JavaScript Concepts',
       instructor: 'John Doe',
+      instructorId: 'instructor-john-doe',
       progress: 30,
       image: 'https://picsum.photos/700?random=2',
       category: 'Development',
@@ -63,6 +65,7 @@ export const initializeDatabase = async () => {
     {
       title: 'UI/UX Design Principles',
       instructor: 'Sarah Johnson',
+      instructorId: 'instructor-sarah-johnson',
       progress: 100,
       image: 'https://picsum.photos/700?random=3',
       category: 'Design',
@@ -71,6 +74,7 @@ export const initializeDatabase = async () => {
     {
       title: 'Mobile App Development',
       instructor: 'Mike Williams',
+      instructorId: 'instructor-mike-williams',
       progress: 45,
       image: 'https://picsum.photos/700?random=4',
       category: 'Development',

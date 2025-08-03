@@ -40,15 +40,17 @@ export interface BaseEntity extends BaseTimestamps {
 
 /**
  * Course association with college, program, and subject
+ * Updated to match questadmin data model
  */
 export interface CourseAssociation {
-  collegeId: string;
-  collegeName?: string; // Cached for display
   programId: string;
   programName?: string; // Cached for display
+  departmentId?: string; // Optional, if associated with a specific department
+  departmentName?: string; // Cached for display
   yearOrSemester: number;
   subjectId: string;
   subjectName?: string; // Cached for display
+  language: string;
 }
 
 // ================================
@@ -57,16 +59,18 @@ export interface CourseAssociation {
 
 /**
  * Main Course interface for mobile app
+ * Updated to match questadmin data model
  */
 export interface Course extends BaseEntity {
   title: string;
   description?: string;
   instructor: string;
-  instructorId?: string;
+  instructorId: string; // Required, not optional
   category: string;
   categoryId?: string; // ID reference to course category
+  subcategory?: string; // Support for subcategories
   level?: CourseLevel;  
-  duration?: string; // e.g., "12 hours", "8 weeks"
+  duration?: string | number; // Support both string and number formats
   status?: CourseStatus;
   isPublished?: boolean;
   featured?: boolean;
@@ -76,11 +80,16 @@ export interface Course extends BaseEntity {
   tags?: string[];
   skills?: string[];
   prerequisites?: string[];
+  whatYouWillLearn?: string[]; // New field from admin model
+  targetAudience?: string[]; // New field from admin model
   courseImage?: string;
   image?: string; // Legacy support
+  promoVideo?: string; // New field from admin model
   progress: number; // User's progress in the course (0-100)
   language?: string;
+  subtitles?: string[]; // New field from admin model
   certificates?: boolean;
+  lifetimeAccess?: boolean; // New field from admin model
   
   // Mobile-specific fields
   downloadableResources?: boolean;
@@ -88,7 +97,36 @@ export interface Course extends BaseEntity {
   lastAccessed?: Date;
   bookmarked?: boolean;
   
-  // College association
+  // Enhanced course features from admin model
+  articlesCount?: number;
+  videosCount?: number;
+  totalVideoLength?: number; // in minutes
+  lastContentUpdate?: Date;
+  publishedAt?: Date;
+  archivedAt?: Date;
+  lastModifiedBy?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+
+  // Multilingual Support & Language Configuration
+  primaryLanguage?: string; // Primary language for the course
+  supportedLanguages?: string[]; // All supported languages for this course
+  enableTranslation?: boolean; // Whether to enable auto-translation features
+  
+  // Multilingual Content Fields (optional - for future multilingual content)
+  multilingualTitle?: Record<string, string>; // Language code -> title
+  multilingualDescription?: Record<string, string>; // Language code -> description
+  multilingualTags?: Record<string, string[]>; // Language code -> tags array
+  multilingualSkills?: Record<string, string[]>; // Language code -> skills array
+  multilingualPrerequisites?: Record<string, string[]>; // Language code -> prerequisites array
+  multilingualWhatYouWillLearn?: Record<string, string[]>; // Language code -> learning outcomes array
+  multilingualTargetAudience?: Record<string, string[]>; // Language code -> target audience array
+  
+  // Course associations (supports multiple)
+  associations?: CourseAssociation[];
+  
+  // Legacy support for single association
   association?: CourseAssociation;
 }
 
@@ -117,32 +155,64 @@ export interface CourseQueryOptions {
 
 /**
  * Course creation data (excludes system fields)
+ * Updated to match questadmin data model
  */
 export interface CreateCourseData {
   title: string;
   description?: string;
   instructor: string;
-  instructorId?: string;
+  instructorId: string; // Required, not optional
   category: string;
+  categoryId?: string;
+  subcategory?: string;
   level?: CourseLevel;  
-  duration?: string;
+  duration?: string | number;
   status?: CourseStatus;
   isPublished?: boolean;
   featured?: boolean;
   tags?: string[];
   skills?: string[];
   prerequisites?: string[];
+  whatYouWillLearn?: string[];
+  targetAudience?: string[];
   courseImage?: string;
   image?: string;
+  promoVideo?: string;
   progress: number;
   language?: string;
+  subtitles?: string[];
   certificates?: boolean;
+  lifetimeAccess?: boolean;
   downloadableResources?: boolean;
   mobileAccess?: boolean;
+  articlesCount?: number;
+  videosCount?: number;
+  totalVideoLength?: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  
+  // Language configuration
+  primaryLanguage?: string;
+  supportedLanguages?: string[];
+  enableTranslation?: boolean;
+  
+  // Multilingual content fields
+  multilingualTitle?: Record<string, string>;
+  multilingualDescription?: Record<string, string>;
+  multilingualTags?: Record<string, string[]>;
+  multilingualSkills?: Record<string, string[]>;
+  multilingualPrerequisites?: Record<string, string[]>;
+  multilingualWhatYouWillLearn?: Record<string, string[]>;
+  multilingualTargetAudience?: Record<string, string[]>;
+  
+  // Association fields
+  associations?: CourseAssociation[];
 }
 
 /**
  * Course update data (partial course data)
+ * Updated to match questadmin data model
  */
 export interface UpdateCourseData {
   title?: string;
@@ -150,23 +220,53 @@ export interface UpdateCourseData {
   instructor?: string;
   instructorId?: string;
   category?: string;
+  categoryId?: string;
+  subcategory?: string;
   level?: CourseLevel;
-  duration?: string;
+  duration?: string | number;
   status?: CourseStatus;
   isPublished?: boolean;
   featured?: boolean;
   tags?: string[];
   skills?: string[];
   prerequisites?: string[];
+  whatYouWillLearn?: string[];
+  targetAudience?: string[];
   courseImage?: string;
   image?: string;
+  promoVideo?: string;
   progress?: number;
   language?: string;
+  subtitles?: string[];
   certificates?: boolean;
+  lifetimeAccess?: boolean;
   downloadableResources?: boolean;
   mobileAccess?: boolean;
   lastAccessed?: Date;
   bookmarked?: boolean;
+  articlesCount?: number;
+  videosCount?: number;
+  totalVideoLength?: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  
+  // Language configuration
+  primaryLanguage?: string;
+  supportedLanguages?: string[];
+  enableTranslation?: boolean;
+  
+  // Multilingual content fields
+  multilingualTitle?: Record<string, string>;
+  multilingualDescription?: Record<string, string>;
+  multilingualTags?: Record<string, string[]>;
+  multilingualSkills?: Record<string, string[]>;
+  multilingualPrerequisites?: Record<string, string[]>;
+  multilingualWhatYouWillLearn?: Record<string, string[]>;
+  multilingualTargetAudience?: Record<string, string[]>;
+  
+  // Association fields
+  associations?: CourseAssociation[];
 }
 
 // ================================
@@ -254,6 +354,11 @@ export function getCourseImage(course: Course): string | undefined {
  */
 export function getCourseDurationMinutes(course: Course): number | null {
   if (!course.duration) return null;
+  
+  // If duration is already a number, return it
+  if (typeof course.duration === 'number') {
+    return course.duration;
+  }
   
   // Try to extract minutes from duration string
   const match = course.duration.match(/(\d+)\s*(hour|hr|h|minute|min|m)/i);
