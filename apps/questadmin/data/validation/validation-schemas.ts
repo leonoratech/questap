@@ -32,8 +32,8 @@ export const SignInSchema = z.object({
  * Course validation schemas
  */
 export const CourseAssociationSchema = z.object({
-  collegeId: z.string().min(1, 'College ID is required'),
-  collegeName: z.string().optional(),
+  departmentId: z.string().min(1, 'Department ID is required'),
+  departmentName: z.string().optional(),
   programId: z.string().min(1, 'Program ID is required'),
   programName: z.string().optional(),
   yearOrSemester: z.number().min(1, 'Year or semester must be at least 1'),

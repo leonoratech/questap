@@ -9,8 +9,6 @@ interface CourseData {
   id: string
   status?: string
   rating?: number
-  category?: string
-  level?: string
   [key: string]: any
 }
 
@@ -41,30 +39,13 @@ export async function GET(request: NextRequest) {
       ? coursesWithRating.reduce((sum, course) => sum + (course.rating || 0), 0) / coursesWithRating.length 
       : 0
 
-    // Calculate category counts
-    const categoryCounts: Record<string, number> = {}
-    courses.forEach(course => {
-      if (course.category) {
-        categoryCounts[course.category] = (categoryCounts[course.category] || 0) + 1
-      }
-    })
-
-    // Calculate level counts
-    const levelCounts: Record<string, number> = {}
-    courses.forEach(course => {
-      if (course.level) {
-        levelCounts[course.level] = (levelCounts[course.level] || 0) + 1
-      }
-    })
-
+    
     const stats: CourseStats = {
       totalCourses,
       publishedCourses,
       draftCourses,
       archivedCourses,
-      averageRating: Math.round(averageRating * 100) / 100, // Round to 2 decimal places
-      categoryCounts,
-      levelCounts
+      averageRating: Math.round(averageRating * 100) / 100, // Round to 2 decimal places      
     }
 
     return NextResponse.json({

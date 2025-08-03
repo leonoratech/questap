@@ -42,14 +42,6 @@ export class CourseRepository extends BaseRepository<Course> {
                 coursesQuery = coursesQuery.where('instructorId', '==', filters.instructorId);
             }
 
-            if (filters.categoryId) {
-                coursesQuery = coursesQuery.where('categoryId', '==', filters.categoryId);
-            }
-
-            if (filters.difficultyId) {
-                coursesQuery = coursesQuery.where('difficultyId', '==', filters.difficultyId);
-            }
-
             if (filters.status) {
                 coursesQuery = coursesQuery.where('status', '==', filters.status);
             }
@@ -243,15 +235,6 @@ export class CourseRepository extends BaseRepository<Course> {
                     ratedCoursesCount += data.ratingCount;
                 }
 
-                // Count by category
-                if (data.categoryId) {
-                    stats.coursesByCategory[data.categoryId] = (stats.coursesByCategory[data.categoryId] || 0) + 1;
-                }
-
-                // Count by difficulty
-                if (data.difficultyId) {
-                    stats.coursesByDifficulty[data.difficultyId] = (stats.coursesByDifficulty[data.difficultyId] || 0) + 1;
-                }
             });
 
             // Calculate average rating
@@ -263,25 +246,6 @@ export class CourseRepository extends BaseRepository<Course> {
         } catch (error) {
             console.error('Error calculating course stats:', error);
             throw new Error('Failed to calculate course stats');
-        }
-    }
-
-    async getCategories(): Promise<string[]> {
-        try {
-            const coursesSnapshot = await adminDb.collection(COURSE_COLLECTION).get();
-            const categories = new Set<string>();
-
-            coursesSnapshot.docs.forEach(doc => {
-                const data = doc.data() as Course;
-                if (data.categoryId) {
-                    categories.add(data.categoryId);
-                }
-            });
-
-            return Array.from(categories).sort();
-        } catch (error) {
-            console.error('Error fetching course categories:', error);
-            throw new Error('Failed to fetch course categories');
         }
     }
 

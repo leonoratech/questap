@@ -8,17 +8,13 @@
 
 import { LanguageCompletionIndicator } from '@/components/LanguageSelector';
 import { MultilingualArrayInput, MultilingualInput, MultilingualTextarea } from '@/components/MultilingualInput';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CourseCategory } from '@/data/models/course-category';
-import { CourseDifficulty } from '@/data/models/course-difficulty';
 import { MultilingualCreateCourseData } from '@/data/models/data-model';
 import { addCourse } from '@/data/services/admin-course-service';
-import { fetchCategoriesAndDifficulties } from '@/data/services/course-master-data-service';
 import {
   DEFAULT_LANGUAGE,
   SupportedLanguage
@@ -52,12 +48,7 @@ export default function MultilingualCourseForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
-  // Master data
-  const [categories, setCategories] = useState<CourseCategory[]>([]);
-  const [difficulties, setDifficulties] = useState<CourseDifficulty[]>([]);
-  const [loadingMasterData, setLoadingMasterData] = useState(true);
-  
+    
   // Form data with multilingual support
   const [formData, setFormData] = useState<MultilingualCourseFormData>({
     title: createMultilingualText('', DEFAULT_LANGUAGE),
@@ -78,23 +69,6 @@ export default function MultilingualCourseForm() {
     enableTranslation: false
   });
 
-  // Load master data on component mount
-  React.useEffect(() => {
-    const loadMasterData = async () => {
-      try {
-        const { categories: cats, difficulties: diffs } = await fetchCategoriesAndDifficulties();
-        setCategories(cats);
-        setDifficulties(diffs);
-      } catch (error) {
-        console.error('Error loading master data:', error);
-      } finally {
-        setLoadingMasterData(false);
-      }
-    };
-
-    loadMasterData();
-  }, []);
-
   // Validation
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -108,12 +82,6 @@ export default function MultilingualCourseForm() {
     }
     if (!formData.instructor.trim()) {
       newErrors.instructor = 'Instructor name is required';
-    }
-    if (!formData.categoryId) {
-      newErrors.categoryId = 'Course category is required';
-    }
-    if (!formData.difficultyId) {
-      newErrors.difficultyId = 'Course difficulty is required';
     }
     if (formData.duration <= 0) {
       newErrors.duration = 'Duration must be greater than 0';
@@ -159,8 +127,6 @@ export default function MultilingualCourseForm() {
         title: formData.title[DEFAULT_LANGUAGE] || '',
         description: formData.description[DEFAULT_LANGUAGE] || '',
         instructor: formData.instructor,
-        categoryId: formData.categoryId,
-        difficultyId: formData.difficultyId,
         duration: formData.duration,
         instructorId: formData.instructorId || 'default-instructor-id',
         status: formData.status
@@ -296,69 +262,6 @@ export default function MultilingualCourseForm() {
                   <div className="flex items-center gap-2 text-sm text-red-600">
                     <AlertCircle className="h-3 w-3" />
                     <span>{errors.instructor}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Category */}
-              <div className="space-y-2">
-                <Label htmlFor="categoryId">Category *</Label>
-                <Select
-                  value={formData.categoryId}
-                  onValueChange={(value: string) => setFormData({ ...formData, categoryId: value })}
-                  disabled={loadingMasterData}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.categoryId && (
-                  <div className="flex items-center gap-2 text-sm text-red-600">
-                    <AlertCircle className="h-3 w-3" />
-                    <span>{errors.categoryId}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Difficulty */}
-              <div className="space-y-2">
-                <Label htmlFor="difficultyId">Difficulty Level *</Label>
-                <Select
-                  value={formData.difficultyId}
-                  onValueChange={(value: string) => setFormData({ ...formData, difficultyId: value })}
-                  disabled={loadingMasterData}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select difficulty level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {difficulties.map((difficulty) => (
-                      <SelectItem key={difficulty.id} value={difficulty.id}>
-                        <div className="flex items-center gap-2">
-                          <Badge className={
-                            difficulty.name.toLowerCase() === 'beginner' ? 'bg-green-100 text-green-800' :
-                            difficulty.name.toLowerCase() === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }>
-                            {difficulty.name}
-                          </Badge>
-                          {difficulty.description && <span>{difficulty.description}</span>}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.difficultyId && (
-                  <div className="flex items-center gap-2 text-sm text-red-600">
-                    <AlertCircle className="h-3 w-3" />
-                    <span>{errors.difficultyId}</span>
                   </div>
                 )}
               </div>

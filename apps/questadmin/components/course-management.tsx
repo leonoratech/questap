@@ -6,11 +6,8 @@ import { MultilingualArrayInput, MultilingualInput, MultilingualTextarea } from 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useAuth } from '@/contexts/AuthContext'
-import { CourseCategory } from '@/data/models/course-category'
-import { CourseDifficulty } from '@/data/models/course-difficulty'
 import { HybridAdminCourse } from '@/data/models/data-model'
 import {
   addCourse,
@@ -42,8 +39,6 @@ interface CourseFormData {
   title: RequiredMultilingualText | string
   instructor: string
   description: RequiredMultilingualText | string
-  categoryId: string
-  difficultyId: string
   duration: string // Keep as string for form input
   instructorId: string
   // Enhanced fields
@@ -69,16 +64,11 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [courseToDelete, setCourseToDelete] = useState<HybridAdminCourse | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [categories, setCategories] = useState<CourseCategory[]>([])
-  const [difficulties, setDifficulties] = useState<CourseDifficulty[]>([])
-  const [loadingMasterData, setLoadingMasterData] = useState(true)
-
+  
   const [formData, setFormData] = useState<CourseFormData>({
     title: multilingualMode ? createMultilingualText('') : '',
     instructor: '',
     description: multilingualMode ? createMultilingualText('') : '',
-    categoryId: '',
-    difficultyId: '',
     duration: '',
     instructorId: '',
     // Enhanced fields
@@ -87,23 +77,6 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
     tags: multilingualMode ? createMultilingualArray([]) : [],
     associations: []
   })
-
-  const loadMasterData = async () => {
-    try {
-      const response = await fetch('/api/master-data')
-      if (!response.ok) {
-        throw new Error('Failed to fetch master data')
-      }
-      const data = await response.json()
-      setCategories(data.categories)
-      setDifficulties(data.difficulties)
-    } catch (error) {
-      console.error('Error loading master data:', error)
-      toast.error('Failed to load categories and difficulties')
-    } finally {
-      setLoadingMasterData(false)
-    }
-  }
 
   const loadCourses = async () => {
     try {
@@ -131,8 +104,7 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
   }
 
   useEffect(() => {
-    loadCourses()
-    loadMasterData()
+    loadCourses()    
   }, [])
 
   useEffect(() => {
@@ -165,8 +137,6 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
           ? formData.description 
           : getCompatibleText(formData.description, DEFAULT_LANGUAGE),
         instructor: formData.instructor,
-        categoryId: formData.categoryId,
-        difficultyId: formData.difficultyId,
         duration: parseFloat(formData.duration.trim()) || 0,
         instructorId: formData.instructorId || userProfile?.uid || '',
         // Enhanced fields
@@ -221,8 +191,6 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
       description: multilingualMode
         ? (typeof course.description === 'string' ? createMultilingualText(course.description) : course.description)
         : (typeof course.description === 'string' ? course.description : getCompatibleText(course.description, DEFAULT_LANGUAGE)),
-      categoryId: course.categoryId || '',
-      difficultyId: course.difficultyId || '',
       duration: course.duration?.toString() || '',
       instructorId: course.instructorId,
       // Enhanced fields
@@ -284,8 +252,6 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
       title: multilingualMode ? createMultilingualText('') : '',
       instructor: '',
       description: multilingualMode ? createMultilingualText('') : '',
-      categoryId: '',
-      difficultyId: '',
       duration: '',
       instructorId: '',
       // Enhanced fields
@@ -300,16 +266,6 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
 
   const formatDate = (date: Date | undefined) => {
     return safeFormatDate(date)
-  }
-
-  const getCategoryName = (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId)
-    return category?.name || 'Unknown'
-  }
-
-  const getDifficultyName = (difficultyId: string) => {
-    const difficulty = difficulties.find(d => d.id === difficultyId)
-    return difficulty?.name || 'Unknown'
   }
 
   return (
@@ -426,44 +382,6 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label htmlFor="categoryId" className="text-sm font-medium">Category</label>
-                  <Select 
-                    value={formData.categoryId} 
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, categoryId: value }))}
-                    disabled={loadingMasterData}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="difficultyId" className="text-sm font-medium">Difficulty</label>
-                  <Select 
-                    value={formData.difficultyId} 
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, difficultyId: value }))}
-                    disabled={loadingMasterData}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select difficulty" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {difficulties.map((difficulty) => (
-                        <SelectItem key={difficulty.id} value={difficulty.id}>
-                          {difficulty.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
                 <div className="space-y-2">
                   <label htmlFor="duration" className="text-sm font-medium">Duration (hours)</label>
                   <Input
@@ -684,7 +602,7 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
                     ...prev,
                     associations: [
                       ...prev.associations,
-                      { collegeId: '', programId: '', yearOrSemester: 1, subjectId: '' }
+                      { departmentId: '', departmentName: '', programId: '', yearOrSemester: 1, subjectId: '', subjectName: '', programName: '', language: DEFAULT_LANGUAGE } as CourseAssociation
                     ]
                   }))}
                   className="w-full"
@@ -748,8 +666,6 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
                         {getCompatibleText(course.title, DEFAULT_LANGUAGE)}
                       </TableCell>
                       <TableCell>{course.instructor}</TableCell>
-                      <TableCell>{getCategoryName(course.categoryId)}</TableCell>
-                      <TableCell>{getDifficultyName(course.difficultyId)}</TableCell>
                       <TableCell>{course.duration ? `${course.duration}h` : 'N/A'}</TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded-full text-xs ${

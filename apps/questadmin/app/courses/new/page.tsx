@@ -471,7 +471,7 @@ export default function UnifiedCreateCoursePage() {
                         ...prev,
                         associations: [
                           ...prev.associations,
-                          { collegeId: '', programId: '', yearOrSemester: 1, subjectId: '' }
+                          { programId: '', yearOrSemester: 1, subjectId: '', departmentId: '', departmentName: '', programName: '', subjectName: '', language: '' } as CourseAssociation
                         ]
                       }))
                     }}

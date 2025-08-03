@@ -266,21 +266,6 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    {/* Common Fields */}
-                    <CollegeSelector
-                      value={formData.collegeId || formData.college}
-                      onChange={(value, collegeId) => {
-                        setFormData(prev => ({
-                          ...prev,
-                          collegeId: collegeId || '',
-                          college: collegeId ? '' : value  // Only store college name if no ID
-                        }))
-                      }}
-                      placeholder="Select your college or institution"
-                      label="College/Institution"
-                      useCollegeId={true}
-                    />
-
                     <div className="space-y-2">
                       <Label htmlFor="department">Department</Label>
                       <Input
