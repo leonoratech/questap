@@ -9,20 +9,6 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "order",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courseTopics",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "courseId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "isPublished",
           "order": "ASCENDING"
         },
@@ -245,16 +231,16 @@
       ]
     },
     {
-      "collectionGroup": "colleges",
+      "collectionGroup": "instructorActivities",
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "isActive",
+          "fieldPath": "instructorId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "name",
-          "order": "ASCENDING"
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
         }
       ]
     },
@@ -263,97 +249,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "isActive",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "name",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "collegeAdministrators",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "collegeAdministrators",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "assignedAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "collegeAdministrators",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "role",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "collegeAdministrators",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "instructorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "collegeAdministrators",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "instructorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isActive",
           "order": "ASCENDING"
         }
       ]
@@ -376,146 +276,12 @@
         }
       ]
     },
-    {
-      "collectionGroup": "users",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "users",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "role",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "firstName",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "users",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "role",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "displayName",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "users",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "displayName",
-          "order": "ASCENDING"
-        }
-      ]
-    },    
-    {
-      "collectionGroup": "subjects",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "programId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "yearOrSemester",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "name",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "subjects",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "yearOrSemester",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "name",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "course_reviews",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "courseId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isPublished",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },    
     {
       "collectionGroup": "courses",
       "queryScope": "COLLECTION",
       "fields": [
         {
           "fieldPath": "instructorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "category",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "level",
           "order": "ASCENDING"
         },
         {
@@ -541,14 +307,6 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "category",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "level",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "status",
           "order": "ASCENDING"
         },
@@ -564,78 +322,6 @@
       "fields": [
         {
           "fieldPath": "instructorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "category",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "instructorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "instructorId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "category",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "level",
           "order": "ASCENDING"
         },
         {
@@ -677,128 +363,6 @@
       ]
     },
     {
-      "collectionGroup": "subjects",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "programId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "name",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "subjects",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "programId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "name",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "subjects",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "name",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "subjects",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "name",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "subjects",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "name",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "subjects",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "programId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "yearOrSemester",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "name",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "subjects",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "programId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "yearOrSemester",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "name",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
       "collectionGroup": "courses",
       "queryScope": "COLLECTION",
       "fields": [
@@ -849,227 +413,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "association.collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "association.yearOrSemester",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "association.collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.programId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "association.collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.yearOrSemester",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "association.collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.subjectId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
           "fieldPath": "association.programId",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "association.subjectId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "association.collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.programId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.yearOrSemester",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "association.collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.programId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.subjectId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "association.programId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.yearOrSemester",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.subjectId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "association.collegeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.programId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.yearOrSemester",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "association.subjectId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "category",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "featured",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "courses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "level",
           "order": "ASCENDING"
         },
         {

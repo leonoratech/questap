@@ -124,7 +124,7 @@ export const getAllColleges = async (): Promise<College[]> => {
  */
 export const getCollegePrograms = async (collegeId: string): Promise<Program[]> => {
   try {
-    console.log(`🎓 Fetching programs for college: ${collegeId}`);
+    console.log(`🎓 Fetching programs for college: ${collegeId || 'all colleges'}`);
     
     // Check if we have a Firebase Auth user
     const auth = getFirebaseAuth();
@@ -138,15 +138,27 @@ export const getCollegePrograms = async (collegeId: string): Promise<Program[]> 
     console.log('✅ Authenticated user found for programs:', currentUser.email);
     
     const programsRef = collection(db, 'programs');
-    const q = query(
-      programsRef,
-      where('collegeId', '==', collegeId),
-      where('isActive', '==', true),
-      orderBy('name', 'asc')
-    );
+    let q;
+    
+    if (collegeId) {
+      // Fetch programs for a specific college
+      q = query(
+        programsRef,
+        where('collegeId', '==', collegeId),
+        where('isActive', '==', true),
+        orderBy('name', 'asc')
+      );
+    } else {
+      // Fetch all active programs (when no specific college is provided)
+      q = query(
+        programsRef,
+        where('isActive', '==', true),
+        orderBy('name', 'asc')
+      );
+    }
 
     const querySnapshot = await getDocs(q);
-    console.log(`📊 Found ${querySnapshot.docs.length} programs for college ${collegeId}`);
+    console.log(`📊 Found ${querySnapshot.docs.length} programs ${collegeId ? `for college ${collegeId}` : 'across all colleges'}`);
     
     const programs = querySnapshot.docs.map(doc => {
       const data = doc.data();
@@ -170,27 +182,128 @@ export const getCollegePrograms = async (collegeId: string): Promise<Program[]> 
 };
 
 /**
+ * Get all active programs across all colleges
+ */
+export const getAllPrograms = async (): Promise<Program[]> => {
+  try {
+    console.log('🎓 Fetching all active programs...');
+    
+    // Check if we have a Firebase Auth user
+    const auth = getFirebaseAuth();
+    const currentUser = auth.currentUser;
+    
+    if (!currentUser) {
+      console.error('❌ No authenticated user found. Cannot fetch programs.');
+      throw new Error('Authentication required to fetch programs. Please sign in.');
+    }
+    
+    console.log('✅ Authenticated user found for programs:', currentUser.email);
+    
+    const programsRef = collection(db, 'programs');
+    const q = query(
+      programsRef,
+      where('isActive', '==', true),
+      orderBy('name', 'asc')
+    );
+
+    const querySnapshot = await getDocs(q);
+    console.log(`📊 Found ${querySnapshot.docs.length} programs across all colleges`);
+    
+    const programs = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data
+      } as Program;
+    });
+
+    return programs;
+  } catch (error) {
+    console.error('❌ Error fetching all programs:', error);
+    throw error;
+  }
+};
+
+/**
  * Get subjects for a specific program
  */
 export const getProgramSubjects = async (programId: string, collegeId: string): Promise<Subject[]> => {
   try {
+    console.log(`📚 Fetching subjects for program: ${programId}`);
+    
+    // Check if we have a Firebase Auth user
+    const auth = getFirebaseAuth();
+    const currentUser = auth.currentUser;
+    
+    if (!currentUser) {
+      console.error('❌ No authenticated user found. Cannot fetch subjects.');
+      throw new Error('Authentication required to fetch subjects. Please sign in.');
+    }
+    
     const subjectsRef = collection(db, 'subjects');
     const q = query(
       subjectsRef,
       where('programId', '==', programId),
       where('collegeId', '==', collegeId),
-      orderBy('yearOrSemester', 'asc'),
       orderBy('name', 'asc')
     );
 
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Subject));
+    console.log(`📊 Found ${querySnapshot.docs.length} subjects for program ${programId}`);
+    
+    const subjects = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data
+      } as Subject;
+    });
+
+    return subjects;
   } catch (error) {
-    console.error('Error fetching program subjects:', error);
-    return [];
+    console.error(`❌ Error fetching subjects for program ${programId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Get subjects for a specific program (simple version - just programId)
+ */
+export const getSubjectsByProgramId = async (programId: string): Promise<Subject[]> => {
+  try {
+    console.log(`📚 Fetching subjects for program: ${programId}`);
+    
+    // Check if we have a Firebase Auth user
+    const auth = getFirebaseAuth();
+    const currentUser = auth.currentUser;
+    
+    if (!currentUser) {
+      console.error('❌ No authenticated user found. Cannot fetch subjects.');
+      throw new Error('Authentication required to fetch subjects. Please sign in.');
+    }
+    
+    const subjectsRef = collection(db, 'subjects');
+    const q = query(
+      subjectsRef,
+      where('programId', '==', programId),
+      orderBy('name', 'asc')
+    );
+
+    const querySnapshot = await getDocs(q);
+    console.log(`📊 Found ${querySnapshot.docs.length} subjects for program ${programId}`);
+    
+    const subjects = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data
+      } as Subject;
+    });
+
+    return subjects;
+  } catch (error) {
+    console.error(`❌ Error fetching subjects for program ${programId}:`, error);
+    return []; // Return empty array on error to prevent crashes
   }
 };
 

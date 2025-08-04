@@ -499,13 +499,13 @@ export default function CourseDetailsScreen() {
                 >
                   Question Bank
                 </Button>
-                <Button 
+                {/* <Button 
                   mode="outlined" 
                   style={styles.secondaryButton}
                   onPress={() => {}}
                 >
                   Add to Wishlist
-                </Button>
+                </Button> */}
               </View>
             </Card.Content>
           </Card>

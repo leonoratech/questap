@@ -13,11 +13,12 @@ import {
   useTheme
 } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
+import { AppMasterCollege, getCollegeFromAppMaster } from '../../lib/app-master-service';
 import {
-  College,
-  getAllColleges,
-  getCollegePrograms,
-  Program
+  getAllPrograms,
+  getSubjectsByProgramId,
+  Program,
+  Subject
 } from '../../lib/college-data-service';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
 
@@ -46,10 +47,12 @@ const ProfileEditScreen: React.FC = () => {
     mainSubjects: ''
   });
   
-  const [colleges, setColleges] = useState<College[]>([]);
+  const [college, setCollege] = useState<AppMasterCollege | null>(null);
   const [programs, setPrograms] = useState<Program[]>([]);
-  const [loadingColleges, setLoadingColleges] = useState(false);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loadingCollege, setLoadingCollege] = useState(false);
   const [loadingPrograms, setLoadingPrograms] = useState(false);
+  const [loadingSubjects, setLoadingSubjects] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   
   const [saving, setSaving] = useState(false);
@@ -72,76 +75,73 @@ const ProfileEditScreen: React.FC = () => {
       console.log('📋 Initializing profile form data:', newFormData);
       setFormData(newFormData);
       
-      // If user has a saved collegeId, load the programs for that college
-      // This ensures the program dropdown shows the correct selected program
-      if (newFormData.collegeId && user) {
-        console.log('🎓 Profile loaded - Loading programs for saved college:', newFormData.collegeId);
-        console.log('🎯 Saved programId to restore:', newFormData.programId);
-        loadPrograms(newFormData.collegeId).then(() => {
-          // Mark initial load as complete after programs are loaded
-          console.log('✅ Initial program loading complete');
+      // If user has a saved programId, load the subjects for that program
+      if (newFormData.programId && user) {
+        console.log('📚 Profile loaded - Loading subjects for saved program:', newFormData.programId);
+        loadSubjects(newFormData.programId).then(() => {
+          console.log('✅ Initial subjects loading complete');
           setIsInitialLoad(false);
         });
       } else {
-        // No college saved, mark initial load as complete immediately
-        console.log('✅ No saved college, marking initial load complete');
+        console.log('✅ No saved program, marking initial load complete');
         setIsInitialLoad(false);
       }
     }
   }, [userProfile, user]);
 
-  // Load colleges on component mount, but only if user is authenticated
+  // Load college and programs on component mount
   useEffect(() => {
-    if (user && userProfile) { // Only load if both user and profile are loaded
-      loadColleges();
+    if (user && userProfile) {
+      loadCollege();
+      loadPrograms();
     }
   }, [user, userProfile]);
 
-  // Load programs when college is selected (manual selection, not initial load)
+  // Load subjects when program is selected (manual selection, not initial load)
   useEffect(() => {
-    if (formData.collegeId && !isInitialLoad) {
-      console.log('🔄 Manual college selection - loading programs for:', formData.collegeId);
-      loadPrograms(formData.collegeId);
-    } else if (!formData.collegeId && !isInitialLoad) {
-      console.log('🔄 No college selected, clearing programs');
-      setPrograms([]);
-      setFormData(prev => ({ ...prev, programId: '' }));
+    if (formData.programId && !isInitialLoad) {
+      console.log('🔄 Manual program selection - loading subjects for:', formData.programId);
+      loadSubjects(formData.programId);
+    } else if (!formData.programId && !isInitialLoad) {
+      console.log('🔄 No program selected, clearing subjects');
+      setSubjects([]);
+      setFormData(prev => ({ ...prev, mainSubjects: '' }));
     }
-  }, [formData.collegeId, isInitialLoad]);
+  }, [formData.programId, isInitialLoad]);
 
-  const loadColleges = async () => {
+  const loadCollege = async () => {
     if (!user) {
       console.log('⚠️ User not authenticated, skipping college loading');
       return;
     }
     
-    setLoadingColleges(true);
+    setLoadingCollege(true);
     try {
-      console.log('🏫 Starting to load colleges...');
-      const collegesData = await getAllColleges();
-      console.log(`✅ Successfully loaded ${collegesData.length} colleges:`, collegesData.map(c => c.name));
-      setColleges(collegesData);
+      console.log('🏫 Starting to load college from appMaster...');
+      const collegeData = await getCollegeFromAppMaster();
+      console.log(`✅ Successfully loaded college:`, collegeData?.name);
+      setCollege(collegeData);
       
-      if (collegesData.length === 0) {
-        showMessage('No colleges found. Please contact administrator.');
+      if (!collegeData) {
+        showMessage('No college information found. Please contact administrator.');
       }
     } catch (error: any) {
-      console.error('❌ Error loading colleges:', error);
+      console.error('❌ Error loading college:', error);
       
       if (error.message && error.message.includes('Authentication required')) {
         showMessage('Please sign in to access college information.');
       } else if (error.message && error.message.includes('Missing or insufficient permissions')) {
         showMessage('Access denied. Please ensure you are signed in with a valid account.');
       } else {
-        showMessage('Failed to load colleges. Please check your internet connection and try again.');
+        showMessage('Failed to load college information. Please check your internet connection and try again.');
       }
-      setColleges([]); // Ensure colleges is empty on error
+      setCollege(null);
     } finally {
-      setLoadingColleges(false);
+      setLoadingCollege(false);
     }
   };
 
-  const loadPrograms = async (collegeId: string) => {
+  const loadPrograms = async () => {
     if (!user) {
       console.log('⚠️ User not authenticated, skipping program loading');
       return;
@@ -149,32 +149,14 @@ const ProfileEditScreen: React.FC = () => {
     
     setLoadingPrograms(true);
     try {
-      console.log(`🎓 Starting to load programs for college: ${collegeId}`);
-      console.log(`🎯 Current programId before loading: "${formData.programId}"`);
+      console.log(`🎓 Starting to load all programs...`);
       
-      const programsData = await getCollegePrograms(collegeId);
-      console.log(`✅ Successfully loaded ${programsData.length} programs:`, programsData.map(p => `${p.name} (${p.id})`));
+      const programsData = await getAllPrograms();
+      console.log(`✅ Successfully loaded ${programsData.length} programs`);
       setPrograms(programsData);
       
-      // Check if the current programId exists in the loaded programs
-      const currentProgramId = formData.programId;
-      console.log(`🔍 Checking if programId "${currentProgramId}" exists in loaded programs...`);
-      
-      if (currentProgramId) {
-        const foundProgram = programsData.find(p => p.id === currentProgramId);
-        if (foundProgram) {
-          console.log(`✅ Found matching program for saved programId: ${foundProgram.name} (${foundProgram.id})`);
-        } else {
-          console.log(`⚠️ Saved programId "${currentProgramId}" not found in loaded programs`);
-          console.log(`   Available program IDs: [${programsData.map(p => `"${p.id}"`).join(', ')}]`);
-          console.log(`   Data type check - saved: ${typeof currentProgramId}, available: ${programsData.map(p => typeof p.id).join(', ')}`);
-        }
-      } else {
-        console.log(`ℹ️ No programId to restore`);
-      }
-      
       if (programsData.length === 0) {
-        showMessage('No programs found for this college.');
+        showMessage('No programs found. Please contact administrator.');
       }
     } catch (error: any) {
       console.error('❌ Error loading programs:', error);
@@ -186,9 +168,48 @@ const ProfileEditScreen: React.FC = () => {
       } else {
         showMessage('Failed to load programs. Please try again.');
       }
-      setPrograms([]); // Ensure programs is empty on error
+      setPrograms([]);
     } finally {
       setLoadingPrograms(false);
+    }
+  };
+
+  const loadSubjects = async (programId: string) => {
+    if (!user) {
+      console.log('⚠️ User not authenticated, skipping subjects loading');
+      return;
+    }
+    
+    setLoadingSubjects(true);
+    try {
+      console.log(`📚 Starting to load subjects for program: ${programId}`);
+      
+      const subjectsData = await getSubjectsByProgramId(programId);
+      console.log(`✅ Successfully loaded ${subjectsData.length} subjects for program ${programId}`);
+      setSubjects(subjectsData);
+      
+      // Auto-populate main subjects
+      const subjectNames = subjectsData.map(subject => subject.name).join(', ');
+      setFormData(prev => ({ ...prev, mainSubjects: subjectNames }));
+      
+      if (subjectsData.length === 0) {
+        showMessage('No subjects found for this program.');
+        setFormData(prev => ({ ...prev, mainSubjects: '' }));
+      }
+    } catch (error: any) {
+      console.error('❌ Error loading subjects:', error);
+      
+      if (error.message && error.message.includes('Authentication required')) {
+        showMessage('Please sign in to access subject information.');
+      } else if (error.message && error.message.includes('Missing or insufficient permissions')) {
+        showMessage('Access denied. Please ensure you are signed in with a valid account.');
+      } else {
+        showMessage('Failed to load subjects. Please try again.');
+      }
+      setSubjects([]);
+      setFormData(prev => ({ ...prev, mainSubjects: '' }));
+    } finally {
+      setLoadingSubjects(false);
     }
   };
 
@@ -199,14 +220,6 @@ const ProfileEditScreen: React.FC = () => {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleCollegeSelect = (value: string, option: DropdownOption) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      collegeId: value,
-      programId: '' // Reset program when college changes
-    }));
   };
 
   const handleProgramSelect = (value: string, option: DropdownOption) => {
@@ -234,7 +247,8 @@ const ProfileEditScreen: React.FC = () => {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         bio: formData.bio.trim(),
-        collegeId: formData.collegeId,
+        // Keep collegeId from existing profile or set to a default if using appMaster
+        collegeId: userProfile?.collegeId || 'appmaster-college',
         programId: formData.programId,
         description: formData.description.trim(),
         mainSubjects: formData.mainSubjects
@@ -265,28 +279,23 @@ const ProfileEditScreen: React.FC = () => {
     router.back();
   };
 
-  // Convert colleges and programs to dropdown options
-  const collegeOptions: DropdownOption[] = colleges.map(college => ({
-    label: college.name,
-    value: college.id
-  }));
-
+  // Convert programs to dropdown options
   const programOptions: DropdownOption[] = programs.map(program => ({
     label: program.name,
     value: program.id
   }));
 
   // Debug: Log current selection state
-  const selectedCollege = collegeOptions.find(c => c.value === formData.collegeId);
   const selectedProgram = programOptions.find(p => p.value === formData.programId);
   
   // Enhanced debugging for programId binding issue
   React.useEffect(() => {
-    if (formData.collegeId || formData.programId) {
+    if (formData.programId) {
       console.log('🎯 DETAILED SELECTION STATE:');
-      console.log(`   College: ${selectedCollege?.label || 'None'} (ID: ${formData.collegeId})`);
+      console.log(`   College: ${college?.name || 'None'}`);
       console.log(`   Program: ${selectedProgram?.label || 'None'} (ID: ${formData.programId})`);
       console.log(`   Available programs: ${programOptions.length}`);
+      console.log(`   Subjects loaded: ${subjects.length}`);
       
       if (formData.programId && programOptions.length > 0) {
         console.log(`🔍 PROGRAM BINDING DEBUG:`);
@@ -302,7 +311,7 @@ const ProfileEditScreen: React.FC = () => {
         }
       }
     }
-  }, [formData.collegeId, formData.programId, selectedCollege?.label, selectedProgram?.label, programOptions.length]);
+  }, [formData.programId, selectedProgram?.label, programOptions.length, subjects.length, college?.name]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -351,25 +360,31 @@ const ProfileEditScreen: React.FC = () => {
         <Card style={styles.card}>
           <Card.Title title="Academic Information" />
           <Card.Content>
-            <Dropdown
-              label="College/Institution"
-              value={formData.collegeId}
-              options={collegeOptions}
-              onSelect={handleCollegeSelect}
-              placeholder="Select your college or institution"
-              disabled={saving}
-              loading={loadingColleges}
-              required
-              style={styles.input}
-            />
+            {/* College Information - Display as label */}
+            <View style={styles.input}>
+              <Text variant="bodySmall" style={{ marginBottom: 8, color: theme.colors.onSurfaceVariant }}>
+                College/Institution
+              </Text>
+              {loadingCollege ? (
+                <Text variant="bodyMedium">Loading college information...</Text>
+              ) : college ? (
+                <Text variant="bodyLarge" style={{ fontWeight: '500', color: theme.colors.onSurface }}>
+                  {college.name}
+                </Text>
+              ) : (
+                <Text variant="bodyMedium" style={{ color: theme.colors.error }}>
+                  College information not available
+                </Text>
+              )}
+            </View>
 
             <Dropdown
               label="Program/Field of Study"
               value={formData.programId}
               options={programOptions}
               onSelect={handleProgramSelect}
-              placeholder={formData.collegeId ? "Select your program" : "Please select a college first"}
-              disabled={saving || !formData.collegeId}
+              placeholder="Select your program"
+              disabled={saving}
               loading={loadingPrograms}
               style={styles.input}
             />
@@ -381,19 +396,26 @@ const ProfileEditScreen: React.FC = () => {
               </HelperText>
             )}
 
-            <TextInput
-              label="Main Subjects"
-              value={formData.mainSubjects}
-              onChangeText={(text) => handleInputChange('mainSubjects', text)}
-              style={styles.input}
-              disabled={saving}
-              placeholder="e.g., Mathematics, Physics, Programming"
-              multiline
-              numberOfLines={2}
-            />
-            <HelperText type="info">
-              Separate multiple subjects with commas
-            </HelperText>
+            {/* Main Subjects - Auto-populated from program */}
+            <View style={styles.input}>
+              <Text variant="bodySmall" style={{ marginBottom: 8, color: theme.colors.onSurfaceVariant }}>
+                Main Subjects
+              </Text>
+              {loadingSubjects ? (
+                <Text variant="bodyMedium">Loading subjects...</Text>
+              ) : formData.mainSubjects ? (
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+                  {formData.mainSubjects}
+                </Text>
+              ) : (
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                  Select a program to view subjects
+                </Text>
+              )}
+              <HelperText type="info">
+                Subjects are automatically populated based on your selected program
+              </HelperText>
+            </View>
           </Card.Content>
         </Card>
 
