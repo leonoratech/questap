@@ -2,19 +2,37 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import {
-    ActivityIndicator,
-    Button,
-    Card,
-    Chip,
-    IconButton,
-    Text,
-    useTheme
+  ActivityIndicator,
+  Button,
+  Card,
+  Chip,
+  IconButton,
+  Text,
+  useTheme
 } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCollegeCourses } from '../../hooks/useCollegeCourses';
-import { getUniqueSubjectsAndYearsFromCourses } from '../../lib/college-data-service';
 import { debugUserCourseFiltering } from '../../lib/course-diagnostics';
 import { Course } from '../../lib/course-service';
+import { getUniqueSubjectsAndYearsFromCourses } from '../../lib/college-data-service';
+
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Button,
+  Card,
+  Chip,
+  IconButton,
+  Text,
+  useTheme
+} from 'react-native-paper';
+import { useAuth } from '../../contexts/AuthContext';
+import { useCollegeCourses } from '../../hooks/useCollegeCourses';
+import { debugUserCourseFiltering } from '../../lib/course-diagnostics';
+import { Course } from '../../lib/course-service';
+import { getUniqueSubjectsAndYearsFromCourses } from '../../lib/college-data-service';
 
 interface CourseFilterState {
   programId?: string;
@@ -338,6 +356,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  categoriesContainer: {
+    marginBottom: 20,
+  },
   filtersContainer: {
     marginBottom: 20,
   },
@@ -347,25 +368,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  filterSection: {
-    marginBottom: 12,
-  },
-  filterLabel: {
-    marginBottom: 8,
-    fontWeight: '600',
-    color: '#424242',
-  },
-  filterChipsContainer: {
+  filterActions: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  filterChip: {
-    marginRight: 8,
-  },
-  loadingText: {
-    fontStyle: 'italic',
-    color: '#999999',
-    textAlign: 'center',
-    marginTop: 8,
+  activeFiltersContainer: {
+    flexDirection: 'row',
+    marginBottom: 8,
   },
   warningCard: {
     marginBottom: 16,
@@ -383,6 +393,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 8,
     fontWeight: 'bold',
+  },
+  categoryList: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  categoryChip: {
+    marginRight: 8,
+  },
+  filterChip: {
+    marginRight: 8,
+    marginBottom: 8,
   },
   coursesList: {
     paddingBottom: 80,

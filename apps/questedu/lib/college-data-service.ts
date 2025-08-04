@@ -135,3 +135,49 @@ export const getProgramYears = (program: Program): Array<{ value: number; label:
   }
   return years;
 };
+
+/**
+ * Get unique subjects and years from courses for a specific program
+ */
+export const getUniqueSubjectsAndYearsFromCourses = async (programId: string): Promise<{
+  subjects: Array<{ id: string; name: string }>;
+  years: Array<{ value: number; label: string }>;
+}> => {
+  try {
+    console.log(`📚 Getting unique subjects and years for program: ${programId}`);
+    
+    // Check if we have a Firebase Auth user
+    const auth = getFirebaseAuth();
+    const currentUser = auth.currentUser;
+    
+    if (!currentUser) {
+      console.error('❌ No authenticated user found. Cannot fetch courses.');
+      throw new Error('Authentication required to fetch courses. Please sign in.');
+    }
+
+    // Get all programs to find the specific program
+    const programs = await getAllPrograms();
+    const program = programs.find(p => p.id === programId);
+    
+    if (!program) {
+      console.warn(`Program with ID ${programId} not found`);
+      return { subjects: [], years: [] };
+    }
+
+    // Get unique subjects from the program's subjects array
+    const subjects = program.subjects ? program.subjects.map(subject => ({
+      id: subject.id || '',
+      name: subject.name
+    })) : [];
+
+    // Get years/semesters for the program
+    const years = getProgramYears(program);
+
+    console.log(`✅ Found ${subjects.length} subjects and ${years.length} years for program ${program.name}`);
+    
+    return { subjects, years };
+  } catch (error) {
+    console.error('❌ Error getting unique subjects and years:', error);
+    return { subjects: [], years: [] };
+  }
+};
