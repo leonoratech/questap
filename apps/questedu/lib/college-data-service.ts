@@ -54,6 +54,8 @@ export interface Program {
   language?: string;
   programCode?: string;
   category?: string;
+  // Subjects array from the program object
+  subjects?: Subject[];
 }
 
 export interface Subject {
@@ -100,10 +102,17 @@ export const getAllPrograms = async (): Promise<Program[]> => {
     
     const programs = querySnapshot.docs.map(doc => {
       const data = doc.data();
-      return {
+      const program = {
         id: doc.id,
         ...data
       } as Program;
+      
+      // Log if subjects are included in the program document
+      if (program.subjects && program.subjects.length > 0) {
+        console.log(`📚 Program "${program.name}" includes ${program.subjects.length} subjects`);
+      }
+      
+      return program;
     });
 
     return programs;

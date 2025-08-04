@@ -16,9 +16,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { AppMasterCollege, getCollegeFromAppMaster } from '../../lib/app-master-service';
 import {
   getAllPrograms,
-  getSubjectsByProgramId,
-  Program,
-  Subject
+  Program
 } from '../../lib/college-data-service';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
 
@@ -26,7 +24,6 @@ interface FormData {
   firstName: string;
   lastName: string;
   bio: string;
-  collegeId: string;
   programId: string;
   description: string;
   mainSubjects: string;
@@ -41,7 +38,6 @@ const ProfileEditScreen: React.FC = () => {
     firstName: '',
     lastName: '',
     bio: '',
-    collegeId: '',
     programId: '',
     description: '',
     mainSubjects: ''
@@ -49,10 +45,9 @@ const ProfileEditScreen: React.FC = () => {
   
   const [college, setCollege] = useState<AppMasterCollege | null>(null);
   const [programs, setPrograms] = useState<Program[]>([]);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [loadingCollege, setLoadingCollege] = useState(false);
   const [loadingPrograms, setLoadingPrograms] = useState(false);
-  const [loadingSubjects, setLoadingSubjects] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   
   const [saving, setSaving] = useState(false);
@@ -66,7 +61,6 @@ const ProfileEditScreen: React.FC = () => {
         firstName: userProfile.firstName || '',
         lastName: userProfile.lastName || '',
         bio: userProfile.bio || '',
-        collegeId: userProfile.collegeId || '',
         programId: userProfile.programId || '',
         description: userProfile.description || '',
         mainSubjects: userProfile.mainSubjects?.join(', ') || ''
@@ -74,20 +68,9 @@ const ProfileEditScreen: React.FC = () => {
       
       console.log('📋 Initializing profile form data:', newFormData);
       setFormData(newFormData);
-      
-      // If user has a saved programId, load the subjects for that program
-      if (newFormData.programId && user) {
-        console.log('📚 Profile loaded - Loading subjects for saved program:', newFormData.programId);
-        loadSubjects(newFormData.programId).then(() => {
-          console.log('✅ Initial subjects loading complete');
-          setIsInitialLoad(false);
-        });
-      } else {
-        console.log('✅ No saved program, marking initial load complete');
-        setIsInitialLoad(false);
-      }
+      setIsInitialLoad(false);
     }
-  }, [userProfile, user]);
+  }, [userProfile]);
 
   // Load college and programs on component mount
   useEffect(() => {
@@ -97,17 +80,28 @@ const ProfileEditScreen: React.FC = () => {
     }
   }, [user, userProfile]);
 
-  // Load subjects when program is selected (manual selection, not initial load)
+  // Update subjects when program is selected
   useEffect(() => {
-    if (formData.programId && !isInitialLoad) {
-      console.log('🔄 Manual program selection - loading subjects for:', formData.programId);
-      loadSubjects(formData.programId);
-    } else if (!formData.programId && !isInitialLoad) {
-      console.log('🔄 No program selected, clearing subjects');
-      setSubjects([]);
-      setFormData(prev => ({ ...prev, mainSubjects: '' }));
+    if (formData.programId && programs.length > 0) {
+      const program = programs.find(p => p.id === formData.programId);
+      setSelectedProgram(program || null);
+      
+      if (program && program.subjects) {
+        // Auto-populate main subjects from program
+        const subjectNames = program.subjects.map(subject => subject.name).join(', ');
+        setFormData(prev => ({ ...prev, mainSubjects: subjectNames }));
+        console.log(`✅ Auto-populated subjects for program ${program.name}:`, subjectNames);
+      } else {
+        setFormData(prev => ({ ...prev, mainSubjects: '' }));
+        console.log('⚠️ No subjects found for selected program');
+      }
+    } else {
+      setSelectedProgram(null);
+      if (!isInitialLoad) {
+        setFormData(prev => ({ ...prev, mainSubjects: '' }));
+      }
     }
-  }, [formData.programId, isInitialLoad]);
+  }, [formData.programId, programs, isInitialLoad]);
 
   const loadCollege = async () => {
     if (!user) {
@@ -174,45 +168,6 @@ const ProfileEditScreen: React.FC = () => {
     }
   };
 
-  const loadSubjects = async (programId: string) => {
-    if (!user) {
-      console.log('⚠️ User not authenticated, skipping subjects loading');
-      return;
-    }
-    
-    setLoadingSubjects(true);
-    try {
-      console.log(`📚 Starting to load subjects for program: ${programId}`);
-      
-      const subjectsData = await getSubjectsByProgramId(programId);
-      console.log(`✅ Successfully loaded ${subjectsData.length} subjects for program ${programId}`);
-      setSubjects(subjectsData);
-      
-      // Auto-populate main subjects
-      const subjectNames = subjectsData.map(subject => subject.name).join(', ');
-      setFormData(prev => ({ ...prev, mainSubjects: subjectNames }));
-      
-      if (subjectsData.length === 0) {
-        showMessage('No subjects found for this program.');
-        setFormData(prev => ({ ...prev, mainSubjects: '' }));
-      }
-    } catch (error: any) {
-      console.error('❌ Error loading subjects:', error);
-      
-      if (error.message && error.message.includes('Authentication required')) {
-        showMessage('Please sign in to access subject information.');
-      } else if (error.message && error.message.includes('Missing or insufficient permissions')) {
-        showMessage('Access denied. Please ensure you are signed in with a valid account.');
-      } else {
-        showMessage('Failed to load subjects. Please try again.');
-      }
-      setSubjects([]);
-      setFormData(prev => ({ ...prev, mainSubjects: '' }));
-    } finally {
-      setLoadingSubjects(false);
-    }
-  };
-
   const showMessage = (message: string) => {
     setSnackbarMessage(message);
     setSnackbarVisible(true);
@@ -247,8 +202,6 @@ const ProfileEditScreen: React.FC = () => {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         bio: formData.bio.trim(),
-        // Keep collegeId from existing profile or set to a default if using appMaster
-        collegeId: userProfile?.collegeId || 'appmaster-college',
         programId: formData.programId,
         description: formData.description.trim(),
         mainSubjects: formData.mainSubjects
@@ -282,36 +235,8 @@ const ProfileEditScreen: React.FC = () => {
   // Convert programs to dropdown options
   const programOptions: DropdownOption[] = programs.map(program => ({
     label: program.name,
-    value: program.id
+    value: program.id || ''
   }));
-
-  // Debug: Log current selection state
-  const selectedProgram = programOptions.find(p => p.value === formData.programId);
-  
-  // Enhanced debugging for programId binding issue
-  React.useEffect(() => {
-    if (formData.programId) {
-      console.log('🎯 DETAILED SELECTION STATE:');
-      console.log(`   College: ${college?.name || 'None'}`);
-      console.log(`   Program: ${selectedProgram?.label || 'None'} (ID: ${formData.programId})`);
-      console.log(`   Available programs: ${programOptions.length}`);
-      console.log(`   Subjects loaded: ${subjects.length}`);
-      
-      if (formData.programId && programOptions.length > 0) {
-        console.log(`🔍 PROGRAM BINDING DEBUG:`);
-        console.log(`   Looking for programId: "${formData.programId}"`);
-        console.log(`   Available program IDs: [${programOptions.map(p => `"${p.value}"`).join(', ')}]`);
-        console.log(`   Match found: ${selectedProgram ? 'YES' : 'NO'}`);
-        
-        if (!selectedProgram) {
-          console.log(`❌ BINDING ISSUE: programId "${formData.programId}" not found in programOptions`);
-          programOptions.forEach((p, index) => {
-            console.log(`     [${index}] ${p.label} = "${p.value}" (type: ${typeof p.value})`);
-          });
-        }
-      }
-    }
-  }, [formData.programId, selectedProgram?.label, programOptions.length, subjects.length, college?.name]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -388,22 +313,13 @@ const ProfileEditScreen: React.FC = () => {
               loading={loadingPrograms}
               style={styles.input}
             />
-            
-            {/* Debug info - remove in production */}
-            {__DEV__ && formData.programId && programOptions.length > 0 && (
-              <HelperText type="info">
-                {`Debug: Program ${selectedProgram ? `"${selectedProgram.label}" found` : `"${formData.programId}" not found in ${programOptions.length} loaded programs`}`}
-              </HelperText>
-            )}
 
             {/* Main Subjects - Auto-populated from program */}
             <View style={styles.input}>
               <Text variant="bodySmall" style={{ marginBottom: 8, color: theme.colors.onSurfaceVariant }}>
                 Main Subjects
               </Text>
-              {loadingSubjects ? (
-                <Text variant="bodyMedium">Loading subjects...</Text>
-              ) : formData.mainSubjects ? (
+              {formData.mainSubjects ? (
                 <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
                   {formData.mainSubjects}
                 </Text>

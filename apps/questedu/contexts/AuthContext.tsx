@@ -1,12 +1,12 @@
 import {
-  User,
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  signInWithEmailAndPassword,
-  signOut,
-  updateProfile as updateFirebaseProfile
+    User,
+    createUserWithEmailAndPassword,
+    onAuthStateChanged,
+    sendEmailVerification,
+    sendPasswordResetEmail,
+    signInWithEmailAndPassword,
+    signOut,
+    updateProfile as updateFirebaseProfile
 } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -36,9 +36,8 @@ export interface UserProfile {
   
   // Additional fields for student profile completion
   department?: string;
-  collegeId?: string;
   programId?: string;
-  college?: string; // For backward compatibility
+  college?: string; // For backward compatibility with appMaster
   description?: string;
   mainSubjects?: string[];
   class?: string;
@@ -68,7 +67,6 @@ interface UpdateProfileData {
   lastName?: string;
   bio?: string;
   department?: string;
-  collegeId?: string;
   programId?: string;
   college?: string;
   description?: string;

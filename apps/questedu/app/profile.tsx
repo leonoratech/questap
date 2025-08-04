@@ -1,6 +1,6 @@
 import { DrawerActions } from '@react-navigation/native';
 import { useNavigation, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import {
     Appbar,
@@ -16,14 +16,48 @@ import {
 } from 'react-native-paper';
 import AuthGuard from '../components/AuthGuard';
 import { useAuth } from '../contexts/AuthContext';
+import { AppMasterCollege, getCollegeFromAppMaster } from '../lib/app-master-service';
+import { getAllPrograms, Program } from '../lib/college-data-service';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const theme = useTheme();
-  const { user, signOut, loading } = useAuth();
+  const { user, userProfile, signOut, loading } = useAuth();
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+
+  // Profile data state
+  const [college, setCollege] = useState<AppMasterCollege | null>(null);
+  const [userProgram, setUserProgram] = useState<Program | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+
+  // Load profile data when component mounts
+  useEffect(() => {
+    if (userProfile) {
+      loadProfileData();
+    }
+  }, [userProfile]);
+
+  const loadProfileData = async () => {
+    setLoadingProfile(true);
+    try {
+      // Load college information
+      const collegeData = await getCollegeFromAppMaster();
+      setCollege(collegeData);
+
+      // Load user's program if they have one
+      if (userProfile?.programId) {
+        const programs = await getAllPrograms();
+        const program = programs.find(p => p.id === userProfile.programId);
+        setUserProgram(program || null);
+      }
+    } catch (error) {
+      console.error('Error loading profile data:', error);
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -35,10 +69,16 @@ export default function ProfileScreen() {
   };
 
   const getDisplayName = () => {
+    if (userProfile) {
+      return `${userProfile.firstName} ${userProfile.lastName}`.trim() || userProfile.displayName;
+    }
     return user?.displayName || user?.email?.split('@')[0] || 'User';
   };
 
   const getUserRole = () => {
+    if (userProfile?.role) {
+      return userProfile.role.charAt(0).toUpperCase() + userProfile.role.slice(1).toLowerCase();
+    }
     return (user as any)?.role?.charAt(0).toUpperCase() + (user as any)?.role?.slice(1).toLowerCase() || 'Student';
   };
   
@@ -76,9 +116,57 @@ export default function ProfileScreen() {
                       Verified
                     </Chip>
                   )}
+                  {userProfile?.profileCompleted && (
+                    <Chip icon="check-circle-outline" style={[styles.chip, { backgroundColor: theme.colors.secondaryContainer }]}>
+                      Complete
+                    </Chip>
+                  )}
                 </View>
               </View>
             </Card.Content>
+
+            {/* Academic Information Section */}
+            {(college || userProgram || (!loadingProfile && userProfile)) && (
+              <Card.Content style={styles.academicInfo}>
+                <Text variant="titleMedium" style={styles.sectionTitle}>Academic Information</Text>
+                
+                {college && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={styles.infoLabel}>College:</Text>
+                    <Text variant="bodyMedium" style={styles.infoValue}>{college.name}</Text>
+                  </View>
+                )}
+                
+                {userProgram ? (
+                  <>
+                    <View style={styles.infoRow}>
+                      <Text variant="bodyMedium" style={styles.infoLabel}>Program:</Text>
+                      <Text variant="bodyMedium" style={styles.infoValue}>{userProgram.name}</Text>
+                    </View>
+                    
+                    {userProgram.subjects && userProgram.subjects.length > 0 && (
+                      <View style={styles.infoRow}>
+                        <Text variant="bodyMedium" style={styles.infoLabel}>Subjects:</Text>
+                        <Text variant="bodySmall" style={styles.subjectsText}>
+                          {userProgram.subjects.map(subject => subject.name).join(', ')}
+                        </Text>
+                      </View>
+                    )}
+                  </>
+                ) : (!loadingProfile && userProfile && !userProfile.programId) && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodySmall" style={styles.incompleteText}>
+                      No program selected. Complete your profile to add academic information.
+                    </Text>
+                  </View>
+                )}
+                
+                {loadingProfile && (
+                  <Text variant="bodySmall" style={styles.loadingText}>Loading academic information...</Text>
+                )}
+              </Card.Content>
+            )}
+
             <Card.Actions>
               <Button 
                 mode="contained" 
@@ -152,6 +240,44 @@ const styles = StyleSheet.create({
   },
   chip: {
     marginRight: 8,
+  },
+  academicInfo: {
+    paddingTop: 0,
+    paddingBottom: 16,
+  },
+  sectionTitle: {
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: '#1976d2',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+    alignItems: 'flex-start',
+  },
+  infoLabel: {
+    fontWeight: '600',
+    minWidth: 80,
+    marginRight: 8,
+  },
+  infoValue: {
+    flex: 1,
+    color: '#424242',
+  },
+  subjectsText: {
+    flex: 1,
+    color: '#666666',
+    lineHeight: 18,
+  },
+  loadingText: {
+    fontStyle: 'italic',
+    color: '#999999',
+  },
+  incompleteText: {
+    fontStyle: 'italic',
+    color: '#ff9800',
+    textAlign: 'center',
+    padding: 8,
   },
   settingsCard: {
     marginBottom: 16,
