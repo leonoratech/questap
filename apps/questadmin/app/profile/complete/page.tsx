@@ -6,9 +6,17 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/contexts/AuthContext'
-import { updateUserProfile, UserRole } from '@/data/config/firebase-auth'
+import { Department } from '@/data/models/department'
+import { UserRole } from '@/data/models/user-model'
+import {
+    formatSkillsFromString,
+    getAvailableDepartments,
+    updateUserProfile as updateProfile,
+    validateProfileData
+} from '@/data/services/user-profile-service'
 import { GraduationCap, Save, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -18,11 +26,13 @@ export default function ProfileCompletePage() {
   const { user, userProfile, refreshProfile, loading: authLoading } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [loadingDepartments, setLoadingDepartments] = useState(false)
+  const [departments, setDepartments] = useState<Department[]>([])
   
   // Form state
   const [formData, setFormData] = useState({
-    collegeId: '',
-    college: '',  // For backward compatibility
+    departmentId: '',
+    departmentName: '',
     description: '',
     // Instructor fields
     coreTeachingSkills: '',
@@ -31,6 +41,24 @@ export default function ProfileCompletePage() {
     mainSubjects: '',
     class: ''
   })
+
+  // Load departments on component mount
+  useEffect(() => {
+    const loadDepartments = async () => {
+      setLoadingDepartments(true)
+      try {
+        const availableDepartments = await getAvailableDepartments()
+        setDepartments(availableDepartments)
+      } catch (error) {
+        console.error('Failed to load departments:', error)
+        // Don't show error to user for departments, as it's not critical
+      } finally {
+        setLoadingDepartments(false)
+      }
+    }
+
+    loadDepartments()
+  }, [])
 
   // Redirect if profile is already completed or if user has essential profile data
   useEffect(() => {
@@ -68,42 +96,37 @@ export default function ProfileCompletePage() {
     setLoading(true)
 
     try {
-      const updates: any = {
-        collegeId: formData.collegeId || undefined,
-        college: formData.college.trim() || undefined,  // Keep for backward compatibility
+      // Find selected department
+      const selectedDepartment = departments.find(dept => dept.id === formData.departmentId)
+
+      const updates = {
+        departmentId: formData.departmentId || undefined,
+        departmentName: selectedDepartment?.name || formData.departmentName || undefined,
         description: formData.description.trim(),
         profileCompleted: true
-      }
+      } as any
 
       // Add role-specific fields
       if (userProfile.role === UserRole.INSTRUCTOR) {
-        updates.coreTeachingSkills = formData.coreTeachingSkills
-          .split(',')
-          .map(skill => skill.trim())
-          .filter(skill => skill.length > 0)
-        
-        updates.additionalTeachingSkills = formData.additionalTeachingSkills
-          .split(',')
-          .map(skill => skill.trim())
-          .filter(skill => skill.length > 0)
+        updates.coreTeachingSkills = formatSkillsFromString(formData.coreTeachingSkills)
+        updates.additionalTeachingSkills = formatSkillsFromString(formData.additionalTeachingSkills)
       } else if (userProfile.role === UserRole.STUDENT) {
-        updates.mainSubjects = formData.mainSubjects
-          .split(',')
-          .map(subject => subject.trim())
-          .filter(subject => subject.length > 0)
-        
+        updates.mainSubjects = formatSkillsFromString(formData.mainSubjects)
         updates.class = formData.class.trim()
       }
 
-      const result = await updateUserProfile(updates)
-      
-      if (result.error) {
-        toast.error(result.error)
-      } else {
-        toast.success('Profile completed successfully!')
-        await refreshProfile()
-        router.push('/my-courses')
+      // Validate data
+      const validation = validateProfileData(updates, userProfile.role)
+      if (!validation.isValid) {
+        toast.error('Please fix the validation errors: ' + validation.errors.join(', '))
+        return
       }
+
+      const updatedProfile = await updateProfile(updates)
+      
+      toast.success('Profile completed successfully!')
+      await refreshProfile()
+      router.push('/my-courses')
     } catch (error: any) {
       toast.error(error.message || 'Failed to complete profile')
     } finally {
@@ -113,6 +136,23 @@ export default function ProfileCompletePage() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleDepartmentChange = (departmentId: string) => {
+    if (departmentId === "none") {
+      setFormData(prev => ({ 
+        ...prev, 
+        departmentId: '',
+        departmentName: ''
+      }))
+    } else {
+      const selectedDepartment = departments.find(dept => dept.id === departmentId)
+      setFormData(prev => ({ 
+        ...prev, 
+        departmentId,
+        departmentName: selectedDepartment?.name || ''
+      }))
+    }
   }
 
   if (!userProfile && !authLoading) {
@@ -178,6 +218,44 @@ export default function ProfileCompletePage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Department Selection */}
+                <div className="space-y-2">
+                  <Label htmlFor="department">Department</Label>
+                  {loadingDepartments ? (
+                    <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      <span className="text-sm text-muted-foreground">Loading departments...</span>
+                    </div>
+                  ) : departments.length > 0 ? (
+                    <Select value={formData.departmentId || "none"} onValueChange={handleDepartmentChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No department selected</SelectItem>
+                        {departments.map((dept) => (
+                          <SelectItem key={dept.id} value={dept.id || 'none'}>
+                            {dept.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      id="department"
+                      value={formData.departmentName}
+                      onChange={(e) => handleInputChange('departmentName', e.target.value)}
+                      placeholder="Enter your department (e.g., Computer Science, Mathematics)"
+                    />
+                  )}
+                  <p className="text-sm text-muted-foreground">
+                    {departments.length > 0 
+                      ? "Select your department from the list" 
+                      : "Enter your department name manually"
+                    }
+                  </p>
+                </div>
+
                 {/* Role-specific Fields */}
                 {userProfile.role === UserRole.INSTRUCTOR && (
                   <>

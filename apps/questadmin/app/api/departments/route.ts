@@ -9,7 +9,9 @@ import { requireAuth } from '@/lib/server-auth'
 import { NextRequest, NextResponse } from 'next/server'
 /**
  * GET /api/departments
- * Get all departments (superadmin only)
+ * Get all active departments
+ * - Superadmins can see all departments
+ * - Instructors and students can see active departments for profile selection
  */
 export async function GET(request: NextRequest) {
   const authResult = await requireAuth()(request)
@@ -23,20 +25,16 @@ export async function GET(request: NextRequest) {
 
   const { user } = authResult
 
-  // Only superadmin can access global departments
-  if (user.role !== UserRole.SUPERADMIN) {
-    return NextResponse.json(
-      { error: 'Unauthorized. Only superadmins can access departments management.' },
-      { status: 403 }
-    )
-  }
-
   try {
-    // Get all departments with their college and program information
     const departmentRepository = new DepartmentRepository()
-    const departments = await departmentRepository.getAll()
+    let departments = await departmentRepository.getAll()
 
-    // Sort by college, then program, then department name
+    // Non-superadmins can only see active departments
+    if (user.role !== UserRole.SUPERADMIN) {
+      departments = departments.filter(dept => dept.isActive)
+    }
+
+    // Sort by department name
     departments.sort((a, b) => {
       return (a as any).name.localeCompare((b as any).name)
     })
@@ -47,7 +45,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Error fetching global departments:', error)
+    console.error('Error fetching departments:', error)
     return NextResponse.json(
       { error: 'Failed to fetch departments' },
       { status: 500 }

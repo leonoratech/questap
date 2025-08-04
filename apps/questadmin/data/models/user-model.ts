@@ -17,20 +17,21 @@ export interface UserProfile extends BaseEntity {
   createdAt: Date
   lastLoginAt: Date
   profilePicture?: string
-  department?: string
   bio?: string
-  
-  // Role-specific fields
-  // Common fields for both instructor and student
-  collegeId?: string  // Reference to college document ID
-  college?: string    // Legacy field for backward compatibility
+  departmentId?: string
+  departmentName?: string  
   description?: string
+  
+  // Legacy department field for backward compatibility
+  department?: string
   
   // Instructor-specific fields
   coreTeachingSkills?: string[]
   additionalTeachingSkills?: string[]
   
-  // Student-specific fields
+  // Student-specific fields  
+  programId?: string
+  programCode?: string
   mainSubjects?: string[]
   class?: string
   

@@ -8,17 +8,32 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/contexts/AuthContext'
-import { updateUserProfile, UserRole } from '@/data/config/firebase-auth'
+import { Department } from '@/data/models/department'
+import { UserRole } from '@/data/models/user-model'
+import {
+  formatRoleName,
+  formatSkillsFromString,
+  formatSkillsToString,
+  getAvailableDepartments,
+  getRoleBadgeClass,
+  getUserInitials,
+  updateUserProfile as updateProfile,
+  validateProfileData
+} from '@/data/services/user-profile-service'
 import { formatDate } from '@/lib/date-utils'
-import { Camera, GraduationCap, Save, User } from 'lucide-react'
+import { AlertCircle, Camera, GraduationCap, Save, User } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export default function ProfilePage() {
   const { user, userProfile, hasRole, refreshProfile } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [loadingDepartments, setLoadingDepartments] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [validationErrors, setValidationErrors] = useState<string[]>([])
   
   // Form state
   const [formData, setFormData] = useState({
@@ -26,10 +41,9 @@ export default function ProfilePage() {
     lastName: '',
     email: '',
     role: UserRole.INSTRUCTOR,
-    department: '',
+    departmentId: '',
+    departmentName: '',
     bio: '',
-    collegeId: '',
-    college: '',  // For backward compatibility
     description: '',
     // Instructor fields
     coreTeachingSkills: '',
@@ -47,18 +61,35 @@ export default function ProfilePage() {
         lastName: userProfile.lastName || '',
         email: userProfile.email || '',
         role: userProfile.role || UserRole.INSTRUCTOR,
-        department: userProfile.department || '',
+        departmentId: userProfile.departmentId || '',
+        departmentName: userProfile.departmentName || userProfile.department || '',
         bio: userProfile.bio || '',
-        collegeId: userProfile.collegeId || '',
-        college: userProfile.college || '',
         description: userProfile.description || '',
-        coreTeachingSkills: userProfile.coreTeachingSkills?.join(', ') || '',
-        additionalTeachingSkills: userProfile.additionalTeachingSkills?.join(', ') || '',
-        mainSubjects: userProfile.mainSubjects?.join(', ') || '',
+        coreTeachingSkills: formatSkillsToString(userProfile.coreTeachingSkills || []),
+        additionalTeachingSkills: formatSkillsToString(userProfile.additionalTeachingSkills || []),
+        mainSubjects: formatSkillsToString(userProfile.mainSubjects || []),
         class: userProfile.class || ''
       })
     }
   }, [userProfile])
+
+  // Load departments on component mount
+  useEffect(() => {
+    const loadDepartments = async () => {
+      setLoadingDepartments(true)
+      try {
+        const availableDepartments = await getAvailableDepartments()
+        setDepartments(availableDepartments)
+      } catch (error) {
+        console.error('Failed to load departments:', error)
+        // Don't show error to user for departments, as it's not critical
+      } finally {
+        setLoadingDepartments(false)
+      }
+    }
+
+    loadDepartments()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,52 +97,48 @@ export default function ProfilePage() {
 
     setLoading(true)
     setMessage(null)
+    setValidationErrors([])
 
     try {
-      const updates: any = {
+      // Find selected department
+      const selectedDepartment = departments.find(dept => dept.id === formData.departmentId)
+
+      const updates = {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        department: formData.department,
+        departmentId: formData.departmentId || undefined,
+        departmentName: selectedDepartment?.name || formData.departmentName || undefined,
         bio: formData.bio,
-        collegeId: formData.collegeId || undefined,
-        college: formData.college || undefined,  // Keep for backward compatibility
         description: formData.description,
-        displayName: `${formData.firstName} ${formData.lastName}`,
         profileCompleted: true
-      }
+      } as any
 
       // Add role-specific fields
       if (userProfile.role === UserRole.INSTRUCTOR) {
-        updates.coreTeachingSkills = formData.coreTeachingSkills
-          .split(',')
-          .map(skill => skill.trim())
-          .filter(skill => skill.length > 0)
-        
-        updates.additionalTeachingSkills = formData.additionalTeachingSkills
-          .split(',')
-          .map(skill => skill.trim())
-          .filter(skill => skill.length > 0)
+        updates.coreTeachingSkills = formatSkillsFromString(formData.coreTeachingSkills)
+        updates.additionalTeachingSkills = formatSkillsFromString(formData.additionalTeachingSkills)
       }
 
       if (userProfile.role === UserRole.STUDENT) {
-        updates.mainSubjects = formData.mainSubjects
-          .split(',')
-          .map(subject => subject.trim())
-          .filter(subject => subject.length > 0)
-        
+        updates.mainSubjects = formatSkillsFromString(formData.mainSubjects)
         updates.class = formData.class
       }
 
-      const result = await updateUserProfile(updates)
-      
-      if (result.error) {
-        setMessage({ type: 'error', text: result.error })
-      } else {
-        setMessage({ type: 'success', text: 'Profile updated successfully!' })
-        await refreshProfile()
-        // Clear message after 3 seconds
-        setTimeout(() => setMessage(null), 3000)
+      // Validate data before submission
+      const validation = validateProfileData(updates, userProfile.role)
+      if (!validation.isValid) {
+        setValidationErrors(validation.errors)
+        setMessage({ type: 'error', text: 'Please fix the validation errors below' })
+        return
       }
+
+      const updatedProfile = await updateProfile(updates)
+      
+      setMessage({ type: 'success', text: 'Profile updated successfully!' })
+      await refreshProfile()
+      
+      // Clear message after 3 seconds
+      setTimeout(() => setMessage(null), 3000)
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Failed to update profile' })
     } finally {
@@ -121,21 +148,39 @@ export default function ProfilePage() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    // Clear validation errors when user starts typing
+    if (validationErrors.length > 0) {
+      setValidationErrors([])
+    }
+  }
+
+  const handleDepartmentChange = (departmentId: string) => {
+    if (departmentId === "none") {
+      setFormData(prev => ({ 
+        ...prev, 
+        departmentId: '',
+        departmentName: ''
+      }))
+    } else {
+      const selectedDepartment = departments.find(dept => dept.id === departmentId)
+      setFormData(prev => ({ 
+        ...prev, 
+        departmentId,
+        departmentName: selectedDepartment?.name || ''
+      }))
+    }
+    // Clear validation errors when user makes selection
+    if (validationErrors.length > 0) {
+      setValidationErrors([])
+    }
   }
 
   const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+    return getUserInitials(firstName, lastName)
   }
 
   const getRoleBadgeColor = (role: UserRole) => {
-    switch (role) {
-      case UserRole.INSTRUCTOR:
-        return 'bg-blue-100 text-blue-800 border-blue-200'
-      case UserRole.STUDENT:
-        return 'bg-green-100 text-green-800 border-green-200'
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
+    return getRoleBadgeClass(role)
   }
 
   if (!userProfile) {
@@ -168,6 +213,21 @@ export default function ProfilePage() {
                 : 'bg-red-50 border-red-200 text-red-800'
             }`}>
               {message.text}
+            </div>
+          )}
+
+          {/* Validation Errors */}
+          {validationErrors.length > 0 && (
+            <div className="p-4 rounded-lg border bg-red-50 border-red-200">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <span className="font-medium text-red-800">Please fix the following errors:</span>
+              </div>
+              <ul className="text-sm text-red-700 list-disc list-inside space-y-1">
+                {validationErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -204,7 +264,7 @@ export default function ProfilePage() {
                 <div className="text-center space-y-1">
                   <p className="font-medium">{userProfile.firstName} {userProfile.lastName}</p>
                   <Badge className={getRoleBadgeColor(userProfile.role)}>
-                    {userProfile.role}
+                    {formatRoleName(userProfile.role)}
                   </Badge>
                 </div>
               </CardContent>
@@ -262,18 +322,45 @@ export default function ProfilePage() {
                     <div className="space-y-2">
                       <Label>Role</Label>
                       <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getRoleBadgeColor(userProfile.role)}`}>
-                        {userProfile.role === UserRole.INSTRUCTOR ? 'Instructor' : 'Student'}
+                        {formatRoleName(userProfile.role)}
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="department">Department</Label>
-                      <Input
-                        id="department"
-                        value={formData.department}
-                        onChange={(e) => handleInputChange('department', e.target.value)}
-                        placeholder="e.g., Computer Science, Mathematics"
-                      />
+                      {loadingDepartments ? (
+                        <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                          <span className="text-sm text-muted-foreground">Loading departments...</span>
+                        </div>
+                      ) : departments.length > 0 ? (
+                        <Select value={formData.departmentId || "none"} onValueChange={handleDepartmentChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a department" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">No department selected</SelectItem>
+                            {departments.map((dept) => (
+                              <SelectItem key={dept.id} value={dept.id || 'none'}>
+                                {dept.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          id="department"
+                          value={formData.departmentName}
+                          onChange={(e) => handleInputChange('departmentName', e.target.value)}
+                          placeholder="Enter your department (e.g., Computer Science, Mathematics)"
+                        />
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        {departments.length > 0 
+                          ? "Select your department from the list" 
+                          : "Enter your department name manually"
+                        }
+                      </p>
                     </div>
 
                     {/* Role-specific sections */}
@@ -409,7 +496,7 @@ export default function ProfilePage() {
                 <div>
                   <p className="text-muted-foreground">Role</p>
                   <Badge className={getRoleBadgeColor(userProfile.role)}>
-                    {userProfile.role}
+                    {formatRoleName(userProfile.role)}
                   </Badge>
                 </div>
                 <div>

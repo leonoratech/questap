@@ -18,7 +18,9 @@ export interface UserProfile {
   createdAt: Date
   updatedAt?: Date
   bio?: string
-  department?: string
+  department?: string // Legacy field for backward compatibility
+  departmentId?: string
+  departmentName?: string
   profilePicture?: string
   lastLoginAt?: Date
   
@@ -186,7 +188,9 @@ export const updateUserProfile = async (
     firstName?: string
     lastName?: string
     bio?: string
-    department?: string
+    department?: string // Legacy field
+    departmentId?: string
+    departmentName?: string
     college?: string
     collegeId?: string
     description?: string

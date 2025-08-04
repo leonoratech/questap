@@ -137,7 +137,6 @@ const DEPARTMENTS = [
 const MOCK_PROGRAMS = [
   {
     id: 'mpc',
-    categoryId: 'science',
     name: 'MPC',
     yearsOrSemesters: 2,
     semesterType: 'years',
@@ -147,7 +146,6 @@ const MOCK_PROGRAMS = [
   {
     id: 'cec',
     name: 'CEC',
-    categoryId: 'arts',
     yearsOrSemesters: 2,
     semesterType: 'years',
     description: 'Civics, Economics, Commerce',
@@ -156,7 +154,6 @@ const MOCK_PROGRAMS = [
   {
     id: 'mpt',
     name: 'MPT',
-    categoryId: 'vocational',
     yearsOrSemesters: 2,
     semesterType: 'years',
     description: 'Physical education',
@@ -235,9 +232,7 @@ const MOCK_USERS = {
       firstName: 'Super',
       lastName: 'Admin',
       role: 'superadmin',
-      department: 'Administration',
-      bio: 'System administrator with full access to all features.',
-      collegeId: 'mit'
+      bio: 'System administrator with full access to all features.'
     }
   ],
   instructors: [
@@ -247,9 +242,7 @@ const MOCK_USERS = {
       firstName: 'John',
       lastName: 'Smith',
       role: 'instructor',
-      department: 'Computer Science',
       bio: 'Experienced software engineer and educator with 10+ years in industry.',
-      collegeId: 'mit',
       coreTeachingSkills: ['JavaScript', 'React', 'Node.js', 'Database Design'],
       additionalTeachingSkills: ['Project Management', 'Agile Methodology', 'Technical Writing']
     },
@@ -259,9 +252,7 @@ const MOCK_USERS = {
       firstName: 'Sarah',
       lastName: 'Johnson',
       role: 'instructor',
-      department: 'Data Science',
       bio: 'Data scientist and machine learning expert with PhD in Statistics.',
-      collegeId: 'stanford',
       coreTeachingSkills: ['Python', 'Machine Learning', 'Statistics', 'Data Visualization'],
       additionalTeachingSkills: ['Research Methodology', 'Academic Writing', 'Mentoring']
     },
@@ -271,9 +262,7 @@ const MOCK_USERS = {
       firstName: 'Raj',
       lastName: 'Patel',
       role: 'instructor',
-      department: 'Engineering',
       bio: 'Mechanical engineer with expertise in CAD design and manufacturing.',
-      collegeId: 'iit-bombay',
       coreTeachingSkills: ['CAD Design', 'Manufacturing', 'Engineering Mathematics', 'Project Design'],
       additionalTeachingSkills: ['Industry Collaboration', 'Innovation Management']
     },
@@ -283,9 +272,7 @@ const MOCK_USERS = {
       firstName: 'Emily',
       lastName: 'Brown',
       role: 'instructor',
-      department: 'Business',
       bio: 'Business consultant and entrepreneur teaching business strategy.',
-      collegeId: 'university-cambridge',
       coreTeachingSkills: ['Business Strategy', 'Marketing', 'Finance', 'Leadership'],
       additionalTeachingSkills: ['Consulting', 'Entrepreneurship', 'Public Speaking']
     }
@@ -297,9 +284,7 @@ const MOCK_USERS = {
       firstName: 'Alice',
       lastName: 'Wilson',
       role: 'student',
-      department: 'Computer Science',
       bio: 'Aspiring software developer interested in web technologies.',
-      collegeId: 'mit',
       mainSubjects: ['Computer Science', 'Mathematics', 'Web Development'],
       class: 'Sophomore'
     },
@@ -309,9 +294,7 @@ const MOCK_USERS = {
       firstName: 'Bob',
       lastName: 'Davis',
       role: 'student',
-      department: 'Data Science',
       bio: 'Data enthusiast learning machine learning and analytics.',
-      collegeId: 'stanford',
       mainSubjects: ['Data Science', 'Statistics', 'Machine Learning'],
       class: 'Junior'
     },
@@ -321,9 +304,7 @@ const MOCK_USERS = {
       firstName: 'Carol',
       lastName: 'Martinez',
       role: 'student',
-      department: 'Engineering',
       bio: 'Engineering student focused on sustainable design.',
-      collegeId: 'iit-bombay',
       mainSubjects: ['Mechanical Engineering', 'Sustainability', 'Design'],
       class: 'Senior'
     },
@@ -333,9 +314,7 @@ const MOCK_USERS = {
       firstName: 'David',
       lastName: 'Lee',
       role: 'student',
-      department: 'Business',
       bio: 'Business student with entrepreneurial aspirations.',
-      collegeId: 'university-cambridge',
       mainSubjects: ['Business Administration', 'Marketing', 'Finance'],
       class: 'Freshman'
     },
@@ -345,9 +324,7 @@ const MOCK_USERS = {
       firstName: 'Eva',
       lastName: 'Garcia',
       role: 'student',
-      department: 'General Studies',
       bio: 'Exploring different fields to find my passion.',
-      collegeId: 'community-college',
       mainSubjects: ['General Studies', 'Liberal Arts'],
       class: 'Freshman'
     },
@@ -357,9 +334,7 @@ const MOCK_USERS = {
       firstName: 'Frank',
       lastName: 'Taylor',
       role: 'student',
-      department: 'Computer Science',
       bio: 'Part-time student working in tech industry.',
-      collegeId: 'community-college',
       mainSubjects: ['Computer Programming', 'Web Development'],
       class: 'Sophomore'
     }

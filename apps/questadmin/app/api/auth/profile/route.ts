@@ -20,9 +20,9 @@ export const PUT = withErrorHandler(async (request: NextRequest) => {
     firstName,
     lastName,
     bio,
-    department,
-    college,
-    collegeId,
+    departmentId,
+    departmentName,
+    department, // Legacy field for backward compatibility
     description,
     coreTeachingSkills,
     additionalTeachingSkills,
@@ -38,9 +38,9 @@ export const PUT = withErrorHandler(async (request: NextRequest) => {
   if (firstName !== undefined) updates.firstName = firstName
   if (lastName !== undefined) updates.lastName = lastName
   if (bio !== undefined) updates.bio = bio
-  if (department !== undefined) updates.department = department
-  if (college !== undefined) updates.college = college
-  if (collegeId !== undefined) updates.collegeId = collegeId
+  if (departmentId !== undefined) updates.departmentId = departmentId
+  if (departmentName !== undefined) updates.departmentName = departmentName
+  if (department !== undefined) updates.department = department // Legacy field
   if (description !== undefined) updates.description = description
   if (role !== undefined) updates.role = role
   if (profileCompleted !== undefined) updates.profileCompleted = profileCompleted
