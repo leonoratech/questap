@@ -5,10 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserStats } from '@/data/services/admin-user-service'
 import {
-    Activity,
-    Shield,
-    UserCheck,
-    Users
+  Activity,
+  Shield,
+  UserCheck,
+  Users
 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 
@@ -156,7 +156,7 @@ export function SuperAdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
         <Card className="cursor-pointer hover:shadow-lg transition-shadow">
           <a href="/users" className="block">
             <CardHeader>
@@ -176,7 +176,7 @@ export function SuperAdminDashboard() {
           </a>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+        {/* <Card className="cursor-pointer hover:shadow-lg transition-shadow">
           <a href="/settings" className="block">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -193,8 +193,8 @@ export function SuperAdminDashboard() {
               </p>
             </CardContent>
           </a>
-        </Card>
-      </div>
+        </Card> */}
+      {/* </div> */}
 
       {/* Recent Activity Summary */}
       <Card>

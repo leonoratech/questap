@@ -12,7 +12,6 @@ import {
   LampDesk,
   LayoutDashboard,
   Search,
-  Settings,
   Users,
   X
 } from 'lucide-react'
@@ -50,7 +49,7 @@ const navigationItems: NavigationItem[] = [
     title: 'Browse Courses',
     href: '/browse-courses',
     icon: Search,
-    roles: ['superadmin', 'student', 'instructor']
+    roles: ['student', 'instructor']
   },
   {
     title: 'My Courses',
@@ -89,13 +88,14 @@ const navigationItems: NavigationItem[] = [
     href: '/users',
     icon: Users,
     roles: ['superadmin', 'admin']
-  },
-  {
-    title: 'Settings',
-    href: '/settings',
-    icon: Settings,
-    roles: ['superadmin', 'admin', 'instructor', 'student']
   }
+  //,
+  // {
+  //   title: 'Settings',
+  //   href: '/settings',
+  //   icon: Settings,
+  //   roles: ['superadmin', 'admin', 'instructor', 'student']
+  // }
 ]
 
 export function Sidebar({ userRole = 'admin' }: SidebarProps) {
@@ -177,7 +177,7 @@ export function Sidebar({ userRole = 'admin' }: SidebarProps) {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-lg font-semibold text-foreground">QuestAdmin</span>
+              <span className="text-lg font-semibold text-foreground">Leonora Admin</span>
             </div>
             <Button
               variant="ghost"
@@ -313,7 +313,7 @@ export function Sidebar({ userRole = 'admin' }: SidebarProps) {
           {/* Footer */}
           <div className="p-4 border-t border-border">
             <p className="text-xs text-muted-foreground text-center">
-              QuestEdu Admin Panel v1.0
+              Leonora Admin Panel v1.0
             </p>
           </div>
         </div>

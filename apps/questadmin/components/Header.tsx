@@ -1,6 +1,5 @@
 'use client'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -16,17 +15,14 @@ import { useNavigation } from '@/contexts/NavigationContext'
 import { useNotifications } from '@/contexts/NotificationsContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import {
-  Bell,
   LogOut,
   Menu,
   Moon,
-  Settings,
   Sun,
   User
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { NotificationPanel } from './NotificationPanel'
 
 interface HeaderProps {
   title?: string
@@ -82,7 +78,7 @@ export function Header({ title = 'Dashboard' }: HeaderProps) {
         </div>
 
         {/* Notifications */}
-        <NotificationPanel>
+        {/* <NotificationPanel>
           <Button variant="ghost" size="sm" className="relative">
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
@@ -95,7 +91,7 @@ export function Header({ title = 'Dashboard' }: HeaderProps) {
             )}
             <span className="sr-only">Notifications</span>
           </Button>
-        </NotificationPanel>
+        </NotificationPanel> */}
 
         {/* User menu */}
         <DropdownMenu>
@@ -127,10 +123,10 @@ export function Header({ title = 'Dashboard' }: HeaderProps) {
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push('/settings')}>
+            {/* <DropdownMenuItem onClick={() => router.push('/settings')}>
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />

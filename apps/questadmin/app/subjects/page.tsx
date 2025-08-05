@@ -13,22 +13,22 @@ import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/contexts/AuthContext'
 import { UserRole } from '@/data/models/user-model'
 import {
-    createSubject,
-    CreateSubjectRequest,
-    deleteSubject,
-    getAllSubjects,
-    reactivateSubject,
-    Subject,
-    updateSubject
+  createSubject,
+  CreateSubjectRequest,
+  deleteSubject,
+  getAllSubjects,
+  reactivateSubject,
+  Subject,
+  updateSubject
 } from '@/data/services/subjects-service'
 import {
-    BookOpen,
-    Edit,
-    Eye,
-    Plus,
-    RefreshCw,
-    Search,
-    Trash2
+  BookOpen,
+  Edit,
+  Eye,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -222,7 +222,7 @@ export default function SubjectsPage() {
 
   return (
     <AuthGuard requiredRoles={[UserRole.SUPERADMIN]}>
-      <AdminLayout>
+      <AdminLayout  title="Subjects Management">
         <div className="space-y-6">
           {/* Page Header */}
           <div className="flex items-center justify-between">

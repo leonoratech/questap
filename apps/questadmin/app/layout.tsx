@@ -10,8 +10,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'QuestAdmin - Course Management',
-  description: 'Admin panel for managing QuestEdu courses',
+  title: 'Leonora - Course Management',
+  description: 'Admin panel for managing courses',
 }
 
 export default function RootLayout({

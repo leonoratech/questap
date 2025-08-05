@@ -222,7 +222,7 @@ export default function SubjectsPage() {
 
   return (
     <AuthGuard requiredRoles={[UserRole.SUPERADMIN]}>
-      <AdminLayout>
+      <AdminLayout  title="Departments Management">
         <div className="space-y-6">
           {/* Page Header */}
           <div className="flex items-center justify-between">
