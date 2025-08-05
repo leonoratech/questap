@@ -3,8 +3,8 @@ import { firebaseCourseService } from './firebase-course-service';
 
 // Re-export types for compatibility
 export type {
-  Course, CourseLevel, CourseQueryOptions, CourseSearchCriteria, CourseStatus, CreateCourseData, OperationResult,
-  QueryResult, UpdateCourseData
+    Course, CourseLevel, CourseQueryOptions, CourseSearchCriteria, CourseStatus, CreateCourseData, OperationResult,
+    QueryResult, UpdateCourseData
 } from '../types/course';
 
 /**
@@ -214,4 +214,46 @@ export const getCoursesWithFilters = async (filters: {
  */
 export const subscribeToCollegeCourses = (collegeId: string, callback: (courses: Course[]) => void): (() => void) => {
   return firebaseCourseService.subscribeToCollegeCourses(collegeId, callback);
+};
+
+/**
+ * Advanced search courses with multiple filters
+ */
+export const searchCoursesWithFilters = async (filters: {
+  query?: string;
+  programId?: string;
+  subjectId?: string;
+  yearOrSemester?: number;
+}): Promise<Course[]> => {
+  try {
+    // If we have specific filters, use the filtered query
+    if (filters.programId || filters.subjectId || filters.yearOrSemester) {
+      const result = await firebaseCourseService.getCoursesWithFilters(filters);
+      
+      // If we also have a text query, filter the results further
+      if (filters.query && filters.query.trim()) {
+        const query = filters.query.toLowerCase();
+        return result.data.filter(course => 
+          course.title.toLowerCase().includes(query) ||
+          course.description?.toLowerCase().includes(query) ||
+          course.instructor.toLowerCase().includes(query) ||
+          course.tags?.some(tag => tag.toLowerCase().includes(query)) ||
+          course.skills?.some(skill => skill.toLowerCase().includes(query))
+        );
+      }
+      
+      return result.data;
+    }
+    
+    // If only text query, use the regular search
+    if (filters.query && filters.query.trim()) {
+      return await searchCourses(filters.query);
+    }
+    
+    // If no filters, return empty array
+    return [];
+  } catch (error) {
+    console.error('❌ Error in advanced search:', error);
+    return [];
+  }
 };

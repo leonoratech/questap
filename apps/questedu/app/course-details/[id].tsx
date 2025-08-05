@@ -2,17 +2,17 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import {
-  ActivityIndicator,
-  Appbar,
-  Avatar,
-  Button,
-  Card,
-  Chip,
-  Dialog,
-  Portal,
-  Snackbar,
-  Text,
-  useTheme
+    ActivityIndicator,
+    Appbar,
+    Avatar,
+    Button,
+    Card,
+    Chip,
+    Dialog,
+    Portal,
+    Snackbar,
+    Text,
+    useTheme
 } from 'react-native-paper';
 import AuthGuard from '../../components/AuthGuard';
 import { useAuth } from '../../contexts/AuthContext';
@@ -491,6 +491,14 @@ export default function CourseDetailsScreen() {
                     {enrolling ? 'Enrolling...' : 'Enroll Now'}
                   </Button>
                 )}
+                {/* Topics Button */}
+                <Button
+                  mode="outlined"
+                  style={styles.secondaryButton}
+                  onPress={() => course?.id && router.push({ pathname: '/course-topics-list/[id]', params: { id: String(course.id) } })}
+                >
+                  Topics
+                </Button>
                 {/* Question Bank Button */}
                 <Button
                   mode="outlined"

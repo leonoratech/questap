@@ -181,3 +181,91 @@ export const getUniqueSubjectsAndYearsFromCourses = async (programId: string): P
     return { subjects: [], years: [] };
   }
 };
+
+/**
+ * Get all unique subjects from the subjects collection
+ */
+export const getAllUniqueSubjects = async (): Promise<Array<{ id: string; name: string }>> => {
+  try {
+    console.log('📚 Fetching all unique subjects...');
+    
+    // Check if we have a Firebase Auth user
+    const auth = getFirebaseAuth();
+    const currentUser = auth.currentUser;
+    
+    if (!currentUser) {
+      console.error('❌ No authenticated user found. Cannot fetch subjects.');
+      throw new Error('Authentication required to fetch subjects. Please sign in.');
+    }
+    
+    const subjectsRef = collection(db, 'subjects');
+    const q = query(
+      subjectsRef,
+      where('isActive', '==', true),
+      orderBy('name', 'asc')
+    );
+
+    const querySnapshot = await getDocs(q);
+    console.log(`📊 Found ${querySnapshot.docs.length} unique subjects`);
+    
+    const subjects = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      name: doc.data().name
+    }));
+
+    return subjects;
+  } catch (error) {
+    console.error('❌ Error fetching all unique subjects:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get all unique years from all programs
+ */
+export const getAllUniqueYears = async (): Promise<Array<{ value: number; label: string }>> => {
+  try {
+    console.log('📅 Getting all unique years from programs...');
+    
+    const programs = await getAllPrograms();
+    const yearsSet = new Set<number>();
+    
+    programs.forEach(program => {
+      for (let i = 1; i <= program.yearsOrSemesters; i++) {
+        yearsSet.add(i);
+      }
+    });
+    
+    const years = Array.from(yearsSet).sort((a, b) => a - b).map(year => ({
+      value: year,
+      label: `Year ${year}`
+    }));
+    
+    console.log(`✅ Found ${years.length} unique years across all programs`);
+    return years;
+  } catch (error) {
+    console.error('❌ Error getting unique years:', error);
+    return [];
+  }
+};
+
+/**
+ * Get all programs for search filters (simplified version)
+ */
+export const getAllProgramsForSearch = async (): Promise<Array<{ id: string; name: string }>> => {
+  try {
+    console.log('🎓 Fetching all programs for search filters...');
+    
+    const programs = await getAllPrograms();
+    const programsForSearch = programs.map(program => ({
+      id: program.id,
+      name: program.name
+    }));
+    
+    console.log(`✅ Found ${programsForSearch.length} programs for search`);
+    return programsForSearch;
+  } catch (error) {
+    console.error('❌ Error fetching programs for search:', error);
+    return [];
+  }
+};
