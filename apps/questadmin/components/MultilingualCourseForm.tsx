@@ -13,22 +13,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { COURSE_LANGUAGES } from '@/data/models/course';
 import { MultilingualCreateCourseData } from '@/data/models/data-model';
 import { addCourse } from '@/data/services/admin-course-service';
+import { getAllSubjects, Subject } from '@/data/services/subjects-service';
 import {
-  DEFAULT_LANGUAGE,
-  SupportedLanguage
+    DEFAULT_LANGUAGE,
+    SupportedLanguage
 } from '@/lib/multilingual-types';
 import {
-  createMultilingualArray,
-  createMultilingualText,
-  getMultilingualContentStatus,
-  hasLanguageArrayContent,
-  hasLanguageContent
+    createMultilingualArray,
+    createMultilingualText,
+    getMultilingualContentStatus,
+    hasLanguageArrayContent,
+    hasLanguageContent
 } from '@/lib/multilingual-utils';
 import { AlertCircle, ArrowLeft, Eye, Globe, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 // ================================
 // TYPES
@@ -38,6 +41,9 @@ interface MultilingualCourseFormData extends Omit<MultilingualCreateCourseData, 
   instructorId: string;
   categoryId: string;
   difficultyId: string;
+  subjectId: string;
+  subjectName: string;
+  language: string;
 }
 
 // ================================
@@ -48,6 +54,7 @@ export default function MultilingualCourseForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [subjects, setSubjects] = useState<Subject[]>([]);
     
   // Form data with multilingual support
   const [formData, setFormData] = useState<MultilingualCourseFormData>({
@@ -59,6 +66,9 @@ export default function MultilingualCourseForm() {
     duration: 0,
     instructorId: '',
     status: 'draft',
+    subjectId: '',
+    subjectName: '',
+    language: COURSE_LANGUAGES.ENGLISH,
     whatYouWillLearn: createMultilingualArray([], DEFAULT_LANGUAGE),
     prerequisites: createMultilingualArray([], DEFAULT_LANGUAGE),
     targetAudience: createMultilingualArray([], DEFAULT_LANGUAGE),
@@ -68,6 +78,20 @@ export default function MultilingualCourseForm() {
     supportedLanguages: [DEFAULT_LANGUAGE],
     enableTranslation: false
   });
+
+  // Load subjects on component mount
+  useEffect(() => {
+    const loadSubjects = async () => {
+      try {
+        const fetchedSubjects = await getAllSubjects()
+        setSubjects(fetchedSubjects)
+      } catch (error) {
+        console.error('Error loading subjects:', error)
+        toast.error('Failed to load subjects')
+      }
+    }
+    loadSubjects()
+  }, [])
 
   // Validation
   const validateForm = (): boolean => {
@@ -85,6 +109,12 @@ export default function MultilingualCourseForm() {
     }
     if (formData.duration <= 0) {
       newErrors.duration = 'Duration must be greater than 0';
+    }
+    if (!formData.subjectId.trim()) {
+      newErrors.subjectId = 'Subject is required';
+    }
+    if (!formData.language.trim()) {
+      newErrors.language = 'Language is required';
     }
 
     setErrors(newErrors);
@@ -129,7 +159,10 @@ export default function MultilingualCourseForm() {
         instructor: formData.instructor,
         duration: formData.duration,
         instructorId: formData.instructorId || 'default-instructor-id',
-        status: formData.status
+        status: formData.status,
+        subjectId: formData.subjectId,
+        subjectName: formData.subjectName,
+        language: formData.language
       };
 
       const courseId = await addCourse(legacyFormData);
@@ -283,6 +316,64 @@ export default function MultilingualCourseForm() {
                   <div className="flex items-center gap-2 text-sm text-red-600">
                     <AlertCircle className="h-3 w-3" />
                     <span>{errors.duration}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Subject */}
+              <div className="space-y-2">
+                <Label htmlFor="subject">Subject *</Label>
+                <Select
+                  value={formData.subjectId}
+                  onValueChange={(value) => {
+                    const selectedSubject = subjects.find(s => s.id === value);
+                    setFormData({ 
+                      ...formData, 
+                      subjectId: value, 
+                      subjectName: selectedSubject?.name || '' 
+                    });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.subjectId && (
+                  <div className="flex items-center gap-2 text-sm text-red-600">
+                    <AlertCircle className="h-3 w-3" />
+                    <span>{errors.subjectId}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Language */}
+              <div className="space-y-2">
+                <Label htmlFor="language">Language *</Label>
+                <Select
+                  value={formData.language}
+                  onValueChange={(value: 'english' | 'telugu') => 
+                    setFormData({ ...formData, language: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="english">English</SelectItem>
+                    <SelectItem value="telugu">Telugu</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.language && (
+                  <div className="flex items-center gap-2 text-sm text-red-600">
+                    <AlertCircle className="h-3 w-3" />
+                    <span>{errors.language}</span>
                   </div>
                 )}
               </div>

@@ -8,6 +8,8 @@ export interface AdminCourse {
   id?: string
   title: string
   description: string
+  subjectId: string
+  subjectName: string
   instructor: string
   duration: number // Duration in hours as a number
   status: 'draft' | 'published' | 'archived'
@@ -34,7 +36,7 @@ export interface AdminCourse {
   // Extended fields for rich preview
   whatYouWillLearn?: string[]
   prerequisites?: string[]
-  language?: string // Legacy field - use primaryLanguage instead
+  language: string // Course language (english, telugu)
   subtitles?: string[] // Legacy field - use supportedLanguages instead
   certificates?: boolean
   lifetimeAccess?: boolean
@@ -88,6 +90,11 @@ export interface CreateCourseData {
   duration: number // Duration in hours as a number
   instructorId: string
   status?: 'draft' | 'published'
+  
+  // Subject and Language fields
+  subjectId: string
+  subjectName?: string
+  language: string
 
   // Association fields (now supports multiple)
   associations?: CourseAssociation[]

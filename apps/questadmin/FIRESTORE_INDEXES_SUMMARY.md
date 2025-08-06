@@ -35,11 +35,16 @@ This document provides a comprehensive overview of all the Firestore indexes con
 // Featured Courses
 { "featured": "ASC", "status": "ASC", "createdAt": "DESC" }
 
-// Association-based Queries (existing)
+// Subject-based Queries
+{ "subjectId": "ASC", "createdAt": "DESC" }
+
+// Language-based Queries
+{ "language": "ASC", "status": "ASC", "createdAt": "DESC" }
+{ "subjectId": "ASC", "language": "ASC", "createdAt": "DESC" }
+
+// Association-based Queries (updated - subjects removed)
 { "association.programId": "ASC", "createdAt": "DESC" }
-{ "association.subjectId": "ASC", "createdAt": "DESC" }
 { "association.programId": "ASC", "association.yearOrSemester": "ASC", "createdAt": "DESC" }
-{ "association.programId": "ASC", "association.subjectId": "ASC", "createdAt": "DESC" }
 ```
 
 ### 2. **courseTopics** Collection

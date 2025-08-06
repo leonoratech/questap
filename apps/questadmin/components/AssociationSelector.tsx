@@ -5,9 +5,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CourseAssociation } from '@/data/models/course'
 import { Program } from '@/data/models/program'
-import { Subject } from '@/data/models/subject'
 import { getAllPrograms } from '@/data/services/programs-service'
-import { BookOpen, Calendar, GraduationCap, X } from 'lucide-react'
+import { Calendar, GraduationCap, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -25,10 +24,9 @@ export function AssociationSelector({
   disabled = false
 }: AssociationSelectorProps) {
   const [programs, setPrograms] = useState<Program[]>([])
-  const [subjects, setSubjects] = useState<Subject[]>([])
   const [loading, setLoading] = useState(false)
   
-  // Load colleges on mount
+  // Load programs on mount
   useEffect(() => {
     loadPrograms()
   }, [])
@@ -39,23 +37,13 @@ export function AssociationSelector({
       const fetchedPrograms = await getAllPrograms()
       setPrograms(fetchedPrograms)
       
-      // Clear program and subject if the current selection is not in the new list
+      // Clear program if the current selection is not in the new list
       if (association.programId && !fetchedPrograms.find(p => p.id === association.programId)) {
         onUpdate({
           ...association,
           programId: '',
-          programName: '',
-          subjectId: '',
-          subjectName: ''
+          programName: ''
         })
-      }else{
-        // If program is valid, set subjects
-        const selectedProgram = fetchedPrograms.find(p => p.id === association.programId)
-        if (selectedProgram) {
-          setSubjects(selectedProgram.subjects || [])
-        } else {
-          setSubjects([])
-        }
       }
     } catch (error) {
       console.error('Error loading programs:', error)
@@ -67,16 +55,13 @@ export function AssociationSelector({
 
   const handleProgramChange = (programId: string) => {
     const program = programs.find(p => p.id === programId)
-    setSubjects(program?.subjects || [])
 
     onUpdate({
       ...association,
       programId,
       programName: program?.name || '',
       departmentId: program?.department?.id || '',
-      departmentName: program?.department?.name || '',
-      subjectId: '',
-      subjectName: ''
+      departmentName: program?.department?.name || ''
     })
   }
 
@@ -84,18 +69,6 @@ export function AssociationSelector({
     onUpdate({
       ...association,
       yearOrSemester: parseInt(yearOrSemester)
-    })
-  }
-
-  const handleSubjectChange = (subjectId: string) => {
-    const subject = programs
-      .flatMap(p => p.subjects || [])
-      .find(s => s.id === subjectId)
-    
-    onUpdate({
-      ...association,
-      subjectId,
-      subjectName: subject?.name || ''
     })
   }
 
@@ -152,9 +125,9 @@ export function AssociationSelector({
                 <SelectItem key={program.id} value={program.id || ''}>
                   <div className="flex flex-col">
                     <span>{program.name}</span>
-                    {/* <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {program.yearsOrSemesters} {program.semesterType}
-                    </span> */}
+                    </span>
                   </div>
                 </SelectItem>
               ))}
@@ -185,36 +158,10 @@ export function AssociationSelector({
             </SelectContent>
           </Select>
         </div>
-
-        {/* Subject Selection */}
-        <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            Subject *
-          </Label>
-          <Select
-            value={association.subjectId}
-            onValueChange={handleSubjectChange}
-            disabled={disabled || loading || !association.programId}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select subject" />
-            </SelectTrigger>
-            <SelectContent>
-              {subjects.map((subject) => (
-                <SelectItem key={subject.id} value={subject.id!}>
-                  <div className="flex flex-col">
-                    <span>{subject.name}</span>        
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
       </div>
 
       {/* Validation Message */}
-      {(!association.programId || !association.subjectId) && (
+      {!association.programId && (
         <div className="text-xs text-muted-foreground">
           Please select all required fields to complete this association.
         </div>

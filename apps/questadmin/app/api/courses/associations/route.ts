@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url)
     const programId = url.searchParams.get('programId')
     const subjectId = url.searchParams.get('subjectId')
+    const language = url.searchParams.get('language')
     const yearOrSemester = url.searchParams.get('yearOrSemester')
 
     const courseRepo = new CourseRepository()
@@ -30,9 +31,12 @@ export async function GET(request: NextRequest) {
     } else if (subjectId) {
       // Get courses by subject
       courses = await courseRepo.getCoursesBySubject(subjectId)
+    } else if (language) {
+      // Get courses by language
+      courses = await courseRepo.getCoursesByLanguage(language)
     } else {
       return NextResponse.json(
-        { error: 'Either programId or subjectId is required' },
+        { error: 'programId, subjectId, or language is required' },
         { status: 400 }
       )
     }

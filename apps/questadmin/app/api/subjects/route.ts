@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 /**
  * GET /api/subjects
- * Get all subjects across all colleges and programs (superadmin only)
+ * Get all subjects across all colleges and programs (superadmin and instructor)
  */
 export async function GET(request: NextRequest) {
     const authResult = await requireAuth()(request)
@@ -24,10 +24,10 @@ export async function GET(request: NextRequest) {
 
     const { user } = authResult
 
-    // Only superadmin can access global subjects
-    if (user.role !== UserRole.SUPERADMIN) {
+    // Allow superadmin and instructor to read subjects (instructors need them for course creation)
+    if (user.role !== UserRole.SUPERADMIN && user.role !== UserRole.INSTRUCTOR) {
         return NextResponse.json(
-            { error: 'Unauthorized. Only superadmins can access global subjects management.' },
+            { error: 'Unauthorized. Only superadmins and instructors can access subjects.' },
             { status: 403 }
         )
     }

@@ -775,10 +775,7 @@ async function seedCourses() {
         : courseTemplate.associations
         ? [{
             ...courseTemplate.associations,
-            programName: createdData.programs.find(p => p.id === courseTemplate.associations.programId)?.name,
-            subjectName: createdData.subjects.find(s => s.id === courseTemplate.associations.subjectId)?.name,
-            yearOrSemester: createdData.subjects.find(s => s.id === courseTemplate.associations.subjectId)?.yearOrSemester,
-            medium: createdData.subjects.find(s => s.id === courseTemplate.associations.subjectId)?.medium  
+            programName: createdData.programs.find(p => p.id === courseTemplate.associations.programId)?.name
           }]
         : [],
       subtitles: ['English'],

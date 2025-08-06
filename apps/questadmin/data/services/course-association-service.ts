@@ -10,7 +10,6 @@ export interface AssociateCourseRequest {
   collegeId: string
   programId: string
   yearOrSemester: number
-  subjectId: string
 }
 
 class CourseAssociationService {
@@ -73,6 +72,20 @@ class CourseAssociationService {
 
   async getCoursesBySubject(subjectId: string): Promise<any[]> {
     const response = await fetch(`/api/courses/associations?subjectId=${subjectId}`, {
+      headers: await this.getHeaders()
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to fetch courses')
+    }
+
+    const data = await response.json()
+    return data.courses
+  }
+
+  async getCoursesByLanguage(language: string): Promise<any[]> {
+    const response = await fetch(`/api/courses/associations?language=${language}`, {
       headers: await this.getHeaders()
     })
 

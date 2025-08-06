@@ -6,34 +6,35 @@ import { MultilingualArrayInput, MultilingualInput, MultilingualTextarea } from 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useAuth } from '@/contexts/AuthContext'
+import { COURSE_LANGUAGES, CourseAssociation } from '@/data/models/course'
 import { HybridAdminCourse } from '@/data/models/data-model'
 import {
-  addCourse,
-  CreateCourseData,
-  deleteCourse,
-  getAllCourses,
-  updateCourse
+    addCourse,
+    CreateCourseData,
+    deleteCourse,
+    getAllCourses,
+    updateCourse
 } from '@/data/services/admin-course-service'
+import { getAllSubjects, Subject } from '@/data/services/subjects-service'
 import { formatDate as safeFormatDate } from '@/lib/date-utils'
 import {
-  DEFAULT_LANGUAGE,
-  RequiredMultilingualArray,
-  RequiredMultilingualText
+    DEFAULT_LANGUAGE,
+    RequiredMultilingualArray,
+    RequiredMultilingualText
 } from '@/lib/multilingual-types'
 import {
-  createMultilingualArray,
-  createMultilingualText,
-  getCompatibleArray,
-  getCompatibleText
+    createMultilingualArray,
+    createMultilingualText,
+    getCompatibleArray,
+    getCompatibleText
 } from '@/lib/multilingual-utils'
 import { Edit, Eye, Globe, Plus, Search, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-
-import { CourseAssociation } from '@/data/models/course'
 
 interface CourseFormData {
   title: RequiredMultilingualText | string
@@ -41,6 +42,10 @@ interface CourseFormData {
   description: RequiredMultilingualText | string
   duration: string // Keep as string for form input
   instructorId: string
+  // Subject and language fields
+  subjectId: string
+  subjectName: string
+  language: string
   // Enhanced fields
   whatYouWillLearn: string[] | RequiredMultilingualArray
   prerequisites: string[] | RequiredMultilingualArray
@@ -57,6 +62,7 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
   const { userProfile } = useAuth()
   const [courses, setCourses] = useState<HybridAdminCourse[]>([])
   const [filteredCourses, setFilteredCourses] = useState<HybridAdminCourse[]>([])
+  const [subjects, setSubjects] = useState<Subject[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -71,6 +77,10 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
     description: multilingualMode ? createMultilingualText('') : '',
     duration: '',
     instructorId: '',
+    // Subject and language fields
+    subjectId: '',
+    subjectName: '',
+    language: 'English', // Default language
     // Enhanced fields
     whatYouWillLearn: multilingualMode ? createMultilingualArray([]) : [],
     prerequisites: multilingualMode ? createMultilingualArray([]) : [],
@@ -103,8 +113,19 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
     }
   }
 
+  const loadSubjects = async () => {
+    try {
+      const fetchedSubjects = await getAllSubjects()
+      setSubjects(fetchedSubjects)
+    } catch (error) {
+      console.error('Error loading subjects:', error)
+      toast.error('Failed to load subjects')
+    }
+  }
+
   useEffect(() => {
-    loadCourses()    
+    loadCourses()
+    loadSubjects()
   }, [])
 
   useEffect(() => {
@@ -139,6 +160,10 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
         instructor: formData.instructor,
         duration: parseFloat(formData.duration.trim()) || 0,
         instructorId: formData.instructorId || userProfile?.uid || '',
+        // Subject and language fields
+        subjectId: formData.subjectId,
+        subjectName: formData.subjectName,
+        language: formData.language,
         // Enhanced fields
         associations: formData.associations,
         ...(multilingualMode ? {
@@ -193,6 +218,10 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
         : (typeof course.description === 'string' ? course.description : getCompatibleText(course.description, DEFAULT_LANGUAGE)),
       duration: course.duration?.toString() || '',
       instructorId: course.instructorId,
+      // Subject and language fields
+      subjectId: (course as any).subjectId || '',
+      subjectName: (course as any).subjectName || '',
+      language: (course as any).language || 'English',
       // Enhanced fields
       whatYouWillLearn: multilingualMode
         ? (typeof course.whatYouWillLearn === 'object' && !Array.isArray(course.whatYouWillLearn)
@@ -254,6 +283,10 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
       description: multilingualMode ? createMultilingualText('') : '',
       duration: '',
       instructorId: '',
+      // Subject and language fields
+      subjectId: '',
+      subjectName: '',
+      language: 'English',
       // Enhanced fields
       whatYouWillLearn: multilingualMode ? createMultilingualArray([]) : [],
       prerequisites: multilingualMode ? createMultilingualArray([]) : [],
@@ -394,6 +427,52 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
                     step="0.5"
                     required
                   />
+                </div>
+                
+                <div className="space-y-2">
+                  <label htmlFor="subject" className="text-sm font-medium">Subject *</label>
+                  <Select
+                    value={formData.subjectId}
+                    onValueChange={(value) => {
+                      const selectedSubject = subjects.find(s => s.id === value)
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        subjectId: value,
+                        subjectName: selectedSubject?.name || ''
+                      }))
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select subject" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subjects.map((subject) => (
+                        <SelectItem key={subject.id} value={subject.id!}>
+                          {subject.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="language" className="text-sm font-medium">Language *</label>
+                  <Select
+                    value={formData.language}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, language: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={COURSE_LANGUAGES.ENGLISH}>
+                        {COURSE_LANGUAGES.ENGLISH}
+                      </SelectItem>
+                      <SelectItem value={COURSE_LANGUAGES.TELUGU}>
+                        {COURSE_LANGUAGES.TELUGU}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -602,7 +681,7 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
                     ...prev,
                     associations: [
                       ...prev.associations,
-                      { departmentId: '', departmentName: '', programId: '', yearOrSemester: 1, subjectId: '', subjectName: '', programName: '', language: DEFAULT_LANGUAGE } as CourseAssociation
+                      { departmentId: '', departmentName: '', programId: '', yearOrSemester: 1, programName: '' } as CourseAssociation
                     ]
                   }))}
                   className="w-full"
@@ -644,6 +723,8 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
                 <TableRow>
                   <TableHead>Title</TableHead>
                   <TableHead>Instructor</TableHead>
+                  <TableHead>Subject</TableHead>
+                  <TableHead>Language</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Difficulty</TableHead>
                   <TableHead>Duration</TableHead>
@@ -655,7 +736,7 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
               <TableBody>
                 {filteredCourses.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
+                    <TableCell colSpan={10} className="text-center py-8">
                       No courses found
                     </TableCell>
                   </TableRow>
@@ -666,6 +747,10 @@ export function CourseManagement({ multilingualMode = false }: CourseManagementP
                         {getCompatibleText(course.title, DEFAULT_LANGUAGE)}
                       </TableCell>
                       <TableCell>{course.instructor}</TableCell>
+                      <TableCell>{(course as any).subjectName || 'N/A'}</TableCell>
+                      <TableCell>{(course as any).language || 'N/A'}</TableCell>
+                      <TableCell>{(course as any).category || 'N/A'}</TableCell>
+                      <TableCell>{(course as any).level || 'N/A'}</TableCell>
                       <TableCell>{course.duration ? `${course.duration}h` : 'N/A'}</TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded-full text-xs ${

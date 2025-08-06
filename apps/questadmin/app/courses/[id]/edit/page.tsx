@@ -20,6 +20,7 @@ import { UserRole } from '@/data/config/firebase-auth'
 import { CourseAssociation } from '@/data/models/course'
 import { AdminCourse, getCourseById, updateCourse } from '@/data/services/admin-course-service'
 import { ImageUploadResult } from '@/data/services/image-upload-service'
+import { Subject, getAllSubjects } from '@/data/services/subjects-service'
 import { DEFAULT_LANGUAGE, MultilingualArray, MultilingualText, SupportedLanguage } from '@/lib/multilingual-types'
 import { createMultilingualArray, createMultilingualText, getAvailableLanguages, getCompatibleArray, getCompatibleText, isMultilingualContent } from '@/lib/multilingual-utils'
 import { ArrowLeft, BookOpen, Clock, FileText, Globe, HelpCircle, Languages, Plus, Settings, Star, TrendingUp, Users } from 'lucide-react'
@@ -32,6 +33,10 @@ interface UnifiedCourseFormData {
   description: string | MultilingualText
   duration: string // Keep as string for form input
   status: 'draft' | 'published' | 'archived'
+  // Subject and language fields
+  subjectId: string
+  subjectName: string
+  language: 'english' | 'telugu'
   // Image fields
   image?: string
   imageFileName?: string
@@ -60,6 +65,7 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
   const router = useRouter()
   const [courseId, setCourseId] = useState<string>('')
   const [course, setCourse] = useState<AdminCourse | null>(null)
+  const [subjects, setSubjects] = useState<Subject[]>([])
   const [loading, setLoading] = useState(false)
   const [fetchLoading, setFetchLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -68,6 +74,10 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
     description: '',
     duration: '',
     status: 'draft',
+    // Subject and language defaults
+    subjectId: '',
+    subjectName: '',
+    language: 'english',
     // Language configuration defaults
     primaryLanguage: DEFAULT_LANGUAGE,
     supportedLanguages: [DEFAULT_LANGUAGE],
@@ -90,6 +100,19 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
     }
     getParams()
   }, [params])
+
+  // Load subjects
+  useEffect(() => {
+    async function loadSubjects() {
+      try {
+        const subjectsData = await getAllSubjects()
+        setSubjects(subjectsData)
+      } catch (error) {
+        console.error('Error loading subjects:', error)
+      }
+    }
+    loadSubjects()
+  }, [])
 
   // Fetch course data
   useEffect(() => {
@@ -126,6 +149,10 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
             description: courseData.description,
             duration: courseData.duration !== undefined && courseData.duration !== null ? courseData.duration.toString() : '', // Convert number to string for form, handle undefined/null
             status: courseData.status,
+            // Subject and language fields
+            subjectId: courseData.subjectId || '',
+            subjectName: courseData.subjectName || '',
+            language: (courseData.language as 'english' | 'telugu') || 'english',
             // Image fields
             image: courseData.image,
             imageFileName: courseData.imageFileName,
@@ -264,6 +291,10 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
         status: formData.status,
         instructor: userProfile.firstName + ' ' + userProfile.lastName,
         instructorId: user.uid,
+        // Subject and language fields
+        subjectId: formData.subjectId,
+        subjectName: formData.subjectName,
+        language: formData.language,
         // Image fields
         image: formData.image,
         imageFileName: formData.imageFileName,
@@ -505,6 +536,49 @@ export default function UnifiedEditCoursePage({ params }: EditCoursePageProps) {
                               step="0.5"
                               required
                             />
+                          </div>
+
+                          {/* Subject */}
+                          <div className="space-y-2">
+                            <Label htmlFor="subject">Subject *</Label>
+                            <Select
+                              value={formData.subjectId}
+                              onValueChange={(value) => {
+                                const selectedSubject = subjects.find(s => s.id === value);
+                                handleInputChange('subjectId', value);
+                                handleInputChange('subjectName', selectedSubject?.name || '');
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a subject" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {subjects.map((subject) => (
+                                  <SelectItem key={subject.id} value={subject.id}>
+                                    {subject.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Language */}
+                          <div className="space-y-2">
+                            <Label htmlFor="language">Language *</Label>
+                            <Select
+                              value={formData.language}
+                              onValueChange={(value: 'english' | 'telugu') => 
+                                handleInputChange('language', value)
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a language" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="english">English</SelectItem>
+                                <SelectItem value="telugu">Telugu</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
 
                           {/* Course Image */}

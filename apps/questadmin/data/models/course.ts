@@ -1,10 +1,21 @@
 import { Timestamp } from 'firebase-admin/firestore'
 
+// Language options for courses
+export const COURSE_LANGUAGES = {
+  ENGLISH: 'English',
+  TELUGU: 'Telugu'
+} as const
+
+export type CourseLanguage = typeof COURSE_LANGUAGES[keyof typeof COURSE_LANGUAGES]
+
 // Course data model interface
 export interface Course {
   id?: string
   title: string
   description: string
+  subjectId: string
+  subjectName: string
+  language: string
   instructor: string
   instructorId: string
   duration?: number // Duration in hours
@@ -46,14 +57,14 @@ export interface CourseAssociation {
   departmentId?: string // Optional, if associated with a specific department
   departmentName?: string // Cached for display
   yearOrSemester: number
-  language: string
-  subjectId: string
-  subjectName?: string // Cached for display
 }
 
 export interface CreateCourseRequest {
   title: string
   description: string
+  subjectId: string
+  subjectName?: string // Will be populated from subjects collection
+  language: string // 'English' or 'Telugu'
   instructorId: string
   duration?: number
   status?: 'draft' | 'published'
