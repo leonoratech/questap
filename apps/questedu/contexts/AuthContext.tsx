@@ -1,12 +1,12 @@
 import {
-    User,
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    sendEmailVerification,
-    sendPasswordResetEmail,
-    signInWithEmailAndPassword,
-    signOut,
-    updateProfile as updateFirebaseProfile
+  User,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile as updateFirebaseProfile
 } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -33,14 +33,25 @@ export interface UserProfile {
   lastLoginAt?: Date;
   bio?: string;
   profilePicture?: string;
-  
-  // Additional fields for student profile completion
-  department?: string;
-  programId?: string;
-  college?: string; // For backward compatibility with appMaster
   description?: string;
+  
+  // Contact Information
+  phone?: string;
+  districtName?: string;
+  
+  // Department Information  
+  departmentId?: string;
+  departmentName?: string;
+  
+  // Student-specific fields
+  programId?: string;
   mainSubjects?: string[];
-  class?: string;
+  
+  // Legacy fields for backward compatibility
+  department?: string; // Deprecated: use departmentName
+  college?: string; // For backward compatibility with appMaster
+  
+  // Profile completion status
   profileCompleted?: boolean;
 }
 
@@ -66,12 +77,25 @@ interface UpdateProfileData {
   firstName?: string;
   lastName?: string;
   bio?: string;
-  department?: string;
-  programId?: string;
-  college?: string;
   description?: string;
+  
+  // Contact Information
+  phone?: string;
+  districtName?: string;
+  
+  // Department Information
+  departmentId?: string;
+  departmentName?: string;
+  
+  // Student-specific fields
+  programId?: string;
   mainSubjects?: string[];
-  class?: string;
+  
+  // Legacy fields for backward compatibility
+  department?: string; // Deprecated: use departmentName
+  college?: string;
+  
+  // Profile completion status
   profileCompleted?: boolean;
 }
 

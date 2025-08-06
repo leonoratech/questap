@@ -2,31 +2,42 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import {
-  Appbar,
-  Button,
-  Card,
-  Chip,
-  HelperText,
-  Snackbar,
-  Text,
-  TextInput,
-  useTheme
+    Appbar,
+    Button,
+    Card,
+    Chip,
+    HelperText,
+    Snackbar,
+    Text,
+    TextInput,
+    useTheme
 } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { AppMasterCollege, getCollegeFromAppMaster } from '../../lib/app-master-service';
 import {
-  getAllPrograms,
-  Program
+    getAllPrograms,
+    Program
 } from '../../lib/college-data-service';
+import { getDepartmentsForDropdown } from '../../lib/department-service';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
 
 interface FormData {
   firstName: string;
   lastName: string;
   bio: string;
-  programId: string;
   description: string;
+  
+  // Contact Information
+  phone: string;
+  districtName: string;
+  
+  // Academic Information
+  programId: string;
   mainSubjects: string;
+  
+  // Department Information
+  departmentId: string;
+  departmentName: string;
 }
 
 const ProfileEditScreen: React.FC = () => {
@@ -38,16 +49,28 @@ const ProfileEditScreen: React.FC = () => {
     firstName: '',
     lastName: '',
     bio: '',
-    programId: '',
     description: '',
-    mainSubjects: ''
+    
+    // Contact Information
+    phone: '',
+    districtName: '',
+    
+    // Academic Information
+    programId: '',
+    mainSubjects: '',
+    
+    // Department Information
+    departmentId: '',
+    departmentName: ''
   });
   
   const [college, setCollege] = useState<AppMasterCollege | null>(null);
   const [programs, setPrograms] = useState<Program[]>([]);
+  const [departments, setDepartments] = useState<Array<{ id: string; name: string }>>([]);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [loadingCollege, setLoadingCollege] = useState(false);
   const [loadingPrograms, setLoadingPrograms] = useState(false);
+  const [loadingDepartments, setLoadingDepartments] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   
   const [saving, setSaving] = useState(false);
@@ -61,9 +84,19 @@ const ProfileEditScreen: React.FC = () => {
         firstName: userProfile.firstName || '',
         lastName: userProfile.lastName || '',
         bio: userProfile.bio || '',
-        programId: userProfile.programId || '',
         description: userProfile.description || '',
-        mainSubjects: userProfile.mainSubjects?.join(', ') || ''
+        
+        // Contact Information
+        phone: userProfile.phone || '',
+        districtName: userProfile.districtName || '',
+        
+        // Academic Information
+        programId: userProfile.programId || '',
+        mainSubjects: userProfile.mainSubjects?.join(', ') || '',
+        
+        // Department Information
+        departmentId: userProfile.departmentId || '',
+        departmentName: userProfile.departmentName || userProfile.department || '' // Support legacy field
       };
       
       console.log('📋 Initializing profile form data:', newFormData);
@@ -72,11 +105,12 @@ const ProfileEditScreen: React.FC = () => {
     }
   }, [userProfile]);
 
-  // Load college and programs on component mount
+  // Load college, programs, and departments on component mount
   useEffect(() => {
     if (user && userProfile) {
       loadCollege();
       loadPrograms();
+      loadDepartments();
     }
   }, [user, userProfile]);
 
@@ -168,6 +202,39 @@ const ProfileEditScreen: React.FC = () => {
     }
   };
 
+  const loadDepartments = async () => {
+    if (!user) {
+      console.log('⚠️ User not authenticated, skipping department loading');
+      return;
+    }
+    
+    setLoadingDepartments(true);
+    try {
+      console.log(`🏢 Starting to load all departments...`);
+      
+      const departmentsData = await getDepartmentsForDropdown();
+      console.log(`✅ Successfully loaded ${departmentsData.length} departments`);
+      setDepartments(departmentsData);
+      
+      if (departmentsData.length === 0) {
+        console.log('ℹ️ No departments found - this may be normal if departments are not configured');
+      }
+    } catch (error: any) {
+      console.error('❌ Error loading departments:', error);
+      
+      if (error.message && error.message.includes('Authentication required')) {
+        showMessage('Please sign in to access department information.');
+      } else if (error.message && error.message.includes('Missing or insufficient permissions')) {
+        showMessage('Access denied. Please ensure you are signed in with a valid account.');
+      } else {
+        console.log('ℹ️ Failed to load departments - continuing without department options');
+      }
+      setDepartments([]);
+    } finally {
+      setLoadingDepartments(false);
+    }
+  };
+
   const showMessage = (message: string) => {
     setSnackbarMessage(message);
     setSnackbarVisible(true);
@@ -179,6 +246,14 @@ const ProfileEditScreen: React.FC = () => {
 
   const handleProgramSelect = (value: string, option: DropdownOption) => {
     setFormData(prev => ({ ...prev, programId: value }));
+  };
+
+  const handleDepartmentSelect = (value: string, option: DropdownOption) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      departmentId: value,
+      departmentName: option.label 
+    }));
   };
 
   const validateForm = (): boolean => {
@@ -202,12 +277,24 @@ const ProfileEditScreen: React.FC = () => {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         bio: formData.bio.trim(),
-        programId: formData.programId,
         description: formData.description.trim(),
+        
+        // Contact Information
+        phone: formData.phone.trim(),
+        districtName: formData.districtName.trim(),
+        
+        // Academic Information
+        programId: formData.programId,
         mainSubjects: formData.mainSubjects
           .split(',')
           .map(subject => subject.trim())
           .filter(subject => subject.length > 0),
+        
+        // Department Information
+        departmentId: formData.departmentId,
+        departmentName: formData.departmentName.trim(),
+        
+        // Mark profile as completed
         profileCompleted: true,
       };
 
@@ -236,6 +323,12 @@ const ProfileEditScreen: React.FC = () => {
   const programOptions: DropdownOption[] = programs.map(program => ({
     label: program.name,
     value: program.id || ''
+  }));
+
+  // Convert departments to dropdown options
+  const departmentOptions: DropdownOption[] = departments.map(department => ({
+    label: department.name,
+    value: department.id
   }));
 
   return (
@@ -281,6 +374,31 @@ const ProfileEditScreen: React.FC = () => {
           </Card.Content>
         </Card>
 
+        {/* Contact Information */}
+        <Card style={styles.card}>
+          <Card.Title title="Contact Information" />
+          <Card.Content>
+            <TextInput
+              label="Phone Number"
+              value={formData.phone}
+              onChangeText={(text) => handleInputChange('phone', text)}
+              style={styles.input}
+              disabled={saving}
+              placeholder="e.g., +1234567890"
+              keyboardType="phone-pad"
+            />
+
+            <TextInput
+              label="District/Region"
+              value={formData.districtName}
+              onChangeText={(text) => handleInputChange('districtName', text)}
+              style={styles.input}
+              disabled={saving}
+              placeholder="Your district or region"
+            />
+          </Card.Content>
+        </Card>
+
         {/* Academic Information */}
         <Card style={styles.card}>
           <Card.Title title="Academic Information" />
@@ -302,6 +420,18 @@ const ProfileEditScreen: React.FC = () => {
                 </Text>
               )}
             </View>
+
+            {/* Department Selection */}
+            <Dropdown
+              label="Department"
+              value={formData.departmentId}
+              options={departmentOptions}
+              onSelect={handleDepartmentSelect}
+              placeholder="Select your department"
+              disabled={saving}
+              loading={loadingDepartments}
+              style={styles.input}
+            />
 
             <Dropdown
               label="Program/Field of Study"

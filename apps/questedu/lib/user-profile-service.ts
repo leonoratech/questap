@@ -6,14 +6,26 @@ interface UpdateProfileData {
   firstName?: string;
   lastName?: string;
   bio?: string;
-  department?: string;
-  collegeId?: string;
-  programId?: string;
-  college?: string; // For backward compatibility
   description?: string;
+  
+  // Contact Information
+  phone?: string;
+  districtName?: string;
+  
+  // Department Information
+  departmentId?: string;
+  departmentName?: string;
+  
   // Student-specific fields
+  programId?: string;
   mainSubjects?: string[];
-  class?: string;
+  
+  // Legacy fields for backward compatibility
+  department?: string; // Deprecated: use departmentName
+  collegeId?: string;
+  college?: string; // For backward compatibility
+  
+  // Profile completion status
   profileCompleted?: boolean;
 }
 

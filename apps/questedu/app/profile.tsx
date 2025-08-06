@@ -136,6 +136,13 @@ export default function ProfileScreen() {
                     <Text variant="bodyMedium" style={styles.infoValue}>{college.name}</Text>
                   </View>
                 )}
+
+                {userProfile?.departmentName && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={styles.infoLabel}>Department:</Text>
+                    <Text variant="bodyMedium" style={styles.infoValue}>{userProfile.departmentName}</Text>
+                  </View>
+                )}
                 
                 {userProgram ? (
                   <>
@@ -163,6 +170,48 @@ export default function ProfileScreen() {
                 
                 {loadingProfile && (
                   <Text variant="bodySmall" style={styles.loadingText}>Loading academic information...</Text>
+                )}
+              </Card.Content>
+            )}
+
+            {/* Contact Information Section */}
+            {(userProfile?.phone || userProfile?.districtName) && (
+              <Card.Content style={styles.contactInfo}>
+                <Text variant="titleMedium" style={styles.sectionTitle}>Contact Information</Text>
+                
+                {userProfile?.phone && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={styles.infoLabel}>Phone:</Text>
+                    <Text variant="bodyMedium" style={styles.infoValue}>{userProfile.phone}</Text>
+                  </View>
+                )}
+
+                {userProfile?.districtName && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={styles.infoLabel}>District:</Text>
+                    <Text variant="bodyMedium" style={styles.infoValue}>{userProfile.districtName}</Text>
+                  </View>
+                )}
+              </Card.Content>
+            )}
+
+            {/* About Me Section */}
+            {(userProfile?.description || userProfile?.bio) && (
+              <Card.Content style={styles.aboutInfo}>
+                <Text variant="titleMedium" style={styles.sectionTitle}>About Me</Text>
+                
+                {userProfile?.description && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={styles.infoLabel}>Description:</Text>
+                    <Text variant="bodyMedium" style={styles.infoValue}>{userProfile.description}</Text>
+                  </View>
+                )}
+
+                {userProfile?.bio && (
+                  <View style={styles.infoRow}>
+                    <Text variant="bodyMedium" style={styles.infoLabel}>Bio:</Text>
+                    <Text variant="bodyMedium" style={styles.infoValue}>{userProfile.bio}</Text>
+                  </View>
                 )}
               </Card.Content>
             )}
@@ -242,6 +291,14 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   academicInfo: {
+    paddingTop: 0,
+    paddingBottom: 16,
+  },
+  contactInfo: {
+    paddingTop: 0,
+    paddingBottom: 16,
+  },
+  aboutInfo: {
     paddingTop: 0,
     paddingBottom: 16,
   },
