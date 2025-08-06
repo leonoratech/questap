@@ -58,8 +58,6 @@ export class UserProfileRepository extends BaseRepository<UserProfile> {
       profilePicture: data.profilePicture || undefined,
       department: data.department || undefined,
       bio: data.bio || undefined,
-      collegeId: data.collegeId || undefined,
-      college: data.college || undefined,
       description: data.description || undefined,
       coreTeachingSkills: data.coreTeachingSkills || undefined,
       additionalTeachingSkills: data.additionalTeachingSkills || undefined,

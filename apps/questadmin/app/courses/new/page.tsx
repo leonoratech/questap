@@ -13,14 +13,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/contexts/AuthContext'
-import { CourseAssociation } from '@/data/models/course'
+import { CourseAssociation, COURSE_LANGUAGES } from '@/data/models/course'
 import { addCourse, addMultilingualCourse } from '@/data/services/admin-course-service'
+import { Subject, getAllSubjects } from '@/data/services/subjects-service'
 import { ImageUploadResult } from '@/data/services/image-upload-service'
 import { DEFAULT_LANGUAGE, LANGUAGE_NAMES, MultilingualArray, MultilingualText, SUPPORTED_LANGUAGES, SupportedLanguage } from '@/lib/multilingual-types'
 import { createMultilingualArray, createMultilingualText, getCompatibleText } from '@/lib/multilingual-utils'
 import { ArrowLeft, BookOpen, Globe, GraduationCap, Languages, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 interface UnifiedCourseFormData {
@@ -28,6 +29,10 @@ interface UnifiedCourseFormData {
   description: string | MultilingualText
   duration: string
   status: 'draft' | 'published'
+  // Subject and language fields
+  subjectId: string
+  subjectName: string
+  language: 'english' | 'telugu'
   // Image fields
   image?: string
   imageFileName?: string
@@ -54,11 +59,16 @@ export default function UnifiedCreateCoursePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [subjects, setSubjects] = useState<Subject[]>([])
   const [formData, setFormData] = useState<UnifiedCourseFormData>({
     title: '',
     description: '',
     duration: '',
     status: 'draft',
+    // Subject and language defaults
+    subjectId: '',
+    subjectName: '',
+    language: 'english',
     // Language configuration defaults
     primaryLanguage: DEFAULT_LANGUAGE,
     supportedLanguages: [DEFAULT_LANGUAGE],
@@ -73,6 +83,19 @@ export default function UnifiedCreateCoursePage() {
     // UI state
     multilingualMode: false
   })
+
+  // Load subjects
+  useEffect(() => {
+    async function loadSubjects() {
+      try {
+        const subjectsData = await getAllSubjects()
+        setSubjects(subjectsData)
+      } catch (error) {
+        console.error('Error loading subjects:', error)
+      }
+    }
+    loadSubjects()
+  }, [])
 
   const handleInputChange = (field: keyof UnifiedCourseFormData, value: any) => {
     setFormData(prev => ({
@@ -205,6 +228,14 @@ export default function UnifiedCreateCoursePage() {
         throw new Error('Duration must be a valid number greater than 0')
       }
 
+      // Validate subject and language
+      if (!formData.subjectId) {
+        throw new Error('Please select a subject')
+      }
+      if (!formData.language) {
+        throw new Error('Please select a language')
+      }
+
       const instructorName = userProfile.firstName && userProfile.lastName 
         ? `${userProfile.firstName} ${userProfile.lastName}`.trim()
         : userProfile.email || 'Unknown Instructor'
@@ -216,6 +247,10 @@ export default function UnifiedCreateCoursePage() {
         instructorId: user.uid,
         duration: durationValue,
         status: formData.status,
+        // Subject and language fields
+        subjectId: formData.subjectId,
+        subjectName: formData.subjectName,
+        language: formData.language,
         // Image fields
         image: formData.image,
         imageFileName: formData.imageFileName,
@@ -421,6 +456,49 @@ export default function UnifiedCreateCoursePage() {
                         placeholder="e.g., 20"
                         required
                       />
+                    </div>
+
+                    {/* Subject */}
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Subject *</Label>
+                      <Select
+                        value={formData.subjectId}
+                        onValueChange={(value) => {
+                          const selectedSubject = subjects.find(s => s.id === value);
+                          handleInputChange('subjectId', value);
+                          handleInputChange('subjectName', selectedSubject?.name || '');
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {subjects.map((subject) => (
+                            <SelectItem key={subject.id} value={subject.id}>
+                              {subject.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Language */}
+                    <div className="space-y-2">
+                      <Label htmlFor="language">Language *</Label>
+                      <Select
+                        value={formData.language}
+                        onValueChange={(value: 'english' | 'telugu') => 
+                          handleInputChange('language', value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="english">English</SelectItem>
+                          <SelectItem value="telugu">Telugu</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </CardContent>
