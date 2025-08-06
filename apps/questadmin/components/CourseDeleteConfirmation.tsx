@@ -3,13 +3,14 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog'
+import { getAuthHeaders } from '@/data/config/firebase-auth'
 import { AlertTriangle, Archive, BookOpen, FileText, TrendingUp } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -50,7 +51,8 @@ export function CourseDeleteConfirmation({
     setLoadingCounts(true)
     try {
       const response = await fetch(`/api/courses/${courseId}/cascade-delete`, {
-        method: 'GET', // We'll add a GET method to just get counts
+        method: 'GET',
+        headers: getAuthHeaders(),
       })
       
       if (response.ok) {

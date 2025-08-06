@@ -182,7 +182,14 @@ export default function BrowseCoursesPage({ }: BrowseCoursesPageProps) {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-lg line-clamp-2">{title}</CardTitle>
+              <CardTitle className="text-lg line-clamp-2">
+                {title}
+                {course.language && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    ({course.language})
+                  </span>
+                )}
+              </CardTitle>
               <CardDescription className="text-sm">by {instructor}</CardDescription>
             </div>
           </div>

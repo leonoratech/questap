@@ -9,14 +9,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/contexts/AuthContext'
 import { AdminCourse, deleteCourse, getCoursesByInstructor } from '@/data/services/admin-course-service'
 import {
-  BookOpen,
-  Clock,
-  Edit,
-  Eye,
-  Plus,
-  Star,
-  Trash2,
-  Users
+    BookOpen,
+    Clock,
+    Edit,
+    Eye,
+    Plus,
+    Star,
+    Trash2,
+    Users
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -238,7 +238,14 @@ function CourseCard({ course, onDelete }: { course: AdminCourse; onDelete: (cour
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-lg">{course.title}</CardTitle>
+            <CardTitle className="text-lg">
+              {course.title}
+              {course.language && (
+                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                  ({course.language})
+                </span>
+              )}
+            </CardTitle>
             <CardDescription className="mt-2">{course.description}</CardDescription>
           </div>
           <Badge variant={course.status === 'published' ? 'default' : 'secondary'}>

@@ -1,13 +1,4 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-  writeBatch
-} from 'firebase/firestore'
-import { serverDb } from '../../app/api/firebase-server'
+import { adminDb } from '../repository/firebase-admin'
 
 /**
  * Comprehensive course deletion service that removes all related data
@@ -29,13 +20,13 @@ export async function deleteCourseWithCascade(courseId: string): Promise<{
     }
 
     // Use batched writes for consistency
-    const batch = writeBatch(serverDb)
+    const batch = adminDb.batch()
 
     // 1. Check if course exists
-    const courseRef = doc(serverDb, 'courses', courseId)
-    const courseSnap = await getDoc(courseRef)
+    const courseRef = adminDb.collection('courses').doc(courseId)
+    const courseSnap = await courseRef.get()
     
-    if (!courseSnap.exists()) {
+    if (!courseSnap.exists) {
       return {
         success: false,
         error: 'Course not found'
@@ -44,11 +35,8 @@ export async function deleteCourseWithCascade(courseId: string): Promise<{
 
     // 2. Delete all course topics
     try {
-      const topicsQuery = query(
-        collection(serverDb, 'courseTopics'),
-        where('courseId', '==', courseId)
-      )
-      const topicsSnapshot = await getDocs(topicsQuery)
+      const topicsQuery = adminDb.collection('courseTopics').where('courseId', '==', courseId)
+      const topicsSnapshot = await topicsQuery.get()
       
       topicsSnapshot.docs.forEach(doc => {
         batch.delete(doc.ref)
@@ -60,11 +48,8 @@ export async function deleteCourseWithCascade(courseId: string): Promise<{
 
     // 3. Delete all course questions and their answers
     try {
-      const questionsQuery = query(
-        collection(serverDb, 'courseQuestions'),
-        where('courseId', '==', courseId)
-      )
-      const questionsSnapshot = await getDocs(questionsQuery)
+      const questionsQuery = adminDb.collection('courseQuestions').where('courseId', '==', courseId)
+      const questionsSnapshot = await questionsQuery.get()
       
       questionsSnapshot.docs.forEach(doc => {
         batch.delete(doc.ref)
@@ -72,11 +57,8 @@ export async function deleteCourseWithCascade(courseId: string): Promise<{
       })
 
       // Delete question answers if they exist in a separate collection
-      const answersQuery = query(
-        collection(serverDb, 'question_answers'),
-        where('courseId', '==', courseId)
-      )
-      const answersSnapshot = await getDocs(answersQuery)
+      const answersQuery = adminDb.collection('question_answers').where('courseId', '==', courseId)
+      const answersSnapshot = await answersQuery.get()
       
       answersSnapshot.docs.forEach(doc => {
         batch.delete(doc.ref)
@@ -88,11 +70,8 @@ export async function deleteCourseWithCascade(courseId: string): Promise<{
     
     // 6. Delete any course materials
     try {
-      const materialsQuery = query(
-        collection(serverDb, 'course_materials'),
-        where('courseId', '==', courseId)
-      )
-      const materialsSnapshot = await getDocs(materialsQuery)
+      const materialsQuery = adminDb.collection('course_materials').where('courseId', '==', courseId)
+      const materialsSnapshot = await materialsQuery.get()
       
       materialsSnapshot.docs.forEach(doc => {
         batch.delete(doc.ref)
@@ -103,11 +82,8 @@ export async function deleteCourseWithCascade(courseId: string): Promise<{
 
     // 7. Delete any course progress records
     try {
-      const progressQuery = query(
-        collection(serverDb, 'student_progress'),
-        where('courseId', '==', courseId)
-      )
-      const progressSnapshot = await getDocs(progressQuery)
+      const progressQuery = adminDb.collection('student_progress').where('courseId', '==', courseId)
+      const progressSnapshot = await progressQuery.get()
       
       progressSnapshot.docs.forEach(doc => {
         batch.delete(doc.ref)
@@ -155,29 +131,24 @@ export async function getCourseRelatedItemsCounts(courseId: string): Promise<{
 
   try {
     // Count topics
-    const topicsQuery = query(
-      collection(serverDb, 'courseTopics'),
-      where('courseId', '==', courseId)
-    )
-    const topicsSnapshot = await getDocs(topicsQuery)
+    const topicsQuery = adminDb.collection('courseTopics').where('courseId', '==', courseId)
+    const topicsSnapshot = await topicsQuery.get()
     counts.topics = topicsSnapshot.size
 
     // Count questions
-    const questionsQuery = query(
-      collection(serverDb, 'courseQuestions'),
-      where('courseId', '==', courseId)
-    )
-    const questionsSnapshot = await getDocs(questionsQuery)
+    const questionsQuery = adminDb.collection('courseQuestions').where('courseId', '==', courseId)
+    const questionsSnapshot = await questionsQuery.get()
     counts.questions = questionsSnapshot.size
 
     // Count materials
-    const materialsQuery = query(
-      collection(serverDb, 'course_materials'),
-      where('courseId', '==', courseId)
-    )
-    const materialsSnapshot = await getDocs(materialsQuery)
+    const materialsQuery = adminDb.collection('course_materials').where('courseId', '==', courseId)
+    const materialsSnapshot = await materialsQuery.get()
     counts.materials = materialsSnapshot.size
 
+    // Count progress records
+    const progressQuery = adminDb.collection('student_progress').where('courseId', '==', courseId)
+    const progressSnapshot = await progressQuery.get()
+    counts.progressRecords = progressSnapshot.size
 
   } catch (error) {
     console.error('Error counting related items:', error)
