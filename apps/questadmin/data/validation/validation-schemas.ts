@@ -18,7 +18,10 @@ export const UpdateUserSchema = z.object({
   lastName: z.string().min(1).max(50).optional(),
   displayName: z.string().max(100).optional(),
   bio: z.string().max(500).optional(),
-  department: z.string().max(100).optional(),
+  departmentId: z.string().max(100).optional(),
+  departmentName: z.string().max(100).optional(),
+  phone: z.string().max(20).optional(),
+  districtName: z.string().max(100).optional(),
   role: z.nativeEnum(UserRole).optional(),
   isActive: z.boolean().optional()
 })

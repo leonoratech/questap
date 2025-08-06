@@ -13,6 +13,8 @@ export interface UpdateUserProfileRequest {
   bio?: string
   departmentId?: string
   departmentName?: string
+  phone?: string
+  districtName?: string
   description?: string
   coreTeachingSkills?: string[]
   additionalTeachingSkills?: string[]

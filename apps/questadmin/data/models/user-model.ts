@@ -22,8 +22,9 @@ export interface UserProfile extends BaseEntity {
   departmentName?: string  
   description?: string
   
-  // Legacy department field for backward compatibility
-  department?: string
+  // Contact Information
+  phone?: string
+  districtName?: string
   
   // Instructor-specific fields
   coreTeachingSkills?: string[]

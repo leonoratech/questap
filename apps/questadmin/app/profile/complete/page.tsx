@@ -33,6 +33,8 @@ export default function ProfileCompletePage() {
   const [formData, setFormData] = useState({
     departmentId: '',
     departmentName: '',
+    phone: '',
+    districtName: '',
     description: '',
     // Instructor fields
     coreTeachingSkills: '',
@@ -102,6 +104,8 @@ export default function ProfileCompletePage() {
       const updates = {
         departmentId: formData.departmentId || undefined,
         departmentName: selectedDepartment?.name || formData.departmentName || undefined,
+        phone: formData.phone.trim() || undefined,
+        districtName: formData.districtName.trim() || undefined,
         description: formData.description.trim(),
         profileCompleted: true
       } as any
@@ -254,6 +258,36 @@ export default function ProfileCompletePage() {
                       : "Enter your department name manually"
                     }
                   </p>
+                </div>
+
+                {/* Contact Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      placeholder="Enter your phone number"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Optional: Your contact number
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="districtName">District</Label>
+                    <Input
+                      id="districtName"
+                      value={formData.districtName}
+                      onChange={(e) => handleInputChange('districtName', e.target.value)}
+                      placeholder="Enter your district"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Optional: Your district or region
+                    </p>
+                  </div>
                 </div>
 
                 {/* Role-specific Fields */}

@@ -45,6 +45,8 @@ export default function ProfilePage() {
     departmentName: '',
     bio: '',
     description: '',
+    phone: '',
+    districtName: '',
     // Instructor fields
     coreTeachingSkills: '',
     additionalTeachingSkills: '',
@@ -62,9 +64,11 @@ export default function ProfilePage() {
         email: userProfile.email || '',
         role: userProfile.role || UserRole.INSTRUCTOR,
         departmentId: userProfile.departmentId || '',
-        departmentName: userProfile.departmentName || userProfile.department || '',
+        departmentName: userProfile.departmentName || '',
         bio: userProfile.bio || '',
         description: userProfile.description || '',
+        phone: userProfile.phone || '',
+        districtName: userProfile.districtName || '',
         coreTeachingSkills: formatSkillsToString(userProfile.coreTeachingSkills || []),
         additionalTeachingSkills: formatSkillsToString(userProfile.additionalTeachingSkills || []),
         mainSubjects: formatSkillsToString(userProfile.mainSubjects || []),
@@ -108,6 +112,8 @@ export default function ProfilePage() {
         lastName: formData.lastName,
         departmentId: formData.departmentId || undefined,
         departmentName: selectedDepartment?.name || formData.departmentName || undefined,
+        phone: formData.phone || undefined,
+        districtName: formData.districtName || undefined,
         bio: formData.bio,
         description: formData.description,
         profileCompleted: true
@@ -316,6 +322,36 @@ export default function ProfilePage() {
                       <p className="text-sm text-muted-foreground">
                         Email cannot be changed directly. Contact support for assistance.
                       </p>
+                    </div>
+
+                    {/* Contact Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          placeholder="Enter your phone number"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Optional: Your contact number
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="districtName">District</Label>
+                        <Input
+                          id="districtName"
+                          value={formData.districtName}
+                          onChange={(e) => handleInputChange('districtName', e.target.value)}
+                          placeholder="Enter your district"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Optional: Your district or region
+                        </p>
+                      </div>
                     </div>
 
                     {/* Role Display (Read-only) */}
