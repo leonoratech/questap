@@ -8,7 +8,6 @@ import {
   Card,
   Chip,
   Divider,
-  FAB,
   Modal,
   Portal,
   Searchbar,
@@ -447,7 +446,7 @@ export default function CourseTopicsListScreen() {
         </View>
 
         {/* Floating Action Button */}
-        <FAB
+        {/* <FAB
           icon="play"
           label="Start Learning"
           style={styles.fab}
@@ -456,7 +455,7 @@ export default function CourseTopicsListScreen() {
             params: { id: String(id) } 
           })}
           disabled={filteredTopics.length === 0}
-        />
+        /> */}
 
         {/* Filters Modal */}
         <Portal>

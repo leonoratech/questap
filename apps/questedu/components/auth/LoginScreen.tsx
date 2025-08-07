@@ -57,7 +57,7 @@ const LoginScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Card style={styles.card}>
-        <Card.Title title="Welcome to QuestEdu" subtitle="Sign in to your account" />
+        <Card.Title title="Welcome to Leonora" subtitle="Sign in to your account" />
         <Card.Content>
           <TextInput
             label="Email"
