@@ -1,8 +1,8 @@
 import {
-    CourseTopic,
-    CourseTopicStats,
-    CreateCourseTopicRequest,
-    UpdateCourseTopicRequest
+  CourseTopic,
+  CourseTopicStats,
+  CreateCourseTopicRequest,
+  UpdateCourseTopicRequest
 } from '../models/course-topic'
 import { BaseRepository } from './base-service'
 import { adminDb } from './firebase-admin'
@@ -35,10 +35,27 @@ export class CourseTopicRepository extends BaseRepository<CourseTopic> {
   }
 
   async updateCourseTopic(id: string, data: UpdateCourseTopicRequest): Promise<void> {
-    await adminDb.collection(COURSE_TOPICS_COLLECTION).doc(id).update({
-      ...data,
-      updatedAt: new Date(),
-    })
+    try {
+      console.log('🔄 Updating course topic:', id, 'with data:', Object.keys(data))
+      
+      await adminDb.collection(COURSE_TOPICS_COLLECTION).doc(id).update({
+        ...data,
+        updatedAt: new Date(),
+      })
+      
+      console.log('✅ Successfully updated course topic:', id)
+    } catch (error) {
+      console.error('❌ Error updating course topic:', error)
+      if (error instanceof Error) {
+        console.error('Error details:', {
+          topicId: id,
+          updateData: data,
+          errorMessage: error.message,
+          errorStack: error.stack
+        })
+      }
+      throw error
+    }
   }
 
   async getTopicsByCourse(courseId: string): Promise<CourseTopic[]> {
