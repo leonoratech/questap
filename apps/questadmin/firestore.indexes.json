@@ -367,7 +367,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "association.programId",
+          "fieldPath": "associations.departmentId",
           "order": "ASCENDING"
         },
         {
@@ -381,11 +381,29 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "association.programId",
+          "fieldPath": "associations.programId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "association.yearOrSemester",
+          "fieldPath": "associations.yearOrSemester",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "courses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "associations.departmentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "associations.yearOrSemester",
           "order": "ASCENDING"
         },
         {
@@ -954,6 +972,20 @@
       "fields": [
         {
           "fieldPath": "programId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "departments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isActive",
           "order": "ASCENDING"
         },
         {

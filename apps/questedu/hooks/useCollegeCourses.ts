@@ -100,10 +100,10 @@ export const useCollegeCourses = (filters?: CourseFilters) => {
           });
         }
 
-        // If no courses found with filters, fallback to general courses
-        if (filteredCourses.length === 0 && !filters?.programId && !effectiveFilters?.yearOrSemester && !effectiveFilters?.subjectId) {
+        // If no courses found with filters, fallback to general courses only when no specific filters are applied
+        if (filteredCourses.length === 0 && !filters?.programId && !effectiveFilters?.yearOrSemester && !effectiveFilters?.subjectId && !effectiveFilters?.departmentId) {
           if (__DEV__) {
-            console.log('📋 [useCollegeCourses] No filtered courses found, falling back to general courses');
+            console.log('📋 [useCollegeCourses] No filtered courses found and no specific filters applied, falling back to general courses');
           }
           await fetchGeneralCoursesFallback();
         } else {
@@ -174,10 +174,10 @@ export const useCollegeCourses = (filters?: CourseFilters) => {
         console.log('🔄 [useCollegeCourses] Refresh result:', refreshedCourses.length, 'courses');
       }
 
-      // If no courses found with filters, fallback to general courses
-      if (refreshedCourses.length === 0 && !filters?.programId && !effectiveFilters?.yearOrSemester && !effectiveFilters?.subjectId) {
+      // If no courses found with filters, fallback to general courses only when no specific filters are applied
+      if (refreshedCourses.length === 0 && !filters?.programId && !effectiveFilters?.yearOrSemester && !effectiveFilters?.subjectId && !effectiveFilters?.departmentId) {
         if (__DEV__) {
-          console.log('📋 [useCollegeCourses] No filtered courses found on refresh, falling back to general courses');
+          console.log('📋 [useCollegeCourses] No filtered courses found on refresh and no specific filters applied, falling back to general courses');
         }
         const { getCourses } = await import('../lib/course-service');
         const generalCourses = await getCourses();

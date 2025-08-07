@@ -10,7 +10,7 @@ import {
   useTheme
 } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
-import { useCollegeCourses } from '../../hooks/useCollegeCourses';
+import { useClientSideFilteredCourses } from '../../hooks/useClientSideFilteredCourses';
 import { getUniqueSubjectsAndYearsFromCourses } from '../../lib/college-data-service';
 import { debugUserCourseFiltering } from '../../lib/course-diagnostics';
 import { Course } from '../../lib/course-service';
@@ -35,8 +35,8 @@ export default function FeaturedTab() {
   const [availableDepartments, setAvailableDepartments] = useState<Department[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
   
-  // Use college-specific courses hook
-  const { courses, loading, error, refreshCourses, hasCollegeAssociation } = useCollegeCourses(courseFilters);
+  // Use client-side filtered courses hook
+  const { courses, loading, error, refreshCourses, hasCollegeAssociation, totalCourses } = useClientSideFilteredCourses(courseFilters);
 
   // Debug logging - run diagnostics when component mounts and user profile is available
   useEffect(() => {
@@ -64,6 +64,7 @@ export default function FeaturedTab() {
     console.log('🏠 [FeaturedTab] Component state:', {
       courseFilters,
       coursesCount: courses.length,
+      totalCourses,
       loading,
       error,
       hasCollegeAssociation,
@@ -75,7 +76,7 @@ export default function FeaturedTab() {
         email: userProfile.email
       } : null
     });
-  }, [courseFilters, courses.length, loading, error, hasCollegeAssociation, availableSubjects.length, availableYears.length, availableDepartments.length, userProfile]);
+  }, [courseFilters, courses.length, totalCourses, loading, error, hasCollegeAssociation, availableSubjects.length, availableYears.length, availableDepartments.length, userProfile]);
 
   const loadFilterOptions = async () => {
     if (!userProfile?.programId) return;
@@ -122,9 +123,9 @@ export default function FeaturedTab() {
     }
   };
 
-  // Remove duplicate courses based on ID
-  const uniqueCourses = courses.filter((course, index, self) => 
-    self.findIndex(c => c.id === course.id) === index
+  // Remove duplicate courses based on ID (with proper typing)
+  const uniqueCourses = courses.filter((course: Course, index: number, self: Course[]) => 
+    self.findIndex((c: Course) => c.id === course.id) === index
   );
 
   const handleYearFilter = (year: number) => {
@@ -363,8 +364,9 @@ export default function FeaturedTab() {
       )}
 
       <Text variant="titleMedium" style={styles.sectionTitle}>
-        {userProfile?.programId ? 'Program Courses' : 'Featured Courses'}
-        {getActiveFiltersCount() > 0 && ` (${getActiveFiltersCount()} filter${getActiveFiltersCount() > 1 ? 's' : ''} applied)`}
+        Courses
+        {getActiveFiltersCount() > 0 && ` (${uniqueCourses.length}/${totalCourses} with ${getActiveFiltersCount()} filter${getActiveFiltersCount() > 1 ? 's' : ''})`}
+        {getActiveFiltersCount() === 0 && totalCourses > 0 && ` (${uniqueCourses.length}/${totalCourses})`}
       </Text>
       
       {loading ? (
