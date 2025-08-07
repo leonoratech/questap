@@ -39,7 +39,7 @@ export default function HomeScreen() {
             icon="menu" 
             onPress={() => navigation.dispatch(DrawerActions.openDrawer())} 
           />
-          <Appbar.Content title="QuestEdu" />
+          <Appbar.Content title="Leonora" />
           <Appbar.Action icon="bell" onPress={() => {}} />
         </Appbar.Header>
 

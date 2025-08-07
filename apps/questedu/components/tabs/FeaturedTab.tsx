@@ -2,23 +2,25 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import {
-    ActivityIndicator,
-    Button,
-    Card,
-    Chip,
-    Text,
-    useTheme
+  ActivityIndicator,
+  Button,
+  Card,
+  Chip,
+  Text,
+  useTheme
 } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCollegeCourses } from '../../hooks/useCollegeCourses';
 import { getUniqueSubjectsAndYearsFromCourses } from '../../lib/college-data-service';
 import { debugUserCourseFiltering } from '../../lib/course-diagnostics';
 import { Course } from '../../lib/course-service';
+import { Department, getAllDepartments } from '../../lib/department-service';
 
 interface CourseFilterState {
   programId?: string;
   yearOrSemester?: number;
   subjectId?: string;
+  departmentId?: string;
 }
 
 export default function FeaturedTab() {
@@ -27,9 +29,10 @@ export default function FeaturedTab() {
   const { userProfile } = useAuth();
   const [courseFilters, setCourseFilters] = useState<CourseFilterState>({});
   
-  // Subject and Year filter options
+  // Subject, Year, and Department filter options
   const [availableSubjects, setAvailableSubjects] = useState<Array<{ id: string; name: string }>>([]);
   const [availableYears, setAvailableYears] = useState<Array<{ value: number; label: string }>>([]);
+  const [availableDepartments, setAvailableDepartments] = useState<Department[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
   
   // Use college-specific courses hook
@@ -52,6 +55,8 @@ export default function FeaturedTab() {
     if (userProfile?.programId) {
       loadFilterOptions();
     }
+    // Always load departments regardless of program
+    loadDepartments();
   }, [userProfile?.programId]);
 
   // Debug logging
@@ -64,12 +69,13 @@ export default function FeaturedTab() {
       hasCollegeAssociation,
       availableSubjects: availableSubjects.length,
       availableYears: availableYears.length,
+      availableDepartments: availableDepartments.length,
       userProfile: userProfile ? {
         programId: userProfile.programId,
         email: userProfile.email
       } : null
     });
-  }, [courseFilters, courses.length, loading, error, hasCollegeAssociation, availableSubjects.length, availableYears.length, userProfile]);
+  }, [courseFilters, courses.length, loading, error, hasCollegeAssociation, availableSubjects.length, availableYears.length, availableDepartments.length, userProfile]);
 
   const loadFilterOptions = async () => {
     if (!userProfile?.programId) return;
@@ -79,12 +85,27 @@ export default function FeaturedTab() {
       console.log('📚 [FeaturedTab] Loading filter options for program:', userProfile.programId);
       const { subjects, years } = await getUniqueSubjectsAndYearsFromCourses(userProfile.programId);
       setAvailableSubjects(subjects);
-      setAvailableYears(years);
-      console.log('✅ [FeaturedTab] Filter options loaded:', { subjects: subjects.length, years: years.length });
+      
+      // Filter years to only show 1 and 2 as specified in the requirements
+      const filteredYears = years.filter(year => year.value === 1 || year.value === 2);
+      setAvailableYears(filteredYears);
+      
+      console.log('✅ [FeaturedTab] Filter options loaded:', { subjects: subjects.length, years: filteredYears.length });
     } catch (error) {
       console.error('❌ [FeaturedTab] Failed to load filter options:', error);
     } finally {
       setLoadingFilters(false);
+    }
+  };
+
+  const loadDepartments = async () => {
+    try {
+      console.log('🏢 [FeaturedTab] Loading departments...');
+      const departments = await getAllDepartments();
+      setAvailableDepartments(departments);
+      console.log('✅ [FeaturedTab] Departments loaded:', departments.length);
+    } catch (error) {
+      console.error('❌ [FeaturedTab] Failed to load departments:', error);
     }
   };
 
@@ -95,6 +116,7 @@ export default function FeaturedTab() {
       if (userProfile?.programId) {
         await loadFilterOptions();
       }
+      await loadDepartments();
     } catch (err) {
       console.error('❌ [FeaturedTab] Failed to refresh:', err);
     }
@@ -125,6 +147,16 @@ export default function FeaturedTab() {
     }
   };
 
+  const handleDepartmentFilter = (departmentId: string) => {
+    if (courseFilters.departmentId === departmentId) {
+      // Remove department filter if already selected
+      setCourseFilters(prev => ({ ...prev, departmentId: undefined }));
+    } else {
+      // Apply department filter
+      setCourseFilters(prev => ({ ...prev, departmentId: departmentId }));
+    }
+  };
+
   const handleClearFilters = () => {
     console.log('🧹 [FeaturedTab] Clearing filters');
     setCourseFilters({});
@@ -134,6 +166,7 @@ export default function FeaturedTab() {
     let count = 0;
     if (courseFilters.yearOrSemester) count++;
     if (courseFilters.subjectId) count++;
+    if (courseFilters.departmentId) count++;
     return count;
   };
 
@@ -174,19 +207,39 @@ export default function FeaturedTab() {
       {/* Program-based Filter Section */}
       {hasCollegeAssociation && userProfile?.programId && (
         <View style={styles.filtersContainer}>
-          <View style={styles.filterHeader}>
+          {/* <View style={styles.filterHeader}>
             <Text variant="titleMedium" style={styles.sectionTitle}>Filter by Program Content</Text>
             {getActiveFiltersCount() > 0 && (
               <Button mode="text" onPress={handleClearFilters} compact>
                 Clear All ({getActiveFiltersCount()})
               </Button>
             )}
-          </View>
+          </View> */}
+          
+          {/* Department Filters */}
+          {availableDepartments.length > 0 && (
+            <View style={styles.filterSection}>
+              <Text variant="bodyMedium" style={[styles.filterLabel, { color: theme.colors.onSurface }]}>Departments:</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterChipsContainer}>
+                {availableDepartments.map((department) => (
+                  <Chip
+                    key={department.id}
+                    mode={courseFilters.departmentId === department.id ? 'flat' : 'outlined'}
+                    selected={courseFilters.departmentId === department.id}
+                    onPress={() => handleDepartmentFilter(department.id)}
+                    style={styles.filterChip}
+                  >
+                    {department.name}
+                  </Chip>
+                ))}
+              </ScrollView>
+            </View>
+          )}
           
           {/* Year/Semester Filters */}
           {availableYears.length > 0 && (
             <View style={styles.filterSection}>
-              <Text variant="bodyMedium" style={styles.filterLabel}>Years/Semesters:</Text>
+              <Text variant="bodyMedium" style={[styles.filterLabel, { color: theme.colors.onSurface }]}>Years:</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterChipsContainer}>
                 {availableYears.map((year) => (
                   <Chip
@@ -203,7 +256,7 @@ export default function FeaturedTab() {
             </View>
           )}
 
-          {/* Subject Filters */}
+          {/* Subject Filters
           {availableSubjects.length > 0 && (
             <View style={styles.filterSection}>
               <Text variant="bodyMedium" style={styles.filterLabel}>Subjects:</Text>
@@ -221,11 +274,51 @@ export default function FeaturedTab() {
                 ))}
               </ScrollView>
             </View>
-          )}
+          )} */}
           
           {loadingFilters && (
             <Text variant="bodySmall" style={styles.loadingText}>Loading filter options...</Text>
           )}
+        </View>
+      )}
+
+      {/* Standalone Department Filter (when no program selected) */}
+      {!hasCollegeAssociation && availableDepartments.length > 0 && (
+        <View style={styles.filtersContainer}>
+          <View style={styles.filterSection}>
+            <Text variant="bodyMedium" style={[styles.filterLabel, { color: theme.colors.onSurface }]}>Filter by Department:</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterChipsContainer}>
+              {availableDepartments.map((department) => (
+                <Chip
+                  key={department.id}
+                  mode={courseFilters.departmentId === department.id ? 'flat' : 'outlined'}
+                  selected={courseFilters.departmentId === department.id}
+                  onPress={() => handleDepartmentFilter(department.id)}
+                  style={styles.filterChip}
+                >
+                  {department.name}
+                </Chip>
+              ))}
+            </ScrollView>
+          </View>
+          
+          {/* Basic Year Filters for courses without program association */}
+          <View style={styles.filterSection}>
+            <Text variant="bodyMedium" style={[styles.filterLabel, { color: theme.colors.onSurface }]}>Years:</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterChipsContainer}>
+              {[1, 2].map((year) => (
+                <Chip
+                  key={year}
+                  mode={courseFilters.yearOrSemester === year ? 'flat' : 'outlined'}
+                  selected={courseFilters.yearOrSemester === year}
+                  onPress={() => handleYearFilter(year)}
+                  style={styles.filterChip}
+                >
+                  Year {year}
+                </Chip>
+              ))}
+            </ScrollView>
+          </View>
         </View>
       )}
 
@@ -379,7 +472,6 @@ const styles = StyleSheet.create({
   filterLabel: {
     marginBottom: 8,
     fontWeight: '600',
-    color: '#424242',
   },
   filterChipsContainer: {
     flexDirection: 'row',

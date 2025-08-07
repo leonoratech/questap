@@ -204,6 +204,7 @@ export const getCoursesWithFilters = async (filters: {
   programId?: string;
   yearOrSemester?: number;
   subjectId?: string;
+  departmentId?: string;
 }): Promise<Course[]> => {
   const result = await firebaseCourseService.getCoursesWithFilters(filters);
   return result.data;
@@ -224,10 +225,11 @@ export const searchCoursesWithFilters = async (filters: {
   programId?: string;
   subjectId?: string;
   yearOrSemester?: number;
+  departmentId?: string;
 }): Promise<Course[]> => {
   try {
     // If we have specific filters, use the filtered query
-    if (filters.programId || filters.subjectId || filters.yearOrSemester) {
+    if (filters.programId || filters.subjectId || filters.yearOrSemester || filters.departmentId) {
       const result = await firebaseCourseService.getCoursesWithFilters(filters);
       
       // If we also have a text query, filter the results further

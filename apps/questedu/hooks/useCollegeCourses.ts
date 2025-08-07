@@ -7,6 +7,7 @@ interface CourseFilters {
   programId?: string;
   yearOrSemester?: number;
   subjectId?: string;
+  departmentId?: string;
 }
 
 export const useCollegeCourses = (filters?: CourseFilters) => {
@@ -135,7 +136,7 @@ export const useCollegeCourses = (filters?: CourseFilters) => {
         unsubscribe();
       }
     };
-  }, [userProfile?.programId, filters?.programId, filters?.yearOrSemester, filters?.subjectId]);
+  }, [userProfile?.programId, filters?.programId, filters?.yearOrSemester, filters?.subjectId, filters?.departmentId]);
 
   const refreshCourses = async () => {
     if (!userProfile?.programId && !filters?.programId) {

@@ -3,16 +3,13 @@ import { useNavigation, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import {
-    Appbar,
-    Avatar,
-    Button,
-    Card,
-    Chip,
-    Divider,
-    List,
-    Switch,
-    Text,
-    useTheme
+  Appbar,
+  Avatar,
+  Button,
+  Card,
+  Chip,
+  Text,
+  useTheme
 } from 'react-native-paper';
 import AuthGuard from '../components/AuthGuard';
 import { useAuth } from '../contexts/AuthContext';
@@ -84,7 +81,7 @@ export default function ProfileScreen() {
   
   return (
     <AuthGuard>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <Appbar.Header>
           <Appbar.Action 
             icon="menu" 
@@ -98,7 +95,7 @@ export default function ProfileScreen() {
           />
         </Appbar.Header>
         
-        <ScrollView style={styles.content}>
+        <ScrollView style={[styles.content, { backgroundColor: theme.colors.background }]}>
           <Card style={styles.profileCard}>
             <Card.Content style={styles.profileHeader}>
               <Avatar.Text 
@@ -107,8 +104,8 @@ export default function ProfileScreen() {
                 style={{ backgroundColor: theme.colors.primary }}
               />
               <View style={styles.profileInfo}>
-                <Text variant="headlineMedium">{getDisplayName()}</Text>
-                <Text variant="bodyMedium">{user?.email}</Text>
+                <Text variant="headlineMedium" style={{ color: theme.colors.onSurface }}>{getDisplayName()}</Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>{user?.email}</Text>
                 <View style={styles.chipContainer}>
                   <Chip icon="school" style={styles.chip}>{getUserRole()}</Chip>
                   {user?.emailVerified && (
@@ -128,48 +125,50 @@ export default function ProfileScreen() {
             {/* Academic Information Section */}
             {(college || userProgram || (!loadingProfile && userProfile)) && (
               <Card.Content style={styles.academicInfo}>
-                <Text variant="titleMedium" style={styles.sectionTitle}>Academic Information</Text>
+                <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.primary }]}>Academic Information</Text>
                 
                 {college && (
                   <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={styles.infoLabel}>College:</Text>
-                    <Text variant="bodyMedium" style={styles.infoValue}>{college.name}</Text>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurface }]}>College Name:</Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurfaceVariant }]}>{college.name}</Text>
                   </View>
                 )}
 
                 {userProfile?.departmentName && (
                   <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={styles.infoLabel}>Department:</Text>
-                    <Text variant="bodyMedium" style={styles.infoValue}>{userProfile.departmentName}</Text>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Department:</Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurfaceVariant }]}>{userProfile.departmentName}</Text>
                   </View>
                 )}
                 
                 {userProgram ? (
                   <>
                     <View style={styles.infoRow}>
-                      <Text variant="bodyMedium" style={styles.infoLabel}>Program:</Text>
-                      <Text variant="bodyMedium" style={styles.infoValue}>{userProgram.name}</Text>
+                      <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Group:</Text>
+                      <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurfaceVariant }]}>{userProgram.name}</Text>
                     </View>
                     
                     {userProgram.subjects && userProgram.subjects.length > 0 && (
                       <View style={styles.infoRow}>
-                        <Text variant="bodyMedium" style={styles.infoLabel}>Subjects:</Text>
-                        <Text variant="bodySmall" style={styles.subjectsText}>
+                        <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Subjects:</Text>
+                        <Text variant="bodySmall" style={[styles.subjectsText, { color: theme.colors.onSurfaceVariant }]}>
                           {userProgram.subjects.map(subject => subject.name).join(', ')}
                         </Text>
                       </View>
                     )}
                   </>
                 ) : (!loadingProfile && userProfile && !userProfile.programId) && (
-                  <View style={styles.infoRow}>
-                    <Text variant="bodySmall" style={styles.incompleteText}>
-                      No program selected. Complete your profile to add academic information.
+                  <View style={styles.incompleteContainer}>
+                    <Text variant="bodySmall" style={[styles.incompleteText, { color: theme.colors.error }]}>
+                      No group was selected. Complete your profile to add academic information.
                     </Text>
                   </View>
                 )}
                 
                 {loadingProfile && (
-                  <Text variant="bodySmall" style={styles.loadingText}>Loading academic information...</Text>
+                  <View style={styles.loadingContainer}>
+                    <Text variant="bodySmall" style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>Loading academic information...</Text>
+                  </View>
                 )}
               </Card.Content>
             )}
@@ -177,19 +176,19 @@ export default function ProfileScreen() {
             {/* Contact Information Section */}
             {(userProfile?.phone || userProfile?.districtName) && (
               <Card.Content style={styles.contactInfo}>
-                <Text variant="titleMedium" style={styles.sectionTitle}>Contact Information</Text>
+                <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.primary }]}>Contact Information</Text>
                 
                 {userProfile?.phone && (
                   <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={styles.infoLabel}>Phone:</Text>
-                    <Text variant="bodyMedium" style={styles.infoValue}>{userProfile.phone}</Text>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Phone:</Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurfaceVariant }]}>{userProfile.phone}</Text>
                   </View>
                 )}
 
                 {userProfile?.districtName && (
                   <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={styles.infoLabel}>District:</Text>
-                    <Text variant="bodyMedium" style={styles.infoValue}>{userProfile.districtName}</Text>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurface }]}>District:</Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurfaceVariant }]}>{userProfile.districtName}</Text>
                   </View>
                 )}
               </Card.Content>
@@ -198,19 +197,19 @@ export default function ProfileScreen() {
             {/* About Me Section */}
             {(userProfile?.description || userProfile?.bio) && (
               <Card.Content style={styles.aboutInfo}>
-                <Text variant="titleMedium" style={styles.sectionTitle}>About Me</Text>
+                <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.primary }]}>About Me</Text>
                 
                 {userProfile?.description && (
                   <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={styles.infoLabel}>Description:</Text>
-                    <Text variant="bodyMedium" style={styles.infoValue}>{userProfile.description}</Text>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Description:</Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurfaceVariant }]}>{userProfile.description}</Text>
                   </View>
                 )}
 
                 {userProfile?.bio && (
                   <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={styles.infoLabel}>Bio:</Text>
-                    <Text variant="bodyMedium" style={styles.infoValue}>{userProfile.bio}</Text>
+                    <Text variant="bodyMedium" style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Bio:</Text>
+                    <Text variant="bodyMedium" style={[styles.infoValue, { color: theme.colors.onSurfaceVariant }]}>{userProfile.bio}</Text>
                   </View>
                 )}
               </Card.Content>
@@ -229,7 +228,7 @@ export default function ProfileScreen() {
             </Card.Actions>
           </Card>
 
-          <Card style={styles.settingsCard}>
+          {/* <Card style={styles.settingsCard}>
             <Card.Title title="Settings" />
             <Card.Content>
               <List.Section>
@@ -255,7 +254,7 @@ export default function ProfileScreen() {
                 />
               </List.Section>
             </Card.Content>
-          </Card>
+          </Card> */}
         </ScrollView>
       </View>
     </AuthGuard>
@@ -265,7 +264,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   content: {
     flex: 1,
@@ -273,6 +271,14 @@ const styles = StyleSheet.create({
   },
   profileCard: {
     marginBottom: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   profileHeader: {
     flexDirection: 'row',
@@ -286,58 +292,84 @@ const styles = StyleSheet.create({
   chipContainer: {
     flexDirection: 'row',
     marginTop: 8,
+    flexWrap: 'wrap',
   },
   chip: {
     marginRight: 8,
+    marginBottom: 4,
   },
   academicInfo: {
     paddingTop: 0,
     paddingBottom: 16,
+    paddingHorizontal: 4,
   },
   contactInfo: {
     paddingTop: 0,
     paddingBottom: 16,
+    paddingHorizontal: 4,
   },
   aboutInfo: {
     paddingTop: 0,
     paddingBottom: 16,
+    paddingHorizontal: 4,
   },
   sectionTitle: {
     fontWeight: 'bold',
     marginBottom: 12,
-    color: '#1976d2',
+    marginTop: 8,
+    fontSize: 16,
   },
   infoRow: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: 10,
     alignItems: 'flex-start',
+    paddingHorizontal: 2,
   },
   infoLabel: {
     fontWeight: '600',
-    minWidth: 80,
-    marginRight: 8,
+    minWidth: 90,
+    marginRight: 12,
+    fontSize: 14,
   },
   infoValue: {
     flex: 1,
-    color: '#424242',
+    fontSize: 14,
+    lineHeight: 20,
   },
   subjectsText: {
     flex: 1,
-    color: '#666666',
     lineHeight: 18,
+    fontSize: 13,
   },
   loadingText: {
     fontStyle: 'italic',
-    color: '#999999',
+    fontSize: 13,
+  },
+  loadingContainer: {
+    marginVertical: 8,
+    alignItems: 'center',
   },
   incompleteText: {
     fontStyle: 'italic',
-    color: '#ff9800',
     textAlign: 'center',
     padding: 8,
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  incompleteContainer: {
+    marginVertical: 8,
+    alignItems: 'center',
   },
   settingsCard: {
     marginBottom: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   }
 });
     

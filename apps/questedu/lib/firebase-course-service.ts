@@ -4,30 +4,30 @@
  */
 
 import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-  updateDoc,
-  where,
-  writeBatch
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDoc,
+    getDocs,
+    limit,
+    onSnapshot,
+    orderBy,
+    query,
+    serverTimestamp,
+    updateDoc,
+    where,
+    writeBatch
 } from 'firebase/firestore';
 
 import type {
-  Course,
-  CourseQueryOptions,
-  CourseSearchCriteria,
-  CreateCourseData,
-  OperationResult,
-  QueryResult,
-  UpdateCourseData
+    Course,
+    CourseQueryOptions,
+    CourseSearchCriteria,
+    CreateCourseData,
+    OperationResult,
+    QueryResult,
+    UpdateCourseData
 } from '../types/course';
 import { getFirestoreDb } from './firebase-config';
 
@@ -592,6 +592,7 @@ export class FirebaseCourseService {
     programId?: string;
     yearOrSemester?: number;
     subjectId?: string;
+    departmentId?: string;
   }): Promise<QueryResult<Course>> {
     try {
       this.log('🎯 [Firebase] Fetching courses with filters:', filters);
@@ -687,6 +688,11 @@ export class FirebaseCourseService {
       if (filters.subjectId) {
         this.log('📖 [Firebase] Adding subject filter:', filters.subjectId);
         q = query(q, where('association.subjectId', '==', filters.subjectId));
+      }
+
+      if (filters.departmentId) {
+        this.log('🏢 [Firebase] Adding department filter:', filters.departmentId);
+        q = query(q, where('association.departmentId', '==', filters.departmentId));
       }
 
       // Add ordering
@@ -854,6 +860,16 @@ export class FirebaseCourseService {
           }
         }
 
+        // Department filter
+        if (filters.departmentId) {
+          const hasDirectDepartment = rawData.departmentId === filters.departmentId;
+          const hasAssociationDepartment = rawData.association?.departmentId === filters.departmentId;
+          const hasAssociationsDepartment = rawData.associations?.some((assoc: any) => assoc.departmentId === filters.departmentId);
+          if (!hasDirectDepartment && !hasAssociationDepartment && !hasAssociationsDepartment) {
+            return false;
+          }
+        }
+
         return true;
       });
 
@@ -956,12 +972,13 @@ export class FirebaseCourseService {
    */
   private async filterCoursesByCollege(courses: Course[], collegeId: string): Promise<Course[]> {
     try {
-      // Import college data service to get college programs
-      const { getCollegePrograms } = await import('./college-data-service');
+      // Import college data service to get all programs
+      const { getAllPrograms } = await import('./college-data-service');
       
-      // Get all programs for the college
-      const collegePrograms = await getCollegePrograms(collegeId);
-      const collegeProgramIds = new Set(collegePrograms.map(p => p.id));
+      // Get all programs and filter by college
+      const allPrograms = await getAllPrograms();
+      const collegePrograms = allPrograms.filter((p: any) => p.collegeId === collegeId);
+      const collegeProgramIds = new Set(collegePrograms.map((p: any) => p.id));
       
       if (collegeProgramIds.size === 0) {
         this.log(`No programs found for college ${collegeId}`);
