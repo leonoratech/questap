@@ -123,18 +123,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Listen to authentication state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log('🔐 Auth state changed:', user ? `User: ${user.email}` : 'No user');
       setUser(user);
       
       if (user) {
+        console.log('👤 Loading user profile for:', user.uid);
         // Load user profile from Firestore
         await loadUserProfile(user.uid);
         
         // Update last login time
         await updateLastLogin(user.uid);
       } else {
+        console.log('👤 Clearing user profile');
         setUserProfile(null);
       }
       
+      console.log('✅ Auth state processing complete');
       setLoading(false);
     });
 
@@ -143,21 +147,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loadUserProfile = async (uid: string) => {
     try {
+      console.log('📱 Loading user profile for UID:', uid);
       const userDoc = doc(db, 'users', uid);
       const userSnap = await getDoc(userDoc);
       
       if (userSnap.exists()) {
         const userData = userSnap.data();
-        setUserProfile({
+        console.log('✅ User profile loaded:', userData.email, 'Role:', userData.role);
+        const profile = {
           uid,
           ...userData,
           createdAt: userData.createdAt?.toDate(),
           updatedAt: userData.updatedAt?.toDate(),
           lastLoginAt: userData.lastLoginAt?.toDate(),
-        } as UserProfile);
+        } as UserProfile;
+        setUserProfile(profile);
+      } else {
+        console.log('❌ No user profile found for UID:', uid);
+        setUserProfile(null);
       }
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      console.error('❌ Error loading user profile:', error);
+      setUserProfile(null);
     }
   };
 
@@ -180,19 +191,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     lastName: string
   ): Promise<{ error: string | null }> => {
     try {
+      console.log('🔐 Starting signup process for:', email);
       setLoading(true);
       
       // Create user with Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      console.log('✅ Firebase Auth user created:', user.uid);
 
       const displayName = `${firstName} ${lastName}`;
       
       // Update the user's display name
       await updateFirebaseProfile(user, { displayName });
+      console.log('✅ User display name updated');
 
       // Send email verification
       await sendEmailVerification(user);
+      console.log('✅ Email verification sent');
 
       // Create user profile in Firestore - force STUDENT role for mobile app
       const userProfile: Omit<UserProfile, 'uid'> = {
@@ -208,16 +223,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         profileCompleted: false, // Set to false to prompt profile completion
       };
 
+      console.log('📝 Creating user profile in Firestore...');
       await setDoc(doc(db, 'users', user.uid), {
         ...userProfile,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         lastLoginAt: serverTimestamp()
       });
+      console.log('✅ User profile created in Firestore');
+
+      // Force reload the profile to ensure it's available immediately
+      await loadUserProfile(user.uid);
+      console.log('✅ User profile reloaded');
 
       return { error: null };
     } catch (error: any) {
-      console.error('Sign up error:', error);
+      console.error('❌ Sign up error:', error);
       
       let errorMessage = 'An error occurred during sign up';
       if (error.code === 'auth/email-already-in-use') {

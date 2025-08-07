@@ -74,10 +74,9 @@ const SignupScreen: React.FC = () => {
         showMessage(error);
       } else {
         showMessage('Account created successfully! Welcome to QuestEdu!');
-        // Navigate to home page after successful signup
-        setTimeout(() => {
-          router.replace('/');
-        }, 1000);
+        // Don't navigate immediately - let AuthContext handle the state change
+        // The AuthGuard will automatically redirect to the profile completion prompt
+        // No manual navigation needed here since auth state will trigger re-render
       }
     } catch (error) {
       showMessage('An unexpected error occurred');

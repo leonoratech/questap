@@ -20,10 +20,17 @@ export default function HomeScreen() {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  console.log('🏠 HomeScreen - Profile state:', {
+    hasProfile: !!userProfile,
+    profileCompleted: userProfile?.profileCompleted,
+    email: userProfile?.email
+  });
+
   // Show profile completion prompt for new users
   const shouldShowProfilePrompt = userProfile && userProfile.profileCompleted === false;
 
   if (shouldShowProfilePrompt) {
+    console.log('🏠 HomeScreen: Showing profile completion prompt');
     return (
       <AuthGuard>
         <ProfileCompletionPrompt />
@@ -31,6 +38,7 @@ export default function HomeScreen() {
     );
   }
 
+  console.log('🏠 HomeScreen: Showing main app');
   return (
     <AuthGuard>
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>

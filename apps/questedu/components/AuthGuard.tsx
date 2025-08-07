@@ -17,8 +17,17 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
 }) => {
   const { user, userProfile, loading, isAuthenticated } = useAuth();
 
+  console.log('🛡️ AuthGuard state:', {
+    loading,
+    isAuthenticated,
+    hasUser: !!user,
+    hasProfile: !!userProfile,
+    profileCompleted: userProfile?.profileCompleted
+  });
+
   // Show loading spinner while checking authentication
   if (loading) {
+    console.log('🛡️ AuthGuard: Showing loading screen');
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
@@ -28,12 +37,14 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
   }
 
   // If not authenticated, show login screen or fallback
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
+    console.log('🛡️ AuthGuard: User not authenticated, showing login');
     return fallback || <LoginScreen />;
   }
 
-  // If authenticated but user profile not loaded yet
+  // If authenticated but user profile not loaded yet, wait a bit more
   if (user && !userProfile) {
+    console.log('🛡️ AuthGuard: User authenticated but profile not loaded');
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
@@ -47,6 +58,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
     const hasRequiredRole = userProfile.role === UserRole.ADMIN || userProfile.role === requiredRole;
     
     if (!hasRequiredRole) {
+      console.log('🛡️ AuthGuard: User lacks required role');
       return (
         <View style={styles.unauthorizedContainer}>
           <Card style={styles.unauthorizedCard}>
@@ -67,6 +79,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
   }
 
   // If all checks pass, render children
+  console.log('🛡️ AuthGuard: All checks passed, rendering children');
   return <>{children}</>;
 };
 

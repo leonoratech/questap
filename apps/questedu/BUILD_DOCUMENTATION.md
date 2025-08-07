@@ -2,6 +2,8 @@
 
 ## Successfully Created: Signed Native Android APK
 
+### Latest Build: August 7, 2025 - 11:58 AM
+
 ### Build Details:
 - **APK Location**: `android/app/build/outputs/apk/release/app-release.apk`
 - **File Size**: 82MB
@@ -9,6 +11,7 @@
 - **Version Code**: 1
 - **Version Name**: 1.0.0
 - **Build Type**: Release (Signed)
+- **Last Built**: August 7, 2025 at 11:58 AM
 
 ### Signing Configuration:
 - **Keystore**: `android/app/leonora-release-key.keystore`
@@ -32,7 +35,15 @@ Valid until: Monday, December 23, 2052
 
 ### Build Commands Used:
 1. `npx expo prebuild --platform android --clean` - Generated native Android project
-2. `./gradlew assembleRelease` - Built and signed the release APK
+2. `./gradlew clean assembleRelease` - Built and signed the release APK
+
+### Quick Rebuild Command:
+For subsequent builds, you can use:
+```bash
+cd android && ./gradlew clean assembleRelease
+```
+
+This will create a fresh signed APK in about 5-6 minutes.
 
 ### Firebase Configuration:
 - Firebase project ID: `leonora-c9f8b`
