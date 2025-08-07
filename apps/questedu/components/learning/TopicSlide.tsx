@@ -6,13 +6,12 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
 import {
-    Button,
-    Card,
-    Chip,
-    IconButton,
-    List,
-    Text,
-    useTheme
+  Card,
+  Chip,
+  IconButton,
+  List,
+  Text,
+  useTheme
 } from 'react-native-paper';
 import { SlideType, TopicSlide as TopicSlideType } from '../../types/learning';
 
@@ -259,7 +258,7 @@ export const TopicSlide: React.FC<TopicSlideProps> = ({
         )}
 
         {/* Completion Button */}
-        <View style={styles.completionSection}>
+        {/* <View style={styles.completionSection}>
           <Button
             mode="contained"
             onPress={handleMarkComplete}
@@ -275,7 +274,7 @@ export const TopicSlide: React.FC<TopicSlideProps> = ({
               Mark this topic as complete to continue to questions
             </Text>
           )}
-        </View>
+        </View> */}
 
         {/* Bottom spacing */}
         <View style={styles.bottomSpacing} />
