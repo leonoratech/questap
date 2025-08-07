@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { BottomNavigation, useTheme } from 'react-native-paper';
-import { FeaturedTab, MyLearningTab, SearchTab } from './tabs';
+import { FeaturedTab, MyLearningTab } from './tabs';
 
 const renderScene = BottomNavigation.SceneMap({
   featured: FeaturedTab,
-  search: SearchTab,
   myLearning: MyLearningTab,
 });
 
@@ -18,11 +17,6 @@ export default function BottomNavigationTabs() {
       title: 'Featured', 
       focusedIcon: 'star', 
       unfocusedIcon: 'star-outline' 
-    },
-    { 
-      key: 'search', 
-      title: 'Search', 
-      focusedIcon: 'magnify'
     },
     { 
       key: 'myLearning', 

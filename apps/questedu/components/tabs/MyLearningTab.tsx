@@ -2,12 +2,11 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import {
-    ActivityIndicator,
-    Button,
-    Card,
-    Chip,
-    Text,
-    useTheme
+  ActivityIndicator,
+  Button,
+  Card,
+  Text,
+  useTheme
 } from 'react-native-paper';
 import { useEnrollment } from '../../hooks/useEnrollment';
 import { Course } from '../../lib/course-service';
@@ -74,24 +73,7 @@ export default function MyLearningTab() {
             <Text style={styles.languageChip}>{item.language}</Text>
           )}
         </View>
-        <Text variant="bodySmall" style={styles.instructorText}>Instructor: {item.instructor}</Text>
-        <View style={styles.statusContainer}>
-          {item.progress === 0 && (
-            <Chip icon="play" mode="outlined" style={styles.statusChip}>
-              Not Started
-            </Chip>
-          )}
-          {item.progress > 0 && item.progress < 100 && (
-            <Chip icon="clock" mode="outlined" style={styles.statusChip}>
-              In Progress
-            </Chip>
-          )}
-          {item.progress === 100 && (
-            <Chip icon="check" mode="outlined" style={styles.statusChip}>
-              Completed
-            </Chip>
-          )}
-        </View>
+        <Text variant="bodySmall" style={styles.instructorText}>Instructor: {item.instructor}</Text>        
       </Card.Content>
       <Card.Actions>
         <Button onPress={() => handleCourseDetails(item.id!)}>
@@ -103,44 +85,6 @@ export default function MyLearningTab() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.filtersContainer}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>Filter by Status</Text>
-        <View style={styles.filterList}>
-          <Chip 
-            style={styles.filterChip} 
-            mode="outlined" 
-            selected={filter === 'All'}
-            onPress={() => setFilter('All')}
-          >
-            All
-          </Chip>
-          <Chip 
-            style={styles.filterChip} 
-            mode="outlined"
-            selected={filter === 'In Progress'}
-            onPress={() => setFilter('In Progress')}
-          >
-            In Progress
-          </Chip>
-          <Chip 
-            style={styles.filterChip} 
-            mode="outlined"
-            selected={filter === 'Completed'}
-            onPress={() => setFilter('Completed')}
-          >
-            Completed
-          </Chip>
-          <Chip 
-            style={styles.filterChip} 
-            mode="outlined"
-            selected={filter === 'Not Started'}
-            onPress={() => setFilter('Not Started')}
-          >
-            Not Started
-          </Chip>
-        </View>
-      </View>
-
       <Text variant="titleMedium" style={styles.sectionTitle}>
         My Learning ({filteredCourses.length})
       </Text>
@@ -191,12 +135,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexWrap: 'wrap',
     marginBottom: 4,
-  },
-  courseTitle: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    color: '#fff',
-  },
+  }, 
   subjectChip: {
     backgroundColor: '#1976D2',
     color: '#fff',
