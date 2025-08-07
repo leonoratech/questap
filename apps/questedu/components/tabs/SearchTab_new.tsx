@@ -6,7 +6,6 @@ import {
     Button,
     Card,
     Chip,
-    IconButton,
     Menu,
     Searchbar,
     Text,
@@ -94,20 +93,20 @@ export default function SearchTab() {
       <Card.Title
         title={item.title}
         subtitle={`Instructor: ${item.instructor}`}
-        right={(props: any) => (
-          <IconButton 
-            {...props} 
-            icon={item.progress === 100 ? "check-circle" : "play-circle"} 
-            onPress={() => handleContinueCourse(item.id!)} 
-          />
-        )}
       />
       <Card.Content>
-        <View style={styles.progressContainer}>
-          <Text variant="bodyMedium">Progress: {item.progress}%</Text>
-          <View style={[styles.progressBar, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <View style={[styles.progressFill, { width: `${item.progress}%`, backgroundColor: theme.colors.primary }]} />
-          </View>
+        {/* Course Details: Subject and Language */}
+        <View style={styles.courseDetailsContainer}>
+          {item.associations && item.associations.length > 0 && item.associations[0].subjectName && (
+            <Text variant="bodySmall" style={styles.courseDetail}>
+              Subject: {item.associations[0].subjectName}
+            </Text>
+          )}
+          {item.language && (
+            <Text variant="bodySmall" style={styles.courseDetail}>
+              Language: {item.language}
+            </Text>
+          )}
         </View>
         
         {/* Show course associations if available */}
@@ -137,9 +136,6 @@ export default function SearchTab() {
         )}
       </Card.Content>
       <Card.Actions>
-        <Button onPress={() => handleContinueCourse(item.id!)}>
-          {item.progress > 0 ? 'Continue' : 'Start'}
-        </Button>
         <Button onPress={() => handleCourseDetails(item.id!)}>
           Details
         </Button>
@@ -383,17 +379,12 @@ const styles = StyleSheet.create({
   courseCard: {
     marginBottom: 16,
   },
-  progressContainer: {
-    marginVertical: 10,
+  courseDetailsContainer: {
+    marginVertical: 8,
   },
-  progressBar: {
-    height: 8,
-    borderRadius: 4,
-    marginTop: 6,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 4,
+  courseDetail: {
+    marginBottom: 4,
+    color: '#666',
   },
   associationsContainer: {
     marginTop: 12,

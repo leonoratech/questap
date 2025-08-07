@@ -6,7 +6,6 @@ import {
     Button,
     Card,
     Chip,
-    IconButton,
     Menu,
     Searchbar,
     Text,
@@ -91,25 +90,17 @@ export default function SearchTab() {
   const renderCourseItem = ({ item }: { item: Course }) => (
     <Card style={styles.courseCard}>
       <Card.Cover source={{ uri: item.image }} />
-      <Card.Title
-        title={item.title}
-        subtitle={`Instructor: ${item.instructor}`}
-        right={(props: any) => (
-          <IconButton 
-            {...props} 
-            icon={item.progress === 100 ? "check-circle" : "play-circle"} 
-            onPress={() => handleContinueCourse(item.id!)} 
-          />
-        )}
-      />
       <Card.Content>
-        <View style={styles.progressContainer}>
-          <Text variant="bodyMedium">Progress: {item.progress}%</Text>
-          <View style={[styles.progressBar, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <View style={[styles.progressFill, { width: `${item.progress}%`, backgroundColor: theme.colors.primary }]} />
-          </View>
+        <View style={styles.titleRow}>
+          <Text variant="titleMedium" style={styles.courseTitle}>{item.title}</Text>
+          {item.associations && item.associations.length > 0 && item.associations[0].subjectName && (
+            <Text style={styles.subjectChip}>{item.associations[0].subjectName}</Text>
+          )}
+          {item.language && (
+            <Text style={styles.languageChip}>{item.language}</Text>
+          )}
         </View>
-        
+        <Text variant="bodySmall" style={styles.instructorText}>Instructor: {item.instructor}</Text>
         {/* Show course associations if available */}
         {item.associations && item.associations.length > 0 && (
           <View style={styles.associationsContainer}>
@@ -137,9 +128,6 @@ export default function SearchTab() {
         )}
       </Card.Content>
       <Card.Actions>
-        <Button onPress={() => handleContinueCourse(item.id!)}>
-          {item.progress > 0 ? 'Continue' : 'Start'}
-        </Button>
         <Button onPress={() => handleCourseDetails(item.id!)}>
           Details
         </Button>
@@ -338,6 +326,43 @@ export default function SearchTab() {
 }
 
 const styles = StyleSheet.create({
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    marginBottom: 4,
+  },
+  courseTitle: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: '#fff',
+  },
+  subjectChip: {
+    backgroundColor: '#1976D2',
+    color: '#fff',
+    fontWeight: 'bold',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginLeft: 8,
+    fontSize: 13,
+    overflow: 'hidden',
+  },
+  languageChip: {
+    backgroundColor: '#43A047',
+    color: '#fff',
+    fontWeight: 'bold',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginLeft: 8,
+    fontSize: 13,
+    overflow: 'hidden',
+  },
+  instructorText: {
+    color: '#666',
+    marginBottom: 4,
+  },
   container: {
     flex: 1,
     padding: 16,
@@ -383,17 +408,12 @@ const styles = StyleSheet.create({
   courseCard: {
     marginBottom: 16,
   },
-  progressContainer: {
-    marginVertical: 10,
+  courseDetailsContainer: {
+    marginVertical: 8,
   },
-  progressBar: {
-    height: 8,
-    borderRadius: 4,
-    marginTop: 6,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 4,
+  courseDetail: {
+    marginBottom: 4,
+    color: '#666',
   },
   associationsContainer: {
     marginTop: 12,
