@@ -2,20 +2,19 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import {
-    ActivityIndicator,
-    Appbar,
-    Button,
-    Card,
-    Chip,
-    Divider,
-    FAB,
-    Modal,
-    Portal,
-    Searchbar,
-    Snackbar,
-    Surface,
-    Text,
-    useTheme
+  ActivityIndicator,
+  Appbar,
+  Button,
+  Card,
+  Chip,
+  Divider,
+  Modal,
+  Portal,
+  Searchbar,
+  Snackbar,
+  Surface,
+  Text,
+  useTheme
 } from 'react-native-paper';
 import AuthGuard from '../../components/AuthGuard';
 import { getCourseQuestions, getCourseTopics } from '../../lib/course-learning-service';
@@ -409,13 +408,13 @@ export default function CourseQuestionsListScreen() {
         </View>
 
         {/* Floating Action Button */}
-        <FAB
+        {/* <FAB
           icon="play"
           label="Start Practice"
           style={styles.fab}
           onPress={() => navigateToQuestionBank()}
           disabled={filteredQuestions.length === 0}
-        />
+        /> */}
 
         {/* Filters Modal */}
         <Portal>

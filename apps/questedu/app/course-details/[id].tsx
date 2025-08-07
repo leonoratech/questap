@@ -2,17 +2,17 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import {
-    ActivityIndicator,
-    Appbar,
-    Avatar,
-    Button,
-    Card,
-    Chip,
-    Dialog,
-    Portal,
-    Snackbar,
-    Text,
-    useTheme
+  ActivityIndicator,
+  Appbar,
+  Avatar,
+  Button,
+  Card,
+  Chip,
+  Dialog,
+  Portal,
+  Snackbar,
+  Text,
+  useTheme
 } from 'react-native-paper';
 import AuthGuard from '../../components/AuthGuard';
 import { useAuth } from '../../contexts/AuthContext';
@@ -325,7 +325,7 @@ export default function CourseDetailsScreen() {
           </Card>
 
           {/* Progress Card (if user is enrolled) */}
-          {course?.id && isEnrolled(course.id) && (
+          {/* {course?.id && isEnrolled(course.id) && (
             <Card style={styles.progressCard}>
               <Card.Content>
                 <View style={styles.progressHeader}>
@@ -347,7 +347,7 @@ export default function CourseDetailsScreen() {
                 </View>
               </Card.Content>
             </Card>
-          )}
+          )} */}
 
           {/* What You'll Learn Section */}
           {course.whatYouWillLearn?.length && (
@@ -472,17 +472,9 @@ export default function CourseDetailsScreen() {
           <Card style={styles.enrollmentCard}>
             <Card.Content>
               <View style={styles.enrollmentButtons}>
-                {course?.id && isEnrolled(course.id) ? (
-                  <Button 
-                    mode="contained" 
-                    style={styles.primaryButton}
-                    onPress={handleContinueCourse}
-                  >
-                    Continue Learning
-                  </Button>
-                ) : (
-                  <Button 
-                    mode="contained" 
+                {course?.id && !isEnrolled(course.id) && (
+                  <Button
+                    mode="contained"
                     style={styles.primaryButton}
                     onPress={handleEnrollCourse}
                     loading={enrolling}

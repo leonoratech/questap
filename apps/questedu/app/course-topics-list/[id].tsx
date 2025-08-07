@@ -2,20 +2,20 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import {
-    ActivityIndicator,
-    Appbar,
-    Button,
-    Card,
-    Chip,
-    Divider,
-    FAB,
-    Modal,
-    Portal,
-    Searchbar,
-    Snackbar,
-    Surface,
-    Text,
-    useTheme
+  ActivityIndicator,
+  Appbar,
+  Button,
+  Card,
+  Chip,
+  Divider,
+  FAB,
+  Modal,
+  Portal,
+  Searchbar,
+  Snackbar,
+  Surface,
+  Text,
+  useTheme
 } from 'react-native-paper';
 import AuthGuard from '../../components/AuthGuard';
 import { getCourseTopics } from '../../lib/course-learning-service';
@@ -69,15 +69,40 @@ export default function CourseTopicsListScreen() {
   const loadTopicsData = async () => {
     try {
       setError(null);
-      console.log('Loading topics for course:', id);
+      console.log('🔄 Loading topics for course:', id);
+      
+      if (!id) {
+        console.error('❌ No course ID provided');
+        setError('No course ID provided');
+        return;
+      }
       
       const topicsData = await getCourseTopics(id);
-      console.log('Loaded topics:', topicsData.length);
+      console.log('📊 Topics loaded:', topicsData.length);
+      
+      if (topicsData.length === 0) {
+        console.log('⚠️ No topics found for course:', id);
+        // Instead of setting an error, we'll just show the empty state
+        // setError('No topics found for this course');
+      }
+      
       setTopics(topicsData);
     } catch (err) {
-      console.error('Error loading topics:', err);
-      setError('Failed to load topics');
-      setSnackbarMessage('Failed to load topics');
+      console.error('❌ Error loading topics:', err);
+      let errorMessage = 'Failed to load topics';
+      
+      if (err instanceof Error) {
+        if (err.message.includes('logged in') || err.message.includes('authenticate')) {
+          errorMessage = 'Please log in to view course topics';
+        } else if (err.message.includes('permission')) {
+          errorMessage = 'You don\'t have permission to view these topics';
+        } else {
+          errorMessage = `Failed to load topics: ${err.message}`;
+        }
+      }
+      
+      setError(errorMessage);
+      setSnackbarMessage(errorMessage);
       setSnackbarVisible(true);
     } finally {
       setLoading(false);
