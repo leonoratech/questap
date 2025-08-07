@@ -1,4 +1,4 @@
-# QuestEdu Standalone App
+# leonora Standalone App
 
 A **standalone** React Native educational platform app built with Expo and Firebase. No monorepo dependencies required!
 
