@@ -6,12 +6,17 @@ import { cn } from '@/lib/utils'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
+import Table from '@tiptap/extension-table'
+import TableCell from '@tiptap/extension-table-cell'
+import TableHeader from '@tiptap/extension-table-header'
+import TableRow from '@tiptap/extension-table-row'
 import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import {
   AlignCenter,
+  AlignJustify,
   AlignLeft,
   AlignRight,
   Bold,
@@ -21,6 +26,7 @@ import {
   List,
   ListOrdered,
   Quote,
+  Table as TableIcon,
   Underline as UnderlineIcon
 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
@@ -83,12 +89,34 @@ export function RichTextEditor({
       Underline,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
+        alignments: ['left', 'center', 'right', 'justify'],
       }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
           class: 'text-blue-600 underline hover:text-blue-800'
         }
+      }),
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class: 'border-collapse border border-gray-300 my-4',
+        },
+      }),
+      TableRow.configure({
+        HTMLAttributes: {
+          class: 'border border-gray-300',
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: 'border border-gray-300 bg-gray-50 font-bold p-2',
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: 'border border-gray-300 p-2 min-w-[100px]',
+        },
       }),
       Placeholder.configure({
         placeholder,
@@ -162,6 +190,72 @@ export function RichTextEditor({
   const handleImageButtonClick = useCallback(() => {
     setImageDialogOpen(true)
   }, [])
+
+  const insertTable = useCallback(() => {
+    if (!editor) return
+    
+    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+  }, [editor])
+
+  const addColumnBefore = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().addColumnBefore().run()
+  }, [editor])
+
+  const addColumnAfter = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().addColumnAfter().run()
+  }, [editor])
+
+  const deleteColumn = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().deleteColumn().run()
+  }, [editor])
+
+  const addRowBefore = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().addRowBefore().run()
+  }, [editor])
+
+  const addRowAfter = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().addRowAfter().run()
+  }, [editor])
+
+  const deleteRow = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().deleteRow().run()
+  }, [editor])
+
+  const deleteTable = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().deleteTable().run()
+  }, [editor])
+
+  const toggleHeaderColumn = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().toggleHeaderColumn().run()
+  }, [editor])
+
+  const toggleHeaderRow = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().toggleHeaderRow().run()
+  }, [editor])
+
+  const toggleHeaderCell = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().toggleHeaderCell().run()
+  }, [editor])
+
+  const mergeCells = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().mergeCells().run()
+  }, [editor])
+
+  const splitCell = useCallback(() => {
+    if (!editor) return
+    editor.chain().focus().splitCell().run()
+  }, [editor])
 
   if (!editor) {
     return null
@@ -283,10 +377,18 @@ export function RichTextEditor({
           >
             <AlignRight className="h-4 w-4" />
           </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+            isActive={editor.isActive({ textAlign: 'justify' })}
+            disabled={disabled}
+            title="Justify"
+          >
+            <AlignJustify className="h-4 w-4" />
+          </ToolbarButton>
         </div>
 
         {/* Additional Features */}
-        <div className="flex gap-1">
+        <div className="flex gap-1 border-r pr-2">
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             isActive={editor.isActive('blockquote')}
@@ -311,6 +413,77 @@ export function RichTextEditor({
             >
               <ImageIcon className="h-4 w-4" />
             </ToolbarButton>
+          )}
+        </div>
+
+        {/* Table Controls */}
+        <div className="flex gap-1">
+          <ToolbarButton
+            onClick={insertTable}
+            disabled={disabled}
+            title="Insert Table"
+          >
+            <TableIcon className="h-4 w-4" />
+          </ToolbarButton>
+          
+          {editor.isActive('table') && (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addColumnBefore}
+                disabled={disabled}
+                title="Add Column Before"
+                className="h-8 px-2 text-xs"
+              >
+                +Col
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addRowBefore}
+                disabled={disabled}
+                title="Add Row Before"
+                className="h-8 px-2 text-xs"
+              >
+                +Row
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={deleteColumn}
+                disabled={disabled}
+                title="Delete Column"
+                className="h-8 px-2 text-xs text-red-600"
+              >
+                -Col
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={deleteRow}
+                disabled={disabled}
+                title="Delete Row"
+                className="h-8 px-2 text-xs text-red-600"
+              >
+                -Row
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={deleteTable}
+                disabled={disabled}
+                title="Delete Table"
+                className="h-8 px-2 text-xs text-red-600"
+              >
+                Del Table
+              </Button>
+            </>
           )}
         </div>
       </div>

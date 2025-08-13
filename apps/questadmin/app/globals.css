@@ -255,6 +255,26 @@
   color: #1d4ed8;
 }
 
+/* Table styles for display */
+.rich-text-display table {
+  border-collapse: collapse;
+  border: 1px solid #d1d5db;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.rich-text-display td,
+.rich-text-display th {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem;
+  min-width: 100px;
+}
+
+.rich-text-display th {
+  background-color: #f9fafb;
+  font-weight: bold;
+}
+
 /* Rich Text Editor Styles */
 .rich-text-editor .ProseMirror {
   outline: none;
@@ -314,6 +334,48 @@
 
 .rich-text-editor .ProseMirror a {
   @apply text-blue-600 underline hover:text-blue-800;
+}
+
+/* Table Styles */
+.rich-text-editor .ProseMirror table {
+  @apply border-collapse border border-gray-300 my-4 w-full;
+}
+
+.rich-text-editor .ProseMirror td,
+.rich-text-editor .ProseMirror th {
+  @apply border border-gray-300 p-2 min-w-[100px] relative;
+}
+
+.rich-text-editor .ProseMirror th {
+  @apply bg-gray-50 font-bold;
+}
+
+.rich-text-editor .ProseMirror .selectedCell:after {
+  background: rgba(200, 200, 255, 0.4);
+  content: "";
+  left: 0; right: 0; top: 0; bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.rich-text-editor .ProseMirror .column-resize-handle {
+  background-color: #adf;
+  bottom: -2px;
+  position: absolute;
+  right: -2px;
+  top: 0;
+  width: 4px;
+  pointer-events: none;
+}
+
+.rich-text-editor .ProseMirror .tableWrapper {
+  overflow-x: auto;
+}
+
+.rich-text-editor .ProseMirror .resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
 }
 
 /* Line clamp utilities */
