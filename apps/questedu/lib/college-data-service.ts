@@ -125,12 +125,22 @@ export const getAllPrograms = async (): Promise<Program[]> => {
 /**
  * Get available years/semesters for a program
  */
-export const getProgramYears = (program: Program): Array<{ value: number; label: string }> => {
+const numberToOrdinalWord = (num: number) => {
+  const ordinals = ["First", "Second"];
+  return ordinals[num - 1] || `${num}th`;
+};
+export const getProgramYears = (
+  program: Program
+): Array<{ value: number; label: string }> => {
   const years = [];
+
   for (let i = 1; i <= program.yearsOrSemesters; i++) {
     years.push({
       value: i,
-      label: `${program.semesterType === 'years' ? 'Year' : 'Semester'} ${i}`
+      label:
+        program.semesterType === "years"
+          ? `${numberToOrdinalWord(i)} Year`
+          : `Semester ${i}`,
     });
   }
   return years;
