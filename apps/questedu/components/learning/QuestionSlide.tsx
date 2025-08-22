@@ -619,7 +619,6 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   correctAnswer: {
-    fontWeight: 'bold',
     marginBottom: 12,
   },
   feedbackDivider: {

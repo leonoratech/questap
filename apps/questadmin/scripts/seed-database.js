@@ -124,13 +124,13 @@ const DEPARTMENTS = [
     isActive: true,
     order: 2
   },
-  {
-    id: 'vocational',
-    name: 'Vocational',
-    description: 'Vocational courses like MPT, Phisiotherapy',
+{
+    id: "languages",
+    name: "Languages",
+    description: "Vocational courses like MPT, Phisiotherapy",
     isActive: true,
-    order: 3
-  }
+    order: 3,
+  },
 ];
 
 
