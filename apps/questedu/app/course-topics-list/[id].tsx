@@ -1,6 +1,6 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import {
   ActivityIndicator,
   Appbar,
@@ -14,46 +14,46 @@ import {
   Snackbar,
   Surface,
   Text,
-  useTheme
-} from 'react-native-paper';
-import AuthGuard from '../../components/AuthGuard';
-import { getCourseTopics } from '../../lib/course-learning-service';
-import { CourseTopic } from '../../types/learning';
+  useTheme,
+} from "react-native-paper";
+import AuthGuard from "../../components/AuthGuard";
+import { getCourseTopics } from "../../lib/course-learning-service";
+import { CourseTopic } from "../../types/learning";
 
 interface TopicFilters {
   searchQuery: string;
-  sortBy: 'order' | 'title' | 'duration';
-  sortOrder: 'asc' | 'desc';
+  sortBy: "order" | "title" | "duration";
+  sortOrder: "asc" | "desc";
   showCompletedOnly: boolean;
 }
 
 const SORT_OPTIONS = [
-  { value: 'order', label: 'Order' },
-  { value: 'title', label: 'Title' },
-  { value: 'duration', label: 'Duration' }
+  { value: "order", label: "Order" },
+  { value: "title", label: "Title" },
+  { value: "duration", label: "Duration" },
 ];
 
 export default function CourseTopicsListScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const theme = useTheme();
-  
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
   const [topics, setTopics] = useState<CourseTopic[]>([]);
   const [filteredTopics, setFilteredTopics] = useState<CourseTopic[]>([]);
-  
+
   const [filters, setFilters] = useState<TopicFilters>({
-    searchQuery: '',
-    sortBy: 'order',
-    sortOrder: 'asc',
-    showCompletedOnly: false
+    searchQuery: "",
+    sortBy: "order",
+    sortOrder: "asc",
+    showCompletedOnly: false,
   });
-  
+
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 
   useEffect(() => {
@@ -68,38 +68,41 @@ export default function CourseTopicsListScreen() {
   const loadTopicsData = async () => {
     try {
       setError(null);
-      console.log('🔄 Loading topics for course:', id);
-      
+      console.log("🔄 Loading topics for course:", id);
+
       if (!id) {
-        console.error('❌ No course ID provided');
-        setError('No course ID provided');
+        console.error("❌ No course ID provided");
+        setError("No course ID provided");
         return;
       }
-      
+
       const topicsData = await getCourseTopics(id);
-      console.log('📊 Topics loaded:', topicsData.length);
-      
+      console.log("📊 Topics loaded:", topicsData.length);
+
       if (topicsData.length === 0) {
-        console.log('⚠️ No topics found for course:', id);
+        console.log("⚠️ No topics found for course:", id);
         // Instead of setting an error, we'll just show the empty state
         // setError('No topics found for this course');
       }
-      
+
       setTopics(topicsData);
     } catch (err) {
-      console.error('❌ Error loading topics:', err);
-      let errorMessage = 'Failed to load topics';
-      
+      console.error("❌ Error loading topics:", err);
+      let errorMessage = "Failed to load topics";
+
       if (err instanceof Error) {
-        if (err.message.includes('logged in') || err.message.includes('authenticate')) {
-          errorMessage = 'Please log in to view course topics';
-        } else if (err.message.includes('permission')) {
-          errorMessage = 'You don\'t have permission to view these topics';
+        if (
+          err.message.includes("logged in") ||
+          err.message.includes("authenticate")
+        ) {
+          errorMessage = "Please log in to view course topics";
+        } else if (err.message.includes("permission")) {
+          errorMessage = "You don't have permission to view these topics";
         } else {
           errorMessage = `Failed to load topics: ${err.message}`;
         }
       }
-      
+
       setError(errorMessage);
       setSnackbarMessage(errorMessage);
       setSnackbarVisible(true);
@@ -120,11 +123,14 @@ export default function CourseTopicsListScreen() {
     // Apply search filter
     if (filters.searchQuery) {
       const query = filters.searchQuery.toLowerCase();
-      filtered = filtered.filter(topic => 
-        topic.title.toLowerCase().includes(query) ||
-        topic.description?.toLowerCase().includes(query) ||
-        topic.learningObjectives?.some(obj => obj.toLowerCase().includes(query)) ||
-        topic.summary?.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        (topic) =>
+          topic.title.toLowerCase().includes(query) ||
+          topic.description?.toLowerCase().includes(query) ||
+          topic.learningObjectives?.some((obj) =>
+            obj.toLowerCase().includes(query)
+          ) ||
+          topic.summary?.toLowerCase().includes(query)
       );
     }
 
@@ -137,24 +143,24 @@ export default function CourseTopicsListScreen() {
     // Apply sorting
     filtered.sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (filters.sortBy) {
-        case 'title':
+        case "title":
           aValue = a.title.toLowerCase();
           bValue = b.title.toLowerCase();
           break;
-        case 'duration':
+        case "duration":
           aValue = a.duration || 0;
           bValue = b.duration || 0;
           break;
-        case 'order':
+        case "order":
         default:
           aValue = a.order || 0;
           bValue = b.order || 0;
           break;
       }
 
-      if (filters.sortOrder === 'desc') {
+      if (filters.sortOrder === "desc") {
         return aValue < bValue ? 1 : -1;
       }
       return aValue > bValue ? 1 : -1;
@@ -163,21 +169,24 @@ export default function CourseTopicsListScreen() {
     setFilteredTopics(filtered);
   };
 
-  const updateFilter = <K extends keyof TopicFilters>(key: K, value: TopicFilters[K]) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+  const updateFilter = <K extends keyof TopicFilters>(
+    key: K,
+    value: TopicFilters[K]
+  ) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const clearFilters = () => {
     setFilters({
-      searchQuery: '',
-      sortBy: 'order',
-      sortOrder: 'asc',
-      showCompletedOnly: false
+      searchQuery: "",
+      sortBy: "order",
+      sortOrder: "asc",
+      showCompletedOnly: false,
     });
   };
 
   const formatDuration = (duration: number | undefined) => {
-    if (!duration) return 'N/A';
+    if (!duration) return "N/A";
     const hours = Math.floor(duration / 60);
     const minutes = duration % 60;
     if (hours > 0) {
@@ -188,14 +197,20 @@ export default function CourseTopicsListScreen() {
 
   const navigateToTopicDetails = (topicId: string) => {
     // Navigate to topic details or learning screen
-    router.push({ 
-      pathname: '/course-learning/[id]', 
-      params: { id: String(id), topicId } 
+    router.push({
+      pathname: "/course-learning/[id]",
+      params: { id: String(id), topicId },
     });
   };
 
-  const renderTopicItem = ({ item, index }: { item: CourseTopic; index: number }) => (
-    <Card 
+  const renderTopicItem = ({
+    item,
+    index,
+  }: {
+    item: CourseTopic;
+    index: number;
+  }) => (
+    <Card
       style={styles.topicCard}
       onPress={() => navigateToTopicDetails(item.id!)}
     >
@@ -211,13 +226,17 @@ export default function CourseTopicsListScreen() {
               {item.title}
             </Text>
             {item.description && (
-              <Text variant="bodyMedium" style={styles.topicDescription} numberOfLines={2}>
+              <Text
+                variant="bodyMedium"
+                style={styles.topicDescription}
+                numberOfLines={2}
+              >
                 {item.description}
               </Text>
             )}
           </View>
         </View>
-        
+
         <View style={styles.topicMetadata}>
           <View style={styles.metadataRow}>
             {item.duration && (
@@ -231,10 +250,13 @@ export default function CourseTopicsListScreen() {
               </Chip>
             )}
             {item.isFree && (
-              <Chip 
-                mode="flat" 
-                compact 
-                style={[styles.metadataChip, { backgroundColor: theme.colors.primaryContainer }]}
+              <Chip
+                mode="flat"
+                compact
+                style={[
+                  styles.metadataChip,
+                  { backgroundColor: theme.colors.primaryContainer },
+                ]}
                 textStyle={{ color: theme.colors.primary }}
               >
                 Free
@@ -256,7 +278,11 @@ export default function CourseTopicsListScreen() {
             </Text>
             <View style={styles.objectivesList}>
               {item.learningObjectives.slice(0, 2).map((objective, index) => (
-                <Text key={index} variant="bodySmall" style={styles.objectiveText}>
+                <Text
+                  key={index}
+                  variant="bodySmall"
+                  style={styles.objectiveText}
+                >
                   • {objective}
                 </Text>
               ))}
@@ -279,15 +305,20 @@ export default function CourseTopicsListScreen() {
               {item.completionRate || 0}%
             </Text>
           </View>
-          <View style={[styles.progressBar, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <View 
+          <View
+            style={[
+              styles.progressBar,
+              { backgroundColor: theme.colors.surfaceVariant },
+            ]}
+          >
+            <View
               style={[
-                styles.progressFill, 
-                { 
-                  width: `${item.completionRate || 0}%`, 
-                  backgroundColor: theme.colors.primary 
-                }
-              ]} 
+                styles.progressFill,
+                {
+                  width: `${item.completionRate || 0}%`,
+                  backgroundColor: theme.colors.primary,
+                },
+              ]}
             />
           </View>
         </View>
@@ -314,7 +345,7 @@ export default function CourseTopicsListScreen() {
   const getActiveFiltersCount = () => {
     let count = 0;
     if (filters.searchQuery) count++;
-    if (filters.sortBy !== 'order' || filters.sortOrder !== 'asc') count++;
+    if (filters.sortBy !== "order" || filters.sortOrder !== "asc") count++;
     if (filters.showCompletedOnly) count++;
     return count;
   };
@@ -322,9 +353,14 @@ export default function CourseTopicsListScreen() {
   if (loading) {
     return (
       <AuthGuard>
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: theme.colors.background },
+          ]}
+        >
           <Appbar.Header>
-            <Appbar.BackAction onPress={() => router.push({ pathname: '/course-details/[id]', params: { id: String(id) } })} />
+            <Appbar.BackAction onPress={() => router.back()} />
             <Appbar.Content title="Course Topics" />
           </Appbar.Header>
           <View style={styles.centerContainer}>
@@ -339,21 +375,26 @@ export default function CourseTopicsListScreen() {
   if (error || (!loading && topics.length === 0)) {
     return (
       <AuthGuard>
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: theme.colors.background },
+          ]}
+        >
           <Appbar.Header>
-            <Appbar.BackAction onPress={() => router.push({ pathname: '/course-details/[id]', params: { id: String(id) } })} />
+            <Appbar.BackAction onPress={() => router.back()} />
             <Appbar.Content title="Course Topics" />
           </Appbar.Header>
           <View style={styles.centerContainer}>
             <Text variant="headlineSmall" style={styles.errorTitle}>
-              {error ? 'Error Loading Topics' : 'No Topics Available'}
+              {error ? "Error Loading Topics" : "No Topics Available"}
             </Text>
             <Text variant="bodyMedium" style={styles.errorMessage}>
-              {error || 'This course doesn\'t have any topics yet.'}
+              {error || "This course doesn't have any topics yet."}
             </Text>
             <Button
               mode="outlined"
-              onPress={() => router.push({ pathname: '/course-details/[id]', params: { id: String(id) } })}
+              onPress={() => router.back()}
               style={styles.backButton}
             >
               Back to Course
@@ -366,12 +407,14 @@ export default function CourseTopicsListScreen() {
 
   return (
     <AuthGuard>
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.push({ pathname: '/course-details/[id]', params: { id: String(id) } })} />
+          <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Course Topics" />
-          <Appbar.Action 
-            icon="sort" 
+          <Appbar.Action
+            icon="sort"
             onPress={() => setShowFiltersModal(true)}
           />
         </Appbar.Header>
@@ -381,7 +424,7 @@ export default function CourseTopicsListScreen() {
           <Searchbar
             placeholder="Search topics..."
             value={filters.searchQuery}
-            onChangeText={(query) => updateFilter('searchQuery', query)}
+            onChangeText={(query) => updateFilter("searchQuery", query)}
             style={styles.searchBar}
           />
         </Surface>
@@ -391,7 +434,8 @@ export default function CourseTopicsListScreen() {
           <Surface style={styles.filtersContainer}>
             <View style={styles.activeFiltersRow}>
               <Text variant="bodySmall" style={styles.filtersLabel}>
-                {getActiveFiltersCount()} filter{getActiveFiltersCount() > 1 ? 's' : ''} active
+                {getActiveFiltersCount()} filter
+                {getActiveFiltersCount() > 1 ? "s" : ""} active
               </Text>
               <Button
                 mode="text"
@@ -403,22 +447,27 @@ export default function CourseTopicsListScreen() {
               </Button>
             </View>
             <View style={styles.activeFiltersChips}>
-              {filters.sortBy !== 'order' && (
-                <Chip 
+              {filters.sortBy !== "order" && (
+                <Chip
                   mode="flat"
-                  onClose={() => updateFilter('sortBy', 'order')}
+                  onClose={() => updateFilter("sortBy", "order")}
                   style={styles.activeFilterChip}
                 >
-                  Sort: {SORT_OPTIONS.find(opt => opt.value === filters.sortBy)?.label}
+                  Sort:{" "}
+                  {
+                    SORT_OPTIONS.find((opt) => opt.value === filters.sortBy)
+                      ?.label
+                  }
                 </Chip>
               )}
-              {filters.sortOrder !== 'asc' && (
-                <Chip 
+              {filters.sortOrder !== "asc" && (
+                <Chip
                   mode="flat"
-                  onClose={() => updateFilter('sortOrder', 'asc')}
+                  onClose={() => updateFilter("sortOrder", "asc")}
                   style={styles.activeFilterChip}
                 >
-                  Order: {filters.sortOrder === 'desc' ? 'Descending' : 'Ascending'}
+                  Order:{" "}
+                  {filters.sortOrder === "desc" ? "Descending" : "Ascending"}
                 </Chip>
               )}
             </View>
@@ -429,10 +478,11 @@ export default function CourseTopicsListScreen() {
         <View style={styles.listContainer}>
           <View style={styles.listHeader}>
             <Text variant="titleMedium">
-              {filteredTopics.length} topic{filteredTopics.length !== 1 ? 's' : ''}
+              {filteredTopics.length} topic
+              {filteredTopics.length !== 1 ? "s" : ""}
             </Text>
           </View>
-          
+
           <FlatList
             data={filteredTopics}
             renderItem={renderTopicItem}
@@ -462,12 +512,15 @@ export default function CourseTopicsListScreen() {
           <Modal
             visible={showFiltersModal}
             onDismiss={() => setShowFiltersModal(false)}
-            contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
+            contentContainerStyle={[
+              styles.modalContainer,
+              { backgroundColor: theme.colors.surface },
+            ]}
           >
             <Text variant="headlineSmall" style={styles.modalTitle}>
               Sort Topics
             </Text>
-            
+
             <Divider style={styles.modalDivider} />
 
             {/* Sort By */}
@@ -478,9 +531,9 @@ export default function CourseTopicsListScreen() {
               {SORT_OPTIONS.map((option) => (
                 <Chip
                   key={option.value}
-                  mode={filters.sortBy === option.value ? 'flat' : 'outlined'}
+                  mode={filters.sortBy === option.value ? "flat" : "outlined"}
                   selected={filters.sortBy === option.value}
-                  onPress={() => updateFilter('sortBy', option.value as any)}
+                  onPress={() => updateFilter("sortBy", option.value as any)}
                   style={styles.filterChip}
                 >
                   {option.label}
@@ -494,17 +547,17 @@ export default function CourseTopicsListScreen() {
             </Text>
             <View style={styles.filterOptionsContainer}>
               <Chip
-                mode={filters.sortOrder === 'asc' ? 'flat' : 'outlined'}
-                selected={filters.sortOrder === 'asc'}
-                onPress={() => updateFilter('sortOrder', 'asc')}
+                mode={filters.sortOrder === "asc" ? "flat" : "outlined"}
+                selected={filters.sortOrder === "asc"}
+                onPress={() => updateFilter("sortOrder", "asc")}
                 style={styles.filterChip}
               >
                 Ascending
               </Chip>
               <Chip
-                mode={filters.sortOrder === 'desc' ? 'flat' : 'outlined'}
-                selected={filters.sortOrder === 'desc'}
-                onPress={() => updateFilter('sortOrder', 'desc')}
+                mode={filters.sortOrder === "desc" ? "flat" : "outlined"}
+                selected={filters.sortOrder === "desc"}
+                onPress={() => updateFilter("sortOrder", "desc")}
                 style={styles.filterChip}
               >
                 Descending
@@ -548,19 +601,19 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 24,
   },
   loadingText: {
     marginTop: 16,
   },
   errorTitle: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 8,
   },
   errorMessage: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 24,
     opacity: 0.7,
   },
@@ -581,9 +634,9 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   activeFiltersRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 8,
   },
   filtersLabel: {
@@ -593,8 +646,8 @@ const styles = StyleSheet.create({
     marginRight: -8,
   },
   activeFiltersChips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   activeFilterChip: {
@@ -607,7 +660,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   listContent: {
     padding: 16,
@@ -618,27 +671,27 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   topicHeader: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 12,
   },
   topicOrder: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#E3F2FD',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#E3F2FD",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 16,
   },
   orderNumber: {
-    fontWeight: 'bold',
-    color: '#1976D2',
+    fontWeight: "bold",
+    color: "#1976D2",
   },
   topicInfo: {
     flex: 1,
   },
   topicTitle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 4,
   },
   topicDescription: {
@@ -649,8 +702,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   metadataRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   metadataChip: {
@@ -660,7 +713,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   objectivesLabel: {
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 4,
   },
   objectivesList: {
@@ -672,43 +725,43 @@ const styles = StyleSheet.create({
   },
   moreObjectivesText: {
     opacity: 0.6,
-    fontStyle: 'italic',
+    fontStyle: "italic",
     marginTop: 2,
   },
   progressContainer: {
     marginBottom: 8,
   },
   progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 4,
   },
   progressLabel: {
     opacity: 0.7,
   },
   progressPercentage: {
-    fontWeight: '600',
+    fontWeight: "600",
   },
   progressBar: {
     height: 6,
     borderRadius: 3,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   progressFill: {
-    height: '100%',
+    height: "100%",
     borderRadius: 3,
   },
   statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 8,
   },
   statText: {
     opacity: 0.6,
   },
   fab: {
-    position: 'absolute',
+    position: "absolute",
     margin: 16,
     right: 0,
     bottom: 0,
@@ -717,10 +770,10 @@ const styles = StyleSheet.create({
     margin: 20,
     padding: 20,
     borderRadius: 8,
-    maxHeight: '70%',
+    maxHeight: "70%",
   },
   modalTitle: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 16,
   },
   modalDivider: {
@@ -731,8 +784,8 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   filterOptionsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
     marginBottom: 8,
   },
@@ -740,8 +793,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginTop: 24,
   },
   modalButton: {
