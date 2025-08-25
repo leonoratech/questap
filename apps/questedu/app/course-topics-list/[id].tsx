@@ -10,11 +10,10 @@ import {
   Divider,
   Modal,
   Portal,
-  Searchbar,
   Snackbar,
   Surface,
   Text,
-  useTheme,
+  useTheme
 } from "react-native-paper";
 import AuthGuard from "../../components/AuthGuard";
 import { getCourseTopics } from "../../lib/course-learning-service";
@@ -296,7 +295,7 @@ export default function CourseTopicsListScreen() {
         )}
 
         {/* Progress Bar (placeholder - would need actual progress data) */}
-        <View style={styles.progressContainer}>
+        {/* <View style={styles.progressContainer}>
           <View style={styles.progressHeader}>
             <Text variant="bodySmall" style={styles.progressLabel}>
               Progress
@@ -321,7 +320,7 @@ export default function CourseTopicsListScreen() {
               ]}
             />
           </View>
-        </View>
+        </View> */}
 
         {/* Topic Stats */}
         {(item.viewCount || item.averageWatchTime) && (
@@ -413,21 +412,21 @@ export default function CourseTopicsListScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Course Topics" />
-          <Appbar.Action
+          {/* <Appbar.Action
             icon="sort"
             onPress={() => setShowFiltersModal(true)}
-          />
+          /> */}
         </Appbar.Header>
 
         {/* Search Bar */}
-        <Surface style={styles.searchContainer}>
+        {/* <Surface style={styles.searchContainer}>
           <Searchbar
             placeholder="Search topics..."
             value={filters.searchQuery}
             onChangeText={(query) => updateFilter("searchQuery", query)}
             style={styles.searchBar}
           />
-        </Surface>
+        </Surface> */}
 
         {/* Active Filters */}
         {getActiveFiltersCount() > 0 && (

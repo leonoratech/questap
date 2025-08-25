@@ -220,9 +220,9 @@ export default function FeaturedTab() {
     return count;
   };
 
-  // const handleCourseDetails = (courseId: string) => {
-  //   router.push(`/course-details/${courseId}`);
-  // };
+  const handleCourseDetails = (courseId: string) => {
+    router.push(`/course-details/${courseId}`);
+  };
 
   const handleContinueCourse = (courseId: string) => {
     // TODO: Navigate to course learning screen
@@ -253,6 +253,9 @@ export default function FeaturedTab() {
         </Text>
       </Card.Content>
       <Card.Actions>
+        <Button onPress={() => handleCourseDetails(item.id!)}>
+          Details
+        </Button>
         <Button
           mode="outlined"
           onPress={() =>
