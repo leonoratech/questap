@@ -52,8 +52,12 @@ const MARKS_RANGES = [
 ];
 
 export default function CourseQuestionsListScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const params: any = useLocalSearchParams();
+  const params = useLocalSearchParams<{ id: string; topic?: string; marks?: string; type?: string; searchQuery?: string }>();
+  const id = String(params.id);
+  const incomingTopic = params.topic as string | undefined;
+  const incomingMarks = params.marks as string | undefined;
+  const incomingType = params.type as string | undefined;
+  const incomingSearch = params.searchQuery as string | undefined;
   const router = useRouter();
   const theme = useTheme();
 
@@ -157,21 +161,30 @@ export default function CourseQuestionsListScreen() {
 
   useEffect(() => {
     if (!id) return;
-    // Initialize filters from route params if present
-    const incomingTopic = (params as any)?.topic;
-    const incomingMarks = (params as any)?.marks;
-    const incomingType = (params as any)?.type;
-    const incomingSearch = (params as any)?.searchQuery;
-    setFilters((prev) => ({
-      ...prev,
-      topic: incomingTopic ?? prev.topic,
-      marks: incomingMarks ?? prev.marks,
-      type: incomingType ?? prev.type,
-      searchQuery: incomingSearch ?? prev.searchQuery,
-    }));
+    // Initialize filters from route params if present — only update if something actually changed
+    setFilters((prev) => {
+      const next = {
+        ...prev,
+        topic: incomingTopic ?? prev.topic,
+        marks: incomingMarks ?? prev.marks,
+        type: incomingType ?? prev.type,
+        searchQuery: incomingSearch ?? prev.searchQuery,
+      };
+
+      // avoid unnecessary state updates which can cause effect loops
+      if (
+        prev.topic === next.topic &&
+        prev.marks === next.marks &&
+        prev.type === next.type &&
+        prev.searchQuery === next.searchQuery
+      ) {
+        return prev;
+      }
+      return next;
+    });
 
     loadQuestionsData();
-  }, [id, loadQuestionsData, params]);
+  }, [id, loadQuestionsData, incomingTopic, incomingMarks, incomingType, incomingSearch]);
 
   useEffect(() => {
     applyFilters();
@@ -286,18 +299,37 @@ export default function CourseQuestionsListScreen() {
   );
 
   const navigateToQuestionBank = (questionId?: string) => {
+    const params = {
+      id: String(id),
+      // forward active filters so question bank + back navigation keep context
+      topic: filters.topic !== "all" ? filters.topic : undefined,
+      marks: filters.marks !== "all" ? filters.marks : undefined,
+      type: filters.type !== "all" ? filters.type : undefined,
+      searchQuery: filters.searchQuery || undefined,
+    } as const;
+
     if (questionId) {
       // Navigate to specific question in the question bank
       router.push({
         pathname: "/course-question-bank/[id]",
-        params: { id: String(id), questionId },
+        params: { ...params, questionId: String(questionId) },
       });
     } else {
       // Navigate to question bank with all questions
+  router.push({ pathname: "/course-question-bank/[id]", params });
+    }
+  };
+
+  // Back handler: if this screen was opened with a topic param, return to that
+  // topic details screen; otherwise fall back to router.back()
+  const goBack = () => {
+    if (incomingTopic) {
       router.push({
-        pathname: "/course-question-bank/[id]",
-        params: { id: String(id) },
+        pathname: '/course-topic-details/[courseId]/[topicId]',
+        params: { courseId: String(id), topicId: String(incomingTopic) },
       });
+    } else {
+      router.back();
     }
   };
 
@@ -320,7 +352,7 @@ export default function CourseQuestionsListScreen() {
           ]}
         >
           <Appbar.Header>
-            <Appbar.BackAction onPress={() => router.back()} />
+            <Appbar.BackAction onPress={goBack} />
             <Appbar.Content title="Questions List" />
           </Appbar.Header>
           <View style={styles.centerContainer}>
@@ -342,7 +374,7 @@ export default function CourseQuestionsListScreen() {
           ]}
         >
           <Appbar.Header>
-            <Appbar.BackAction onPress={() => router.back()} />
+            <Appbar.BackAction onPress={goBack} />
             <Appbar.Content title="Questions List" />
           </Appbar.Header>
           <View style={styles.centerContainer}>
@@ -376,7 +408,7 @@ export default function CourseQuestionsListScreen() {
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
         <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
+          <Appbar.BackAction onPress={goBack} />
           <Appbar.Content title="Questions List" />
           <Appbar.Action
             icon="filter-variant"

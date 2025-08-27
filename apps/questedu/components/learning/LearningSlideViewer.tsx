@@ -42,12 +42,26 @@ export const LearningSlideViewer: React.FC<LearningSlideViewerProps> = ({
   readOnly = false // Default to false
 }) => {
   const theme = useTheme();
-  const [activeIndex, setActiveIndex] = useState(currentIndex);
+  const [activeIndex, setActiveIndex] = useState(() => {
+    // ensure initial index is within bounds
+    if (slides.length === 0) return 0;
+    return Math.min(Math.max(0, currentIndex), Math.max(0, slides.length - 1));
+  });
 
-  // Update activeIndex when currentIndex changes externally
+  // Update activeIndex when currentIndex or slides length changes externally
   React.useEffect(() => {
-    setActiveIndex(currentIndex);
-  }, [currentIndex]);
+    const maxIndex = slides.length > 0 ? slides.length - 1 : 0;
+    const nextIndex = Math.min(Math.max(0, currentIndex), maxIndex);
+    setActiveIndex((prev) => {
+      if (prev !== nextIndex) {
+        // inform parent only when we actually change the index
+        onSlideChange(nextIndex);
+        return nextIndex;
+      }
+      return prev;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, slides.length]);
 
   const goToSlide = useCallback((index: number) => {
     if (index >= 0 && index < slides.length) {

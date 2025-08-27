@@ -2,11 +2,11 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, Image, RefreshControl, StyleSheet, View } from "react-native";
 import {
-    ActivityIndicator,
-    Button,
-    Card,
-    Text,
-    useTheme,
+  ActivityIndicator,
+  Button,
+  Card,
+  Text,
+  useTheme,
 } from "react-native-paper";
 import { useEnrollment } from "../../hooks/useEnrollment";
 import { Course } from "../../lib/course-service";
@@ -111,7 +111,7 @@ export default function MyLearningTab() {
               })
             }
           >
-            Question Bank
+            Q&A
           </Button>
         </Card.Actions>
       </Card.Actions>

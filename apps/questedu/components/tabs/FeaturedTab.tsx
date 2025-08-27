@@ -268,7 +268,7 @@ export default function FeaturedTab() {
             })
           }
         >
-          Question Bank
+          Q&A
         </Button>
         {/* <Button onPress={() => handleCourseDetails(item.id!)}>Details</Button> */}
       </Card.Actions>
