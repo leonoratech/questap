@@ -195,11 +195,8 @@ export default function CourseTopicsListScreen() {
   };
 
   const navigateToTopicDetails = (topicId: string) => {
-    // Navigate to topic details or learning screen
-    router.push({
-      pathname: "/course-learning/[id]",
-      params: { id: String(id), topicId },
-    });
+    // Navigate to topic details screen (no sliding navigation here)
+    router.push(`/course-topic-details/${id}/${topicId}`);
   };
 
   const renderTopicItem = ({

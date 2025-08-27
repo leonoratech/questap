@@ -4,27 +4,27 @@
  */
 
 import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  orderBy,
-  query,
-  serverTimestamp,
-  setDoc,
-  updateDoc,
-  where
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    orderBy,
+    query,
+    serverTimestamp,
+    setDoc,
+    updateDoc,
+    where
 } from 'firebase/firestore';
 import {
-  CourseQuestion,
-  CourseTopic,
-  LearningData,
-  LearningSession,
-  LearningSlide,
-  ProgressUpdateData,
-  SlideType,
-  calculateOverallProgress,
-  getNextIncompleteSlide
+    CourseQuestion,
+    CourseTopic,
+    LearningData,
+    LearningSession,
+    LearningSlide,
+    ProgressUpdateData,
+    SlideType,
+    calculateOverallProgress,
+    getNextIncompleteSlide
 } from '../types/learning';
 import { getFirebaseAuth, getFirestoreDb } from './firebase-config';
 
@@ -90,6 +90,65 @@ export const getCourseTopics = async (courseId: string): Promise<CourseTopic[]> 
   } catch (error) {
     console.error('Error fetching course topics:', error);
     return [];
+  }
+};
+
+/**
+ * Get a single topic by id
+ */
+export const getTopicById = async (courseId: string, topicId: string): Promise<CourseTopic | null> => {
+  try {
+    console.log('Fetching topic by id:', topicId, 'for course:', courseId);
+    const db = getFirestoreDb();
+    const topicRef = doc(db, 'courseTopics', topicId);
+    const topicSnap = await getDoc(topicRef);
+
+    if (!topicSnap.exists()) {
+      console.warn('Topic not found:', topicId);
+      return null;
+    }
+
+    const data = topicSnap.data();
+
+    // Verify it belongs to the requested course and is published
+    if (data.courseId !== courseId) {
+      console.warn('Topic courseId mismatch:', data.courseId, 'expected:', courseId);
+      return null;
+    }
+
+    if (data.isPublished === false) {
+      console.warn('Topic is not published:', topicId);
+      return null;
+    }
+
+    const topic: CourseTopic = {
+      id: topicSnap.id,
+      courseId: data.courseId,
+      title: data.title || '',
+      description: data.description,
+      order: data.order || 0,
+      duration: data.duration,
+      videoUrl: data.videoUrl,
+      videoLength: data.videoLength,
+      materials: data.materials || [],
+      isPublished: data.isPublished !== false,
+      isFree: data.isFree || false,
+      prerequisites: data.prerequisites || [],
+      learningObjectives: data.learningObjectives || [],
+      summary: data.summary,
+      transcription: data.transcription,
+      notes: data.notes,
+      completionRate: data.completionRate || 0,
+      averageWatchTime: data.averageWatchTime,
+      viewCount: data.viewCount || 0,
+      createdAt: convertTimestamp(data.createdAt),
+      updatedAt: convertTimestamp(data.updatedAt)
+    };
+
+    return topic;
+  } catch (error) {
+    console.error('Error fetching topic by id:', error);
+    return null;
   }
 };
 

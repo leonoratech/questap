@@ -1,13 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import {
   ActivityIndicator,
   Appbar,
   Avatar,
   Button,
   Card,
-  Chip,
   Dialog,
   Portal,
   Snackbar,
@@ -204,9 +203,11 @@ export default function CourseDetailsScreen() {
         >
           {/* Course Header */}
           <Card style={styles.headerCard}>
-            <Card.Cover source={{ uri: course.image || course.courseImage }} />
+            <View style={[styles.imageContainer, { backgroundColor: theme.colors.background }]}>
+              <Image source={{ uri: course.image || course.courseImage }} style={styles.courseImage} resizeMode="contain" />
+            </View>
             <Card.Content style={styles.headerContent}>
-              <View style={styles.chipContainer}>
+              {/* <View style={styles.chipContainer}>
                 <Chip style={styles.chip} mode="outlined">
                   {course.category}
                 </Chip>
@@ -223,7 +224,7 @@ export default function CourseDetailsScreen() {
                     Featured
                   </Chip>
                 )}
-              </View>
+              </View> */}
               
               <Text variant="headlineSmall" style={styles.title}>
                 {course.title}
@@ -277,7 +278,7 @@ export default function CourseDetailsScreen() {
               </View>
               
               {/* Additional course stats */}
-              {(course.videosCount || course.articlesCount) && (
+              {/* {(course.videosCount || course.articlesCount) && (
                 <View style={[styles.statsGrid, { marginTop: 12 }]}>
                   {course.videosCount && (
                     <View style={styles.statItem}>
@@ -320,7 +321,7 @@ export default function CourseDetailsScreen() {
                     </View>
                   )}
                 </View>
-              )}
+              )} */}
             </Card.Content>
           </Card>
 
@@ -350,7 +351,7 @@ export default function CourseDetailsScreen() {
           )} */}
 
           {/* What You'll Learn Section */}
-          {course.whatYouWillLearn?.length && (
+          {/* {course.whatYouWillLearn?.length && (
             <Card style={styles.learningCard}>
               <Card.Content>
                 <Text variant="titleMedium" style={styles.sectionTitle}>
@@ -368,10 +369,10 @@ export default function CourseDetailsScreen() {
                 </View>
               </Card.Content>
             </Card>
-          )}
+          )} */}
 
           {/* Target Audience Section */}
-          {course.targetAudience?.length && (
+          {/* {course.targetAudience?.length && (
             <Card style={styles.audienceCard}>
               <Card.Content>
                 <Text variant="titleMedium" style={styles.sectionTitle}>
@@ -389,7 +390,7 @@ export default function CourseDetailsScreen() {
                 </View>
               </Card.Content>
             </Card>
-          )}
+          )} */}
 
           {/* Instructor */}
           <Card style={styles.instructorCard}>
@@ -416,7 +417,7 @@ export default function CourseDetailsScreen() {
           </Card>
 
           {/* Skills & Tags */}
-          {(course.skills?.length || course.tags?.length) && (
+          {/* {(course.skills?.length || course.tags?.length) && (
             <Card style={styles.skillsCard}>
               <Card.Content>
                 {course.skills?.length && (
@@ -450,10 +451,10 @@ export default function CourseDetailsScreen() {
                 )}
               </Card.Content>
             </Card>
-          )}
+          )} */}
 
           {/* Prerequisites */}
-          {course.prerequisites?.length && (
+          {/* {course.prerequisites?.length && (
             <Card style={styles.prerequisitesCard}>
               <Card.Content>
                 <Text variant="titleMedium" style={styles.sectionTitle}>
@@ -466,7 +467,7 @@ export default function CourseDetailsScreen() {
                 ))}
               </Card.Content>
             </Card>
-          )}
+          )} */}
 
           {/* Enrollment */}
           <Card style={styles.enrollmentCard}>
@@ -573,6 +574,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 16,
     marginBottom: 8,
+  },
+  imageContainer: {
+    width: '100%',
+    height: 220,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  courseImage: {
+    width: '100%',
+    height: '100%',
   },
   headerContent: {
     paddingTop: 16,

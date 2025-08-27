@@ -488,7 +488,7 @@ export default function CourseQuestionsListScreen() {
               >
                 All Topics
               </Chip>
-              {topics.map((topic) => (
+              {/* {topics.map((topic) => (
                 <Chip
                   key={topic.id}
                   mode={filters.topic === topic.id ? "flat" : "outlined"}
@@ -498,7 +498,7 @@ export default function CourseQuestionsListScreen() {
                 >
                   {topic.title}
                 </Chip>
-              ))}
+              ))} */}
             </View>
 
             {/* Type Filter */}

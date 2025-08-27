@@ -1,12 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  FlatList,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { FlatList, Image, RefreshControl, ScrollView, StyleSheet, View, } from "react-native";
 import {
   ActivityIndicator,
   Button,
@@ -231,19 +225,14 @@ export default function FeaturedTab() {
 
   const renderCourseItem = ({ item }: { item: Course }) => (
     <Card style={styles.courseCard}>
-      <Card.Cover source={{ uri: item.image }} />
+      <View style={[styles.imageContainer, { backgroundColor: theme.colors.background }]}>
+        <Image source={{ uri: item.image }} style={styles.courseImage} resizeMode="contain" />
+      </View>
       <Card.Content>
         <View style={styles.titleRow}>
-          <Text variant="titleMedium" style={styles.courseTitle}>
+          <Text variant="titleMedium" style={[styles.courseTitle, { color: theme.colors.onSurface }]}>
             {item.title}
           </Text>
-          {item.associations &&
-            item.associations.length > 0 &&
-            item.associations[0].subjectName && (
-              <Text style={styles.subjectChip}>
-                {item.associations[0].subjectName}
-              </Text>
-            )}
           {item.language && (
             <Text style={styles.languageChip}>{item.language}</Text>
           )}
@@ -578,7 +567,6 @@ const styles = StyleSheet.create({
   courseTitle: {
     fontWeight: "bold",
     fontSize: 18,
-    color: "#fff",
   },
   subjectChip: {
     backgroundColor: "#1976D2",
@@ -660,6 +648,17 @@ const styles = StyleSheet.create({
   },
   courseCard: {
     marginBottom: 16,
+  },
+  imageContainer: {
+    width: "100%",
+    height: 180,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  courseImage: {
+    width: "100%",
+    height: "100%",
   },
   courseDetailsContainer: {
     marginVertical: 8,

@@ -1,12 +1,12 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
+import { FlatList, Image, RefreshControl, StyleSheet, View } from "react-native";
 import {
-  ActivityIndicator,
-  Button,
-  Card,
-  Text,
-  useTheme,
+    ActivityIndicator,
+    Button,
+    Card,
+    Text,
+    useTheme,
 } from "react-native-paper";
 import { useEnrollment } from "../../hooks/useEnrollment";
 import { Course } from "../../lib/course-service";
@@ -63,7 +63,9 @@ export default function MyLearningTab() {
 
   const renderCourseItem = ({ item }: { item: Course }) => (
     <Card style={styles.courseCard}>
-      <Card.Cover source={{ uri: item.image }} />
+      <View style={[styles.imageContainer, { backgroundColor: theme.colors.background }]}>
+        <Image source={{ uri: item.image }} style={styles.courseImage} resizeMode="contain" />
+      </View>
       <Card.Content>
         <View style={styles.titleRow}>
           <Text variant="titleMedium" style={styles.courseTitle}>
@@ -225,6 +227,17 @@ const styles = StyleSheet.create({
   },
   courseCard: {
     marginBottom: 16,
+  },
+  imageContainer: {
+    width: "100%",
+    height: 140,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  courseImage: {
+    width: "100%",
+    height: "100%",
   },
   courseDetailsContainer: {
     marginVertical: 8,
