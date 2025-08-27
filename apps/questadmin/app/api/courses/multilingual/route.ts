@@ -98,12 +98,12 @@ export async function POST(request: NextRequest) {
       featured: false
     }
 
-    console.log('Creating multilingual course with data:', {
-      title: newCourse.title,
-      primaryLanguage: newCourse.primaryLanguage,
-      supportedLanguages: newCourse.supportedLanguages,
-      enableTranslation: newCourse.enableTranslation
-    })
+    // console.log('Creating multilingual course with data:', {
+    //   title: newCourse.title,
+    //   primaryLanguage: newCourse.primaryLanguage,
+    //   supportedLanguages: newCourse.supportedLanguages,
+    //   enableTranslation: newCourse.enableTranslation
+    // })
 
     const docRef = await addDoc(collection(serverDb, 'courses'), newCourse)
     

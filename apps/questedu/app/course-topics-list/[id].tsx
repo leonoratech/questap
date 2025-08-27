@@ -96,7 +96,7 @@ export default function CourseTopicsListScreen() {
         ) {
           errorMessage = "Please log in to view course topics";
         } else if (err.message.includes("permission")) {
-          errorMessage = "You don't have permission to view these topics";
+          errorMessage = "You don&apos;t have permission to view these topics";
         } else {
           errorMessage = `Failed to load topics: ${err.message}`;
         }

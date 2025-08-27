@@ -528,7 +528,7 @@ export default function CourseDetailsScreen() {
             <Dialog.Title>Enroll in Course</Dialog.Title>
             <Dialog.Content>
               <Text variant="bodyMedium">
-                Do you want to enroll in "{course?.title}"?                
+                Do you want to enroll in &quot;{course?.title}&quot;?                
               </Text>
             </Dialog.Content>
             <Dialog.Actions>

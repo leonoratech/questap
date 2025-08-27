@@ -16,6 +16,14 @@ import { getTopicById } from '../../../lib/course-learning-service';
 import { getCourseById } from '../../../lib/course-service';
 import { CourseTopic, formatLearningTime } from '../../../types/learning';
 
+const MARKS_RANGES = [
+  { value: 'all', label: 'All Marks' },
+  { value: '1', label: '1 Mark' },
+  { value: '2', label: '2 Marks' },
+  { value: '3-5', label: '3-5 Marks' },
+  { value: '6+', label: '6+ Marks' },
+];
+
 export default function TopicDetailsScreen() {
   const { courseId, topicId, courseTitle: courseTitleParam, subjectName: subjectNameParam } = useLocalSearchParams<{ courseId: string; topicId: string; courseTitle?: string; subjectName?: string }>();
   const router = useRouter();
@@ -34,7 +42,7 @@ export default function TopicDetailsScreen() {
       if (typeof value.toDate === 'function') {
         return value.toDate().toLocaleString();
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
     if (value instanceof Date) return value.toLocaleString();
@@ -83,7 +91,7 @@ export default function TopicDetailsScreen() {
         setLoading(false);
       }
     })();
-  }, [courseId, topicId]);
+  }, [courseId, topicId, courseTitleParam, subjectNameParam]);
 
   if (loading) {
     return (
@@ -131,6 +139,9 @@ export default function TopicDetailsScreen() {
         <ScrollView contentContainerStyle={styles.content}>
           <Card style={styles.card}>
             <Card.Content>
+              {/* Show full topic title inside content so it's visible even if appbar truncates */}
+              <Text variant="headlineSmall" style={styles.topicTitle}>{topic.title}</Text>
+
               {topic.description && (
                 <Text variant="bodyMedium" style={styles.description}>{topic.description}</Text>
               )}
@@ -219,6 +230,20 @@ export default function TopicDetailsScreen() {
               </View>
 
               <View style={{ marginTop: 20 }}>
+                <Text variant="titleMedium" style={{ marginBottom: 8 }}>Question Bank Filters</Text>
+                <View style={styles.filterChipsRow}>
+                  {MARKS_RANGES.map((r) => (
+                    <Chip
+                      key={r.value}
+                      mode={r.value === 'all' ? 'outlined' : 'outlined'}
+                      onPress={() => router.push({ pathname: '/course-questions-list/[id]', params: { id: String(courseId), topic: String(topicId), marks: String(r.value) } })}
+                      style={{ marginRight: 8, marginBottom: 8 }}
+                    >
+                      {r.label}
+                    </Chip>
+                  ))}
+                </View>
+
                 <Button mode="text" onPress={() => router.push(`/course-topics-list/${courseId}`)} style={{ marginTop: 8 }}>
                   Back to Topics
                 </Button>
@@ -238,5 +263,7 @@ const styles = StyleSheet.create({
   content: { padding: 16 },
   card: { elevation: 2 },
   description: { marginBottom: 8 },
+  topicTitle: { marginBottom: 8 },
+  filterChipsRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 },
   metadataRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 8 }
 });

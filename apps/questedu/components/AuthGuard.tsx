@@ -64,7 +64,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
           <Card style={styles.unauthorizedCard}>
             <Card.Title title="Access Denied" />
             <Card.Content>
-              <Text>You don't have permission to access this content.</Text>
+              <Text>You don&apos;t have permission to access this content.</Text>
               <Text style={styles.roleText}>
                 Required role: {requiredRole}
               </Text>

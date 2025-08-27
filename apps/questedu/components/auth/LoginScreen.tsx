@@ -109,7 +109,7 @@ const LoginScreen: React.FC = () => {
 
       <Card style={styles.signupCard}>
         <Card.Content>
-          <Text style={styles.signupText}>Don't have an account?</Text>
+          <Text style={styles.signupText}>Don&apos;t have an account?</Text>
           <Button
             mode="outlined"
             onPress={handleSignUp}

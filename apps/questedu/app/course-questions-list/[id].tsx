@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import {
   ActivityIndicator,
@@ -53,6 +53,7 @@ const MARKS_RANGES = [
 
 export default function CourseQuestionsListScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const params: any = useLocalSearchParams();
   const router = useRouter();
   const theme = useTheme();
 
@@ -77,16 +78,7 @@ export default function CourseQuestionsListScreen() {
 
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 
-  useEffect(() => {
-    if (!id) return;
-    loadQuestionsData();
-  }, [id]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [questions, filters]);
-
-  const loadQuestionsData = async () => {
+  const loadQuestionsData = useCallback(async () => {
     try {
       setError(null);
       console.log("Loading questions for course:", id);
@@ -121,14 +113,9 @@ export default function CourseQuestionsListScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [id]);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadQuestionsData();
-  };
-
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...questions];
 
     // Apply topic filter
@@ -166,7 +153,38 @@ export default function CourseQuestionsListScreen() {
     }
 
     setFilteredQuestions(filtered);
+  }, [questions, filters]);
+
+  useEffect(() => {
+    if (!id) return;
+    // Initialize filters from route params if present
+    const incomingTopic = (params as any)?.topic;
+    const incomingMarks = (params as any)?.marks;
+    const incomingType = (params as any)?.type;
+    const incomingSearch = (params as any)?.searchQuery;
+    setFilters((prev) => ({
+      ...prev,
+      topic: incomingTopic ?? prev.topic,
+      marks: incomingMarks ?? prev.marks,
+      type: incomingType ?? prev.type,
+      searchQuery: incomingSearch ?? prev.searchQuery,
+    }));
+
+    loadQuestionsData();
+  }, [id, loadQuestionsData, params]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
+
+  
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadQuestionsData();
   };
+
+  
 
   const updateFilter = (key: keyof QuestionFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

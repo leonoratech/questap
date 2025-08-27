@@ -58,12 +58,12 @@ const ForgotPasswordScreen: React.FC = () => {
           <Card.Title title="Check Your Email" subtitle="Password reset instructions sent" />
           <Card.Content>
             <Text style={styles.successText}>
-              We've sent password reset instructions to:
+              We&apos;ve sent password reset instructions to:
             </Text>
             <Text style={styles.emailText}>{email}</Text>
             <Text style={styles.instructionText}>
               Please check your email and follow the instructions to reset your password.
-              If you don't see the email, check your spam folder.
+              If you don&apos;t see the email, check your spam folder.
             </Text>
 
             <Button
@@ -101,7 +101,7 @@ const ForgotPasswordScreen: React.FC = () => {
         <Card.Title title="Reset Password" subtitle="Enter your email to reset your password" />
         <Card.Content>
           <Text style={styles.instructionText}>
-            Enter the email address associated with your account and we'll send you instructions to reset your password.
+            Enter the email address associated with your account and we&apos;ll send you instructions to reset your password.
           </Text>
 
           <TextInput

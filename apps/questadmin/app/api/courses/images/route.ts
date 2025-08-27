@@ -163,10 +163,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     );
 
-    console.log('Upload successful, returning result:', result);
+    // console.log('Upload successful, returning result:', result);
     
     const response = { data: result };
-    console.log('API response:', response);
+    // console.log('API response:', response);
     
     return NextResponse.json(response);
   } catch (error) {

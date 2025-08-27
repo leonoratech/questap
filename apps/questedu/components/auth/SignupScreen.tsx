@@ -155,9 +155,10 @@ const SignupScreen: React.FC = () => {
             }
           />
 
-          <Text style={styles.roleNote}>
-            📚 You'll be registered as a student with access to all courses and learning materials.
-          </Text>
+
+      <Text style={styles.roleNote}>
+        📚 You&apos;ll be registered as a student with access to all courses and learning materials.
+      </Text>
 
           <Button
             mode="contained"

@@ -26,12 +26,12 @@ export async function GET(request: NextRequest) {
     // browsing=true allows instructors to see all published courses (for browse-courses page)
     const browsing = url.searchParams.get('browsing') === 'true'
     
-    console.log('Fetching courses with params:', {
-      userRole: user.role,
-      instructorId: instructorId,
-      browsing: browsing,
-      hasSearch: !!search
-    })
+    // console.log('Fetching courses with params:', {
+    //   userRole: user.role,
+    //   instructorId: instructorId,
+    //   browsing: browsing,
+    //   hasSearch: !!search
+    // })
     
     // Initialize course repository
     const courseRepo = new CourseRepository()
@@ -77,13 +77,13 @@ export async function GET(request: NextRequest) {
     // Fetch courses using repository
     const courses = await courseRepo.searchCourses(filters)
 
-    console.log(`Found ${courses.length} courses for user role: ${user.role}`)
+    // console.log(`Found ${courses.length} courses for user role: ${user.role}`)
     
     // For students, ensure we're only returning published courses (double-check)
     let finalCourses = courses
     if (user.role === UserRole.STUDENT) {
       finalCourses = courses.filter(course => course.status === 'published')
-      console.log(`Filtered to ${finalCourses.length} published courses for student`)
+      // console.log(`Filtered to ${finalCourses.length} published courses for student`)
     }
 
     return NextResponse.json({
